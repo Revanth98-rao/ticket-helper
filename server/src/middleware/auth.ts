@@ -7,6 +7,27 @@ export interface AuthenticatedRequest extends Request {
   session?: typeof auth.$Infer.Session.session;
 }
 
+/**
+ * Returns trusted origins parsed from environment variables (BETTER_AUTH_TRUSTED_ORIGINS or CLIENT_URL).
+ * Eliminates any hardcoded origins in code.
+ */
+export function getTrustedOrigins(): string[] {
+  const envOrigins =
+    process.env.BETTER_AUTH_TRUSTED_ORIGINS || process.env.CLIENT_URL;
+
+  if (!envOrigins) {
+    return [];
+  }
+
+  return envOrigins
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+}
+
+/**
+ * Middleware to protect routes and verify active database session.
+ */
 export async function requireAuth(
   req: AuthenticatedRequest,
   res: Response,

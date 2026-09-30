@@ -2,6 +2,8 @@ import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
+import { toNodeHandler } from "better-auth/node";
+import { auth } from "./auth";
 
 dotenv.config();
 
@@ -14,6 +16,10 @@ app.use(
     credentials: true,
   })
 );
+
+// Better Auth route handler (mounted before express.json to preserve request stream)
+app.all("/api/auth/*", toNodeHandler(auth));
+
 app.use(express.json());
 app.use(cookieParser());
 

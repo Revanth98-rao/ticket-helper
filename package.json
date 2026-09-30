@@ -1,0 +1,20 @@
+{
+  "name": "ticket-helper",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "dev": "concurrently -k -p \"[{name}]\" -n \"SERVER,CLIENT\" -c \"cyan,magenta\" \"bun run dev:server\" \"bun run dev:client\"",
+    "dev:server": "bun run --cwd server dev",
+    "dev:client": "bun run --cwd client dev",
+    "build:server": "bun run --cwd server build",
+    "build:client": "bun run --cwd client build",
+    "build": "bun run build:server && bun run build:client"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

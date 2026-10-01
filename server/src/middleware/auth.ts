@@ -1,29 +1,13 @@
 import { Request, Response, NextFunction } from "express";
 import { fromNodeHeaders } from "better-auth/node";
-import { auth } from "../auth";
+import { auth, getTrustedOrigins } from "../auth";
 
 export interface AuthenticatedRequest extends Request {
   user?: typeof auth.$Infer.Session.user;
   session?: typeof auth.$Infer.Session.session;
 }
 
-/**
- * Returns trusted origins parsed from environment variables (BETTER_AUTH_TRUSTED_ORIGINS or CLIENT_URL).
- * Eliminates any hardcoded origins in code.
- */
-export function getTrustedOrigins(): string[] {
-  const envOrigins =
-    process.env.BETTER_AUTH_TRUSTED_ORIGINS || process.env.CLIENT_URL;
-
-  if (!envOrigins) {
-    return [];
-  }
-
-  return envOrigins
-    .split(",")
-    .map((origin) => origin.trim())
-    .filter(Boolean);
-}
+export { getTrustedOrigins };
 
 /**
  * Middleware to protect routes and verify active database session.
@@ -48,4 +32,28 @@ export async function requireAuth(
   } catch (error) {
     return res.status(500).json({ error: "Failed to authenticate session" });
   }
+}
+
+/**
+ * Middleware to enforce role-based access control (RBAC).
+ * Must be mounted after requireAuth.
+ */
+export function requireRole(allowedRoles: ("admin" | "agent")[]) {
+  return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    if (!req.user) {
+      return res.status(401).json({ error: "Unauthorized: Active session required" });
+    }
+
+    const userRole = ((req.user as any)?.role || "agent") as "admin" | "agent";
+
+    if (!allowedRoles.includes(userRole)) {
+      return res.status(403).json({
+        error: "Forbidden: Insufficient privileges",
+        requiredRoles: allowedRoles,
+        currentRole: userRole,
+      });
+    }
+
+    next();
+  };
 }

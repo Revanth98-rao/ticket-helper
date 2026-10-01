@@ -1,5 +1,5 @@
 import React from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { useSession } from "@/lib/auth-client";
 
@@ -13,6 +13,7 @@ export default function ProtectedRoute({
   allowedRoles,
 }: ProtectedRouteProps) {
   const { data: session, isPending } = useSession();
+  const location = useLocation();
 
   // Layer 0: Loading verification state
   if (isPending) {
@@ -27,9 +28,9 @@ export default function ProtectedRoute({
   }
 
   // Layer 1: Authentication protection
-  // If unauthenticated, redirect immediately to /login
+  // If unauthenticated, redirect immediately to /login and preserve attempted URL
   if (!session?.user) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
   // Layer 2: Role authorization protection

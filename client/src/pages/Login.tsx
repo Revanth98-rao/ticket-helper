@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -22,6 +22,8 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = (location.state as any)?.from?.pathname || "/";
   const { data: session, isPending: isSessionLoading } = useSession();
   const [serverError, setServerError] = useState<string | null>(null);
 
@@ -38,12 +40,12 @@ export default function Login() {
     mode: "onChange",
   });
 
-  // If user is already logged in, redirect to home
+  // If user is already logged in, redirect to home or requested path
   useEffect(() => {
     if (session?.user) {
-      navigate("/");
+      navigate(from, { replace: true });
     }
-  }, [session, navigate]);
+  }, [session, navigate, from]);
 
   const onSubmit = async (values: LoginFormData) => {
     setServerError(null);
@@ -57,7 +59,7 @@ export default function Login() {
       if (res.error) {
         setServerError(res.error.message || "Invalid email or password");
       } else {
-        navigate("/");
+        navigate(from, { replace: true });
       }
     } catch (err: any) {
       setServerError(err?.message || "Failed to connect to authentication server");

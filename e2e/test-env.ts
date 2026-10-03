@@ -9,6 +9,11 @@ export const TEST_CONFIG = {
     password: process.env.ADMIN_PASSWORD || "adminpassword123",
     name: process.env.ADMIN_NAME || "Super Admin",
   },
+  agent: {
+    email: process.env.AGENT_EMAIL || "agent@tickethelper.internal",
+    password: process.env.AGENT_PASSWORD || "agentpassword123",
+    name: process.env.AGENT_NAME || "Support Agent",
+  },
   databaseUrl:
     process.env.DATABASE_URL ||
     "postgres://postgres:postgrespassword@localhost:5432/ticket_helper_test",

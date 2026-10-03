@@ -56,3 +56,17 @@ Build an **AI-powered student ticket management system** that automatically clas
   * Roles: `admin` | `agent`
 * **AI Engine:** Vercel AI SDK (`ai`) with Google Gemini 1.5 Flash/Pro
 * **Documentation Tool:** Context7 (`ctx7`)
+
+---
+
+## 6. Testing & Quality Assurance
+* **E2E Testing Framework:** Playwright (`@playwright/test`)
+* **Database & Port Isolation:** All automated tests run against a dedicated PostgreSQL database (`ticket_helper_test`) on isolated test ports (Backend: `5001`, Frontend: `5174`), configured via `.env.test` to prevent collisions with the active development environment.
+* **Automated Test Lifecycle:**
+  * Pre-test database provisioning, Prisma migrations, and test admin seeding are automatically handled via Playwright's `globalSetup` (`scripts/setup-test-db.ts`).
+  * Backend and frontend test instances are orchestrated automatically via Playwright's `webServer` configuration.
+  * Shared test credentials and Prisma test utilities are standardized in `e2e/test-env.ts`.
+* **Test Writing Ownership:**
+  * Writing, maintaining, and updating all E2E test suites is **strictly delegated to the E2E Test Writer agent**.
+  * When creating new test specifications, validating user journeys (e.g., authentication, role-based access, ticket review), or expanding test coverage, direct the task to the **E2E Test Writer agent**.
+

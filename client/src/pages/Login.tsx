@@ -107,7 +107,10 @@ export default function Login() {
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
           <div>
-            <label className="block text-xs font-medium text-slate-300 uppercase tracking-wider mb-2">
+            <label
+              htmlFor="email"
+              className="block text-xs font-medium text-slate-300 uppercase tracking-wider mb-2"
+            >
               Email Address
             </label>
             <div className="relative">
@@ -119,7 +122,8 @@ export default function Login() {
                 />
               </div>
               <input
-                type="text"
+                id="email"
+                type="email"
                 {...register("email")}
                 placeholder="admin@example.com"
                 className={`w-full pl-10 pr-4 py-2.5 bg-slate-800/80 rounded-lg text-white placeholder-slate-500 text-sm focus:outline-none transition-all ${
@@ -137,7 +141,10 @@ export default function Login() {
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-300 uppercase tracking-wider mb-2">
+            <label
+              htmlFor="password"
+              className="block text-xs font-medium text-slate-300 uppercase tracking-wider mb-2"
+            >
               Password
             </label>
             <div className="relative">
@@ -149,6 +156,7 @@ export default function Login() {
                 />
               </div>
               <input
+                id="password"
                 type="password"
                 {...register("password")}
                 placeholder="••••••••••••"

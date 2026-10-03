@@ -48,6 +48,19 @@ app.all("/api/auth/*", toNodeHandler(auth));
 app.use(express.json());
 app.use(cookieParser());
 
+// Root endpoint
+app.get("/", (_req: Request, res: Response) => {
+  res.json({
+    message: "Ticket Helper API Server is running",
+    status: "ok",
+    docs: {
+      health: "/api/health",
+      auth: "/api/auth",
+    },
+    clientUrl: process.env.CLIENT_URL || "http://localhost:5173",
+  });
+});
+
 // Health Check
 app.get("/api/health", (_req: Request, res: Response) => {
   res.json({

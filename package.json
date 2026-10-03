@@ -12,9 +12,19 @@
     "dev:client": "bun run --cwd client dev",
     "build:server": "bun run --cwd server build",
     "build:client": "bun run --cwd client build",
-    "build": "bun run build:server && bun run build:client"
+    "build": "bun run build:server && bun run build:client",
+    "db:studio": "bun prisma studio --schema=server/prisma/schema.prisma",
+    "test:db:setup": "node ./scripts/setup-test-db.cjs",
+    "test:db:teardown": "node ./scripts/teardown-test-db.cjs",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
   },
   "devDependencies": {
-    "concurrently": "^9.1.2"
+    "@playwright/test": "^1.63.0",
+    "@types/pg": "^8.23.1",
+    "concurrently": "^9.1.2",
+    "dotenv": "^18.0.5",
+    "pg": "^8.23.1",
+    "prisma": "6.4.1"
   }
 }

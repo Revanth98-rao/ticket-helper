@@ -1,4 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { api } from "../lib/axios";
 
 export interface UserItem {
   id: string;
@@ -53,5 +54,24 @@ export function useUsers(role: "all" | "admin" | "agent" = "all") {
   return useQuery({
     queryKey: ["users", { role }],
     queryFn: () => fetchUsersApi(role),
+  });
+}
+
+export interface CreateUserInput {
+  name: string;
+  email: string;
+  password: string;
+}
+
+export function useCreateUser() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: CreateUserInput) => {
+      const response = await api.post<{ user: UserItem; message: string }>("/users", input);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+    },
   });
 }

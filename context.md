@@ -1,7 +1,9 @@
 # TicketHelper — Project Context & Current State
 
 ## 1. Application Overview
+
 **TicketHelper** (branded as **TicketHelperStudent**) is an AI-powered student ticket management platform built with:
+
 - **Backend:** Express + Bun + TypeScript
 - **Frontend:** React 18 + Vite + TypeScript + Tailwind CSS (v3) + shadcn/ui
 - **Database:** PostgreSQL 16 + `pgvector` (Docker Compose) + Prisma ORM
@@ -13,6 +15,7 @@
 ## 2. Completed Milestones
 
 ### Phase 1: Environment & Foundation
+
 - Docker Compose configured with `pgvector/pgvector:pg16` on port `5432`.
 - Database schema established with Prisma (`schema.prisma`) for `User`, `Session`, `Account`, `Verification`.
 - Initial migration generated at `server/prisma/migrations/0_init/migration.sql`.
@@ -20,14 +23,15 @@
 - Root NTFS junction `prisma -> server/prisma` and root `.env` configured so Prisma CLI commands (`npx prisma studio`, `npx prisma validate`) work seamlessly from any directory.
 
 ### Phase 2: Authentication, Security & UI
+
 - **Better Auth Backend (`server/src/auth.ts`):**
   - PostgreSQL database-persisted sessions.
   - Public registration disabled (`disableSignUp: true`).
   - Roles defined: `admin` and `agent`.
   - Dynamic trusted origins support (`BETTER_AUTH_TRUSTED_ORIGINS`, `CLIENT_URL`).
-  - Express integration with `toNodeHandler(auth)` mounted *before* body parsers.
+  - Express integration with `toNodeHandler(auth)` mounted _before_ body parsers.
   - Session validation middleware: `requireAuth` in `server/src/middleware/auth.ts`.
-  - **Environment-Aware Rate Limiting:** Enforced *only* in production (`rateLimit.enabled: process.env.NODE_ENV === "production"`), disabled in dev/test to avoid 429 throttling.
+  - **Environment-Aware Rate Limiting:** Enforced _only_ in production (`rateLimit.enabled: process.env.NODE_ENV === "production"`), disabled in dev/test to avoid 429 throttling.
 - **Admin Seeding (`server/src/db/seed.ts`):**
   - Seeded admin accounts:
     - `admin@example.com` / `password123`
@@ -48,6 +52,7 @@
     - Dynamically reads `VITE_PORT` and `VITE_PROXY_TARGET` from environment for testing without hardcoding.
 
 ### Phase 3: Testing Infrastructure (Playwright + Isolated DB)
+
 - **Isolated Database:** `ticket_helper_test` created on PostgreSQL with `vector` extension.
 - **Test Environments:** `.env.test` and `server/.env.test` with dedicated test ports (backend: `5001`, frontend: `5174`).
 - **Database Automation:**
@@ -72,6 +77,7 @@
 ---
 
 ## 3. Current System Status
+
 - **PostgreSQL Container:** `ticket_helper_db` running on `localhost:5432`.
 - **Databases:**
   - `ticket_helper`: Development database.
@@ -84,6 +90,7 @@
 ---
 
 ## 4. Next Project Phases
+
 - **Phase 4: User Management (Admin Only):**
   - Backend endpoints to create, list, and toggle status of support `agent` accounts.
   - Role-based authorization middleware (`requireRole("admin")`).

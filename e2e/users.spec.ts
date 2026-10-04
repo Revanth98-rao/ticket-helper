@@ -106,6 +106,71 @@ test.describe("User List & Management (Admin Only)", () => {
         expect(u.role).toBeDefined();
       }
     });
+
+    test("unauthenticated request to POST /api/users is rejected with 401 Unauthorized", async ({
+      request,
+    }) => {
+      const response = await request.post("/api/users", {
+        data: { name: "Test", email: "test@test.com", password: "password123" },
+      });
+      expect(response.status()).toBe(401);
+    });
+
+    test("agent request to POST /api/users is rejected with 403 Forbidden", async ({
+      page,
+      request,
+    }) => {
+      await loginAsAgent(page);
+      const cookies = await page.context().cookies();
+      const cookieHeader = cookies.map((c) => `${c.name}=${c.value}`).join("; ");
+
+      const response = await request.post("/api/users", {
+        headers: { Cookie: cookieHeader },
+        data: { name: "Test", email: "test@test.com", password: "password123" },
+      });
+      expect(response.status()).toBe(403);
+    });
+
+    test("admin request to POST /api/users validates inputs and creates user", async ({
+      page,
+      request,
+    }) => {
+      await loginAsAdmin(page);
+      const cookies = await page.context().cookies();
+      const cookieHeader = cookies.map((c) => `${c.name}=${c.value}`).join("; ");
+
+      // Invalid name
+      const res1 = await request.post("/api/users", {
+        headers: { Cookie: cookieHeader },
+        data: { name: "Ab", email: "test@test.com", password: "password123" },
+      });
+      expect(res1.status()).toBe(400);
+
+      // Invalid email
+      const res2 = await request.post("/api/users", {
+        headers: { Cookie: cookieHeader },
+        data: { name: "Test User", email: "notanemail", password: "password123" },
+      });
+      expect(res2.status()).toBe(400);
+
+      // Duplicate email
+      const res3 = await request.post("/api/users", {
+        headers: { Cookie: cookieHeader },
+        data: { name: "Test User", email: TEST_CONFIG.agent.email, password: "password123" },
+      });
+      expect(res3.status()).toBe(409);
+
+      // Success
+      const testEmail = `newuser_${Date.now()}@test.com`;
+      const res4 = await request.post("/api/users", {
+        headers: { Cookie: cookieHeader },
+        data: { name: "Brand New User", email: testEmail, password: "securepassword123" },
+      });
+      expect(res4.status()).toBe(201);
+      const data = await res4.json();
+      expect(data.user.email).toBe(testEmail);
+      expect(data.user.role).toBe("agent");
+    });
   });
 
   // =========================================================================
@@ -238,6 +303,50 @@ test.describe("User List & Management (Admin Only)", () => {
       await expect(page).toHaveURL(/\/$/);
       await expect(
         page.getByRole("heading", { name: "Ticket Workspace" })
+      ).toBeVisible();
+    });
+
+    test("admin can create a new user via the Create User modal", async ({ page }) => {
+      await loginAsAdmin(page);
+      await page.goto("/users");
+
+      // Click Create User
+      await page.getByRole("button", { name: "Create User" }).click();
+      
+      const modal = page.getByRole("dialog", { name: "Create New User" });
+      await expect(modal).toBeVisible();
+
+      // Test validation
+      await modal.getByLabel("Name").fill("Ab");
+      await modal.getByLabel("Email").fill("invalid-email");
+      await modal.getByLabel("Password").fill("short");
+      await modal.getByRole("button", { name: "Create User" }).click();
+
+      await expect(modal.getByText("Name must be at least 3 characters")).toBeVisible();
+      await expect(modal.getByText("Please enter a valid email address")).toBeVisible();
+      await expect(modal.getByText("Password must be at least 8 characters")).toBeVisible();
+
+      // Fill valid data
+      const newEmail = `ui_created_${Date.now()}@example.com`;
+      await modal.getByLabel("Name").fill("UI Created User");
+      await modal.getByLabel("Email").fill(newEmail);
+      await modal.getByLabel("Password").fill("securepassword123");
+      
+      await modal.getByRole("button", { name: "Create User" }).click();
+
+      // Modal should close and new user appears in table
+      await expect(modal).not.toBeVisible();
+      const table = page.getByRole("table");
+      await expect(table.locator("tbody tr", { hasText: newEmail })).toBeVisible();
+      
+      // Verify login with new user works
+      await page.context().clearCookies();
+      await page.goto("/login");
+      await page.getByLabel("Email Address").fill(newEmail);
+      await page.getByLabel("Password").fill("securepassword123");
+      await page.getByRole("button", { name: "Sign In" }).click();
+      await expect(
+        page.getByText(`Welcome back, UI Created User!`)
       ).toBeVisible();
     });
   });

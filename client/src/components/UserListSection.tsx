@@ -12,12 +12,14 @@ import {
   Calendar,
   Mail,
   X,
+  UserPlus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { useSession } from "@/lib/auth-client";
 import { useUsers, UserItem, UsersApiResponse } from "@/hooks/useUsers";
+import { CreateUserModal } from "./CreateUserModal";
 
 export type { UserItem, UsersApiResponse };
 
@@ -29,6 +31,7 @@ export default function UserListSection({ standalone = false }: UserListSectionP
   const { data: session } = useSession();
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState<"all" | "admin" | "agent">("all");
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const {
     data,
@@ -131,6 +134,13 @@ export default function UserListSection({ standalone = false }: UserListSectionP
           </div>
 
           <div className="flex items-center gap-2">
+            <Button
+              onClick={() => setIsCreateModalOpen(true)}
+              className="bg-indigo-600 hover:bg-indigo-700 text-white flex items-center gap-2 text-xs font-semibold shadow-sm"
+            >
+              <UserPlus className="w-3.5 h-3.5" />
+              Create User
+            </Button>
             <Button
               variant="outline"
               size="sm"
@@ -410,6 +420,11 @@ export default function UserListSection({ standalone = false }: UserListSectionP
           )}
         </Card>
       </div>
+
+      <CreateUserModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+      />
     </div>
   );
 }

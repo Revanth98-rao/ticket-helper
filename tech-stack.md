@@ -5,6 +5,8 @@
 - **Styling:** Tailwind CSS
 - **Component Library:** shadcn/ui (accessible Radix UI primitives)
 - **Icons:** Lucide React
+- **HTTP Client:** Axios
+- **Server State & Caching:** TanStack React Query (`@tanstack/react-query`)
 
 ## Backend
 - **Runtime & API:** Next.js Server Components, Server Actions & Route Handlers (Node.js)

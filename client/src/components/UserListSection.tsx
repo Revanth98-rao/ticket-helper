@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowLeft,
@@ -17,26 +17,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { useSession } from "@/lib/auth-client";
+import { useUsers, UserItem, UsersApiResponse } from "@/hooks/useUsers";
 
-export interface UserItem {
-  id: string;
-  name: string;
-  email: string;
-  role: "admin" | "agent";
-  emailVerified: boolean;
-  image: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface UsersApiResponse {
-  users: UserItem[];
-  counts: {
-    total: number;
-    admin: number;
-    agent: number;
-  };
-}
+export type { UserItem, UsersApiResponse };
 
 interface UserListSectionProps {
   standalone?: boolean;
@@ -44,68 +27,20 @@ interface UserListSectionProps {
 
 export default function UserListSection({ standalone = false }: UserListSectionProps) {
   const { data: session } = useSession();
-  const [users, setUsers] = useState<UserItem[]>([]);
-  const [counts, setCounts] = useState({ total: 0, admin: 0, agent: 0 });
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState<"all" | "admin" | "agent">("all");
-  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const fetchUsers = async (showRefreshIndicator = false) => {
-    if (showRefreshIndicator) {
-      setIsRefreshing(true);
-    } else {
-      setIsLoading(true);
-    }
-    setError(null);
+  const {
+    data,
+    isLoading,
+    isRefetching,
+    error,
+    refetch,
+  } = useUsers(roleFilter);
 
-    try {
-      const params = new URLSearchParams();
-      if (roleFilter !== "all") {
-        params.append("role", roleFilter);
-      }
-      if (searchQuery.trim()) {
-        params.append("search", searchQuery.trim());
-      }
-
-      const url = `/api/users${params.toString() ? `?${params.toString()}` : ""}`;
-      const response = await fetch(url, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      });
-
-      if (!response.ok) {
-        if (response.status === 403) {
-          throw new Error("Access forbidden: Admin privileges required to view users.");
-        }
-        if (response.status === 401) {
-          throw new Error("Unauthorized: Please sign in again.");
-        }
-        const data = await response.json().catch(() => ({}));
-        throw new Error(data.message || data.error || "Failed to load users");
-      }
-
-      const data: UsersApiResponse = await response.json();
-      setUsers(data.users || []);
-      if (data.counts) {
-        setCounts(data.counts);
-      }
-    } catch (err: any) {
-      console.error("[UserListSection] Error fetching users:", err);
-      setError(err?.message || "An unexpected error occurred while fetching users.");
-    } finally {
-      setIsLoading(false);
-      setIsRefreshing(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchUsers();
-  }, [roleFilter]);
+  const users = data?.users ?? [];
+  const counts = data?.counts ?? { total: 0, admin: 0, agent: 0 };
+  const errorMessage = error ? (error instanceof Error ? error.message : String(error)) : null;
 
   // Client-side instant filter on top of loaded users
   const filteredUsers = useMemo(() => {
@@ -199,12 +134,12 @@ export default function UserListSection({ standalone = false }: UserListSectionP
             <Button
               variant="outline"
               size="sm"
-              onClick={() => fetchUsers(true)}
-              disabled={isLoading || isRefreshing}
+              onClick={() => refetch()}
+              disabled={isLoading || isRefetching}
               className={standalone ? "border-slate-800 bg-slate-900 text-slate-300 hover:text-white hover:bg-slate-800" : "border-slate-300 bg-white text-slate-700 hover:bg-slate-100"}
             >
               <RefreshCw
-                className={`w-3.5 h-3.5 mr-2 ${isRefreshing ? "animate-spin" : ""}`}
+                className={`w-3.5 h-3.5 mr-2 ${isRefetching ? "animate-spin" : ""}`}
               />
               Refresh
             </Button>
@@ -318,19 +253,19 @@ export default function UserListSection({ standalone = false }: UserListSectionP
         </div>
 
         {/* Error Alert */}
-        {error && (
+        {errorMessage && (
           <div className="p-4 bg-rose-500/10 border border-rose-500/30 rounded-xl flex items-start gap-3">
             <AlertCircle className="w-5 h-5 text-rose-500 shrink-0 mt-0.5" />
             <div className="flex-1">
               <h4 className="text-sm font-semibold text-rose-700">
                 Failed to load users
               </h4>
-              <p className="text-xs text-rose-600 mt-0.5">{error}</p>
+              <p className="text-xs text-rose-600 mt-0.5">{errorMessage}</p>
             </div>
             <Button
               variant="outline"
               size="sm"
-              onClick={() => fetchUsers()}
+              onClick={() => refetch()}
               className="border-rose-300 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs"
             >
               Try Again
@@ -478,4 +413,3 @@ export default function UserListSection({ standalone = false }: UserListSectionP
     </div>
   );
 }
-

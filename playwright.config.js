@@ -14,10 +14,11 @@ module.exports = defineConfig({
   expect: {
     timeout: 5000,
   },
-  fullyParallel: true,
+  fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  workers: 1,
+  outputDir: "./e2e/test-results",
   reporter: [["list"], ["html", { open: "never" }]],
 
   // Automatic isolated database setup before tests run
@@ -43,13 +44,13 @@ module.exports = defineConfig({
     {
       command: "bun --env-file=.env.test run --cwd server dev",
       url: "http://localhost:5001/api/health",
-      reuseExistingServer: !process.env.CI,
+      reuseExistingServer: false,
       timeout: 60 * 1000,
     },
     {
       command: "bun --env-file=.env.test run --cwd client dev",
       url: BASE_URL,
-      reuseExistingServer: !process.env.CI,
+      reuseExistingServer: false,
       timeout: 60 * 1000,
     },
   ],

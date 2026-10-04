@@ -4,6 +4,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import { toNodeHandler } from "better-auth/node";
 import { auth, getTrustedOrigins } from "./auth";
+import { usersRouter } from "./routes/users";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -48,6 +49,9 @@ app.all("/api/auth/*", toNodeHandler(auth));
 app.use(express.json());
 app.use(cookieParser());
 
+// Protected User Management routes (Admin only)
+app.use("/api/users", usersRouter);
+
 // Root endpoint
 app.get("/", (_req: Request, res: Response) => {
   res.json({
@@ -56,6 +60,7 @@ app.get("/", (_req: Request, res: Response) => {
     docs: {
       health: "/api/health",
       auth: "/api/auth",
+      users: "/api/users",
     },
     clientUrl: process.env.CLIENT_URL || "http://localhost:5173",
   });

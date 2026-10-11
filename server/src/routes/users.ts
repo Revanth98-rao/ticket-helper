@@ -7,6 +7,7 @@ import {
 } from "../middleware/auth";
 import { auth } from "../auth";
 import crypto from "crypto";
+import { createUserSchema } from "core/schemas/user";
 
 export const usersRouter = Router();
 
@@ -23,7 +24,9 @@ usersRouter.get("/", async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { role, search } = req.query;
 
-    const where: any = {};
+    const where: any = {
+      deletedAt: null,
+    };
 
     // Filter by role if specified
     if (role && typeof role === "string" && (role === "admin" || role === "agent")) {
@@ -56,9 +59,9 @@ usersRouter.get("/", async (req: AuthenticatedRequest, res: Response) => {
           createdAt: "desc",
         },
       }),
-      prisma.user.count(),
-      prisma.user.count({ where: { role: "admin" } }),
-      prisma.user.count({ where: { role: "agent" } }),
+      prisma.user.count({ where: { deletedAt: null } }),
+      prisma.user.count({ where: { role: "admin", deletedAt: null } }),
+      prisma.user.count({ where: { role: "agent", deletedAt: null } }),
     ]);
 
     return res.json({
@@ -87,8 +90,8 @@ usersRouter.get("/:id", async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { id } = req.params;
 
-    const user = await prisma.user.findUnique({
-      where: { id },
+    const user = await prisma.user.findFirst({
+      where: { id, deletedAt: null },
       select: {
         id: true,
         name: true,
@@ -122,23 +125,12 @@ usersRouter.get("/:id", async (req: AuthenticatedRequest, res: Response) => {
  */
 usersRouter.post("/", async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { name, email, password } = req.body;
-
-    // 1. Validation
-    if (!name || typeof name !== "string" || name.trim().length < 3) {
-      return res.status(400).json({ error: "Name must be at least 3 characters long" });
-    }
-    
-    // Basic email regex
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email || typeof email !== "string" || !emailRegex.test(email)) {
-      return res.status(400).json({ error: "Please enter a valid email address" });
+    const parsedBody = createUserSchema.safeParse(req.body);
+    if (!parsedBody.success) {
+      return res.status(400).json({ error: parsedBody.error.issues[0].message });
     }
 
-    if (!password || typeof password !== "string" || password.length < 8) {
-      return res.status(400).json({ error: "Password must be at least 8 characters long" });
-    }
-
+    const { name, email, password } = parsedBody.data;
     const trimmedName = name.trim();
     const cleanEmail = email.toLowerCase().trim();
 
@@ -193,6 +185,154 @@ usersRouter.post("/", async (req: AuthenticatedRequest, res: Response) => {
     return res.status(500).json({
       error: "Internal Server Error",
       message: "Failed to create user",
+    });
+  }
+});
+
+import { editUserSchema } from "core/schemas/user";
+
+/**
+ * PATCH /api/users/:id
+ * Updates an existing user's details.
+ * Accessible strictly to Admins.
+ */
+usersRouter.patch("/:id", async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    
+    // 1. Verify user exists
+    const existingUser = await prisma.user.findFirst({
+      where: { id, deletedAt: null },
+      include: { accounts: true },
+    });
+    
+    if (!existingUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const parsedBody = editUserSchema.safeParse(req.body);
+    if (!parsedBody.success) {
+      return res.status(400).json({ error: parsedBody.error.issues[0].message });
+    }
+
+    const { name, email, password } = parsedBody.data;
+    const trimmedName = name.trim();
+    const cleanEmail = email.toLowerCase().trim();
+
+    // 2. Duplicate email check if email is changed
+    if (cleanEmail !== existingUser.email) {
+      const emailTaken = await prisma.user.findFirst({
+        where: { email: cleanEmail, deletedAt: null },
+      });
+
+      if (emailTaken) {
+        return res.status(409).json({ error: "A user with this email address already exists" });
+      }
+    }
+
+    // 3. Update user data
+    const updatedUser = await prisma.user.update({
+      where: { id },
+      data: {
+        name: trimmedName,
+        email: cleanEmail,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        emailVerified: true,
+        image: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    // 4. Update password if provided
+    if (password && password.length >= 8) {
+      const ctx = await (auth as any).$context;
+      const hashedPassword = await ctx.password.hash(password);
+      
+      const credentialAccount = existingUser.accounts.find(
+        (acc) => acc.providerId === "credential"
+      );
+
+      if (credentialAccount) {
+        await prisma.account.update({
+          where: { id: credentialAccount.id },
+          data: { password: hashedPassword },
+        });
+      } else {
+        await prisma.account.create({
+          data: {
+            userId: existingUser.id,
+            accountId: existingUser.id,
+            providerId: "credential",
+            password: hashedPassword,
+          },
+        });
+      }
+    }
+
+    return res.status(200).json({
+      user: updatedUser,
+      message: "User updated successfully",
+    });
+  } catch (error) {
+    console.error(`[Users API] Failed to update user ${req.params.id}:`, error);
+    return res.status(500).json({
+      error: "Internal Server Error",
+      message: "Failed to update user",
+    });
+  }
+});
+
+/**
+ * DELETE /api/users/:id
+ * Soft-deletes a user. Admin users cannot be deleted.
+ * Accessible strictly to Admins.
+ */
+usersRouter.delete("/:id", async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const user = await prisma.user.findFirst({
+      where: { id, deletedAt: null },
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Rule: Admin cannot be deleted
+    if (user.role === "admin") {
+      return res.status(400).json({
+        error: "Admin users cannot be deleted",
+        message: "Administrator accounts cannot be deleted.",
+      });
+    }
+
+    // Execute soft delete by setting deletedAt
+    await prisma.user.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+    });
+
+    // Invalidate any active sessions for the user
+    await prisma.session.deleteMany({
+      where: { userId: id },
+    });
+
+    return res.status(200).json({
+      message: "User deleted successfully",
+      id,
+    });
+  } catch (error) {
+    console.error(`[Users API] Failed to delete user ${req.params.id}:`, error);
+    return res.status(500).json({
+      error: "Internal Server Error",
+      message: "Failed to delete user",
     });
   }
 });

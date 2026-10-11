@@ -26,6 +26,10 @@ export async function requireAuth(
       return res.status(401).json({ error: "Unauthorized: Active session required" });
     }
 
+    if ((session.user as any)?.deletedAt) {
+      return res.status(401).json({ error: "Unauthorized: Account has been deactivated" });
+    }
+
     req.user = session.user;
     req.session = session.session;
     next();

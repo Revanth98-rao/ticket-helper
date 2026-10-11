@@ -3,7 +3,7 @@ const { execSync } = require("child_process");
 const dotenv = require("dotenv");
 const { Client } = require("pg");
 
-dotenv.config({ path: path.resolve(__dirname, "../.env.test") });
+dotenv.config({ path: path.resolve(__dirname, "../.env.test"), override: true });
 
 async function setupTestDatabase() {
   const databaseUrl =
@@ -63,6 +63,17 @@ async function setupTestDatabase() {
       DATABASE_URL: databaseUrl,
     },
   });
+
+  // Clean stale test users from previous runs
+  const cleanClient = new Client({ connectionString: databaseUrl });
+  try {
+    await cleanClient.connect();
+    await cleanClient.query(`TRUNCATE TABLE "user" CASCADE;`);
+  } catch (e) {
+    // Ignore if table doesn't exist yet
+  } finally {
+    await cleanClient.end();
+  }
 
   console.log(`[Test DB Setup] Seeding test database '${targetDbName}'...`);
   const seedScriptPath = path.resolve(__dirname, "../server/src/db/seed.ts");

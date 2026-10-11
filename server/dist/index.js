@@ -50166,7 +50166,7 @@ var init_dist3 = __esm(() => {
   init_string();
 });
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/adapters/kysely-adapter/index.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/adapters/kysely-adapter/index.mjs
 var init_kysely_adapter = __esm(() => {
   init_dist3();
 });
@@ -56417,7 +56417,7 @@ var require_client = __commonJS(function(exports) {
   exports.$Enums = {};
   Prisma.prismaVersion = {
     client: "6.19.3",
-    engine: "c2990dca591cba766e3b7ef5d9e8a84796e47ab7"
+    engine: "a9055b89e58b4b5bfb59600785423b1db3d0e75d"
   };
   Prisma.PrismaClientKnownRequestError = PrismaClientKnownRequestError2;
   Prisma.PrismaClientUnknownRequestError = PrismaClientUnknownRequestError2;
@@ -56455,7 +56455,8 @@ var require_client = __commonJS(function(exports) {
     image: "image",
     createdAt: "createdAt",
     updatedAt: "updatedAt",
-    role: "role"
+    role: "role",
+    deletedAt: "deletedAt"
   };
   exports.Prisma.SessionScalarFieldEnum = {
     id: "id",
@@ -56534,11 +56535,11 @@ var require_client = __commonJS(function(exports) {
     },
     relativeEnvPaths: {
       rootEnvPath: null,
-      schemaEnvPath: "../../../../../../server/.env"
+      schemaEnvPath: "../../../../../../.env"
     },
     relativePath: "../../../../../../server/prisma",
     clientVersion: "6.19.3",
-    engineVersion: "c2990dca591cba766e3b7ef5d9e8a84796e47ab7",
+    engineVersion: "a9055b89e58b4b5bfb59600785423b1db3d0e75d",
     datasourceNames: [
       "db"
     ],
@@ -56570,6 +56571,7 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   role          String    @default("agent")
+  deletedAt     DateTime?
   sessions      Session[]
   accounts      Account[]
 
@@ -56620,15 +56622,15 @@ model Verification {
   @@map("verification")
 }
 `,
-    inlineSchemaHash: "5789c9ad4e1df5940d5be2af6dbf16b1f8f8f362b346012293fab7d5d3634360",
+    inlineSchemaHash: "18fb385679f468458698f0f26026601de05e227bcaa4fed7c5aa73e20c83f67b",
     copyEngine: true
   };
   var fs = __require("fs");
   config.dirname = __dirname;
   if (!fs.existsSync(path.join(__dirname, "schema.prisma"))) {
     const alternativePaths = [
-      "../node_modules/.bun/@prisma+client@6.19.3+ba29487a8124bac9/node_modules/.prisma/client",
-      "node_modules/.bun/@prisma+client@6.19.3+ba29487a8124bac9/node_modules/.prisma/client"
+      "node_modules/.bun/@prisma+client@6.19.3+ba29487a8124bac9/node_modules/.prisma/client",
+      ".bun/@prisma+client@6.19.3+ba29487a8124bac9/node_modules/.prisma/client"
     ];
     const alternativePath = alternativePaths.find((altPath) => {
       return fs.existsSync(path.join(process.cwd(), altPath, "schema.prisma"));
@@ -56636,7 +56638,7 @@ model Verification {
     config.dirname = path.join(process.cwd(), alternativePath);
     config.isBundled = true;
   }
-  config.runtimeDataModel = JSON.parse('{"models":{"User":{"dbName":"user","schema":null,"fields":[{"name":"id","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":true,"isReadOnly":false,"hasDefaultValue":true,"type":"String","nativeType":null,"default":{"name":"uuid","args":[4]},"isGenerated":false,"isUpdatedAt":false},{"name":"name","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"email","kind":"scalar","isList":false,"isRequired":true,"isUnique":true,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"emailVerified","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":true,"type":"Boolean","nativeType":null,"default":false,"isGenerated":false,"isUpdatedAt":false},{"name":"image","kind":"scalar","isList":false,"isRequired":false,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"createdAt","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":true,"type":"DateTime","nativeType":null,"default":{"name":"now","args":[]},"isGenerated":false,"isUpdatedAt":false},{"name":"updatedAt","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"DateTime","nativeType":null,"isGenerated":false,"isUpdatedAt":true},{"name":"role","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":true,"type":"String","nativeType":null,"default":"agent","isGenerated":false,"isUpdatedAt":false},{"name":"sessions","kind":"object","isList":true,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"Session","nativeType":null,"relationName":"SessionToUser","relationFromFields":[],"relationToFields":[],"isGenerated":false,"isUpdatedAt":false},{"name":"accounts","kind":"object","isList":true,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"Account","nativeType":null,"relationName":"AccountToUser","relationFromFields":[],"relationToFields":[],"isGenerated":false,"isUpdatedAt":false}],"primaryKey":null,"uniqueFields":[],"uniqueIndexes":[],"isGenerated":false},"Session":{"dbName":"session","schema":null,"fields":[{"name":"id","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":true,"isReadOnly":false,"hasDefaultValue":true,"type":"String","nativeType":null,"default":{"name":"uuid","args":[4]},"isGenerated":false,"isUpdatedAt":false},{"name":"expiresAt","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"DateTime","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"token","kind":"scalar","isList":false,"isRequired":true,"isUnique":true,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"createdAt","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":true,"type":"DateTime","nativeType":null,"default":{"name":"now","args":[]},"isGenerated":false,"isUpdatedAt":false},{"name":"updatedAt","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"DateTime","nativeType":null,"isGenerated":false,"isUpdatedAt":true},{"name":"ipAddress","kind":"scalar","isList":false,"isRequired":false,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"userAgent","kind":"scalar","isList":false,"isRequired":false,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"userId","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":true,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"user","kind":"object","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"User","nativeType":null,"relationName":"SessionToUser","relationFromFields":["userId"],"relationToFields":["id"],"relationOnDelete":"Cascade","isGenerated":false,"isUpdatedAt":false}],"primaryKey":null,"uniqueFields":[],"uniqueIndexes":[],"isGenerated":false},"Account":{"dbName":"account","schema":null,"fields":[{"name":"id","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":true,"isReadOnly":false,"hasDefaultValue":true,"type":"String","nativeType":null,"default":{"name":"uuid","args":[4]},"isGenerated":false,"isUpdatedAt":false},{"name":"accountId","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"providerId","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"userId","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":true,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"user","kind":"object","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"User","nativeType":null,"relationName":"AccountToUser","relationFromFields":["userId"],"relationToFields":["id"],"relationOnDelete":"Cascade","isGenerated":false,"isUpdatedAt":false},{"name":"accessToken","kind":"scalar","isList":false,"isRequired":false,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"refreshToken","kind":"scalar","isList":false,"isRequired":false,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"idToken","kind":"scalar","isList":false,"isRequired":false,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"accessTokenExpiresAt","kind":"scalar","isList":false,"isRequired":false,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"DateTime","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"refreshTokenExpiresAt","kind":"scalar","isList":false,"isRequired":false,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"DateTime","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"scope","kind":"scalar","isList":false,"isRequired":false,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"password","kind":"scalar","isList":false,"isRequired":false,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"createdAt","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":true,"type":"DateTime","nativeType":null,"default":{"name":"now","args":[]},"isGenerated":false,"isUpdatedAt":false},{"name":"updatedAt","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"DateTime","nativeType":null,"isGenerated":false,"isUpdatedAt":true}],"primaryKey":null,"uniqueFields":[],"uniqueIndexes":[],"isGenerated":false},"Verification":{"dbName":"verification","schema":null,"fields":[{"name":"id","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":true,"isReadOnly":false,"hasDefaultValue":true,"type":"String","nativeType":null,"default":{"name":"uuid","args":[4]},"isGenerated":false,"isUpdatedAt":false},{"name":"identifier","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"value","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"expiresAt","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"DateTime","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"createdAt","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":true,"type":"DateTime","nativeType":null,"default":{"name":"now","args":[]},"isGenerated":false,"isUpdatedAt":false},{"name":"updatedAt","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"DateTime","nativeType":null,"isGenerated":false,"isUpdatedAt":true}],"primaryKey":null,"uniqueFields":[],"uniqueIndexes":[],"isGenerated":false}},"enums":{},"types":{}}');
+  config.runtimeDataModel = JSON.parse('{"models":{"User":{"dbName":"user","schema":null,"fields":[{"name":"id","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":true,"isReadOnly":false,"hasDefaultValue":true,"type":"String","nativeType":null,"default":{"name":"uuid","args":[4]},"isGenerated":false,"isUpdatedAt":false},{"name":"name","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"email","kind":"scalar","isList":false,"isRequired":true,"isUnique":true,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"emailVerified","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":true,"type":"Boolean","nativeType":null,"default":false,"isGenerated":false,"isUpdatedAt":false},{"name":"image","kind":"scalar","isList":false,"isRequired":false,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"createdAt","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":true,"type":"DateTime","nativeType":null,"default":{"name":"now","args":[]},"isGenerated":false,"isUpdatedAt":false},{"name":"updatedAt","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"DateTime","nativeType":null,"isGenerated":false,"isUpdatedAt":true},{"name":"role","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":true,"type":"String","nativeType":null,"default":"agent","isGenerated":false,"isUpdatedAt":false},{"name":"deletedAt","kind":"scalar","isList":false,"isRequired":false,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"DateTime","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"sessions","kind":"object","isList":true,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"Session","nativeType":null,"relationName":"SessionToUser","relationFromFields":[],"relationToFields":[],"isGenerated":false,"isUpdatedAt":false},{"name":"accounts","kind":"object","isList":true,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"Account","nativeType":null,"relationName":"AccountToUser","relationFromFields":[],"relationToFields":[],"isGenerated":false,"isUpdatedAt":false}],"primaryKey":null,"uniqueFields":[],"uniqueIndexes":[],"isGenerated":false},"Session":{"dbName":"session","schema":null,"fields":[{"name":"id","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":true,"isReadOnly":false,"hasDefaultValue":true,"type":"String","nativeType":null,"default":{"name":"uuid","args":[4]},"isGenerated":false,"isUpdatedAt":false},{"name":"expiresAt","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"DateTime","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"token","kind":"scalar","isList":false,"isRequired":true,"isUnique":true,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"createdAt","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":true,"type":"DateTime","nativeType":null,"default":{"name":"now","args":[]},"isGenerated":false,"isUpdatedAt":false},{"name":"updatedAt","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"DateTime","nativeType":null,"isGenerated":false,"isUpdatedAt":true},{"name":"ipAddress","kind":"scalar","isList":false,"isRequired":false,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"userAgent","kind":"scalar","isList":false,"isRequired":false,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"userId","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":true,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"user","kind":"object","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"User","nativeType":null,"relationName":"SessionToUser","relationFromFields":["userId"],"relationToFields":["id"],"relationOnDelete":"Cascade","isGenerated":false,"isUpdatedAt":false}],"primaryKey":null,"uniqueFields":[],"uniqueIndexes":[],"isGenerated":false},"Account":{"dbName":"account","schema":null,"fields":[{"name":"id","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":true,"isReadOnly":false,"hasDefaultValue":true,"type":"String","nativeType":null,"default":{"name":"uuid","args":[4]},"isGenerated":false,"isUpdatedAt":false},{"name":"accountId","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"providerId","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"userId","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":true,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"user","kind":"object","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"User","nativeType":null,"relationName":"AccountToUser","relationFromFields":["userId"],"relationToFields":["id"],"relationOnDelete":"Cascade","isGenerated":false,"isUpdatedAt":false},{"name":"accessToken","kind":"scalar","isList":false,"isRequired":false,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"refreshToken","kind":"scalar","isList":false,"isRequired":false,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"idToken","kind":"scalar","isList":false,"isRequired":false,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"accessTokenExpiresAt","kind":"scalar","isList":false,"isRequired":false,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"DateTime","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"refreshTokenExpiresAt","kind":"scalar","isList":false,"isRequired":false,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"DateTime","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"scope","kind":"scalar","isList":false,"isRequired":false,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"password","kind":"scalar","isList":false,"isRequired":false,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"createdAt","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":true,"type":"DateTime","nativeType":null,"default":{"name":"now","args":[]},"isGenerated":false,"isUpdatedAt":false},{"name":"updatedAt","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"DateTime","nativeType":null,"isGenerated":false,"isUpdatedAt":true}],"primaryKey":null,"uniqueFields":[],"uniqueIndexes":[],"isGenerated":false},"Verification":{"dbName":"verification","schema":null,"fields":[{"name":"id","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":true,"isReadOnly":false,"hasDefaultValue":true,"type":"String","nativeType":null,"default":{"name":"uuid","args":[4]},"isGenerated":false,"isUpdatedAt":false},{"name":"identifier","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"value","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"expiresAt","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"DateTime","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"createdAt","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":true,"type":"DateTime","nativeType":null,"default":{"name":"now","args":[]},"isGenerated":false,"isUpdatedAt":false},{"name":"updatedAt","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"DateTime","nativeType":null,"isGenerated":false,"isUpdatedAt":true}],"primaryKey":null,"uniqueFields":[],"uniqueIndexes":[],"isGenerated":false}},"enums":{},"types":{}}');
   defineDmmfProperty2(exports.Prisma, config.runtimeDataModel);
   config.engineWasm = undefined;
   config.compilerWasm = undefined;
@@ -56649,9 +56651,9 @@ model Verification {
   exports.PrismaClient = PrismaClient;
   Object.assign(exports, Prisma);
   path.join(__dirname, "query_engine-windows.dll.node");
-  path.join(process.cwd(), "../node_modules/.bun/@prisma+client@6.19.3+ba29487a8124bac9/node_modules/.prisma/client/query_engine-windows.dll.node");
+  path.join(process.cwd(), "node_modules/.bun/@prisma+client@6.19.3+ba29487a8124bac9/node_modules/.prisma/client/query_engine-windows.dll.node");
   path.join(__dirname, "schema.prisma");
-  path.join(process.cwd(), "../node_modules/.bun/@prisma+client@6.19.3+ba29487a8124bac9/node_modules/.prisma/client/schema.prisma");
+  path.join(process.cwd(), "node_modules/.bun/@prisma+client@6.19.3+ba29487a8124bac9/node_modules/.prisma/client/schema.prisma");
 });
 
 // ../node_modules/.bun/@prisma+client@6.19.3+ba29487a8124bac9/node_modules/.prisma/client/default.js
@@ -57066,7 +57068,7 @@ function toNodeHandler(handler) {
   };
 }
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/integrations/node.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/integrations/node.mjs
 var toNodeHandler2 = (auth) => {
   return "handler" in auth ? toNodeHandler(auth.handler) : toNodeHandler(auth);
 };
@@ -57113,7 +57115,7 @@ var userSchema = coreSchema.extend({
   image: string2().nullish()
 });
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/db/adapter-base.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/db/adapter-base.mjs
 init_env();
 async function getBaseAdapter(options, handleDirectDatabase) {
   let adapter;
@@ -57138,7 +57140,7 @@ async function getBaseAdapter(options, handleDirectDatabase) {
   return adapter;
 }
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/db/adapter-kysely.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/db/adapter-kysely.mjs
 init_error2();
 async function getAdapter(options) {
   return getBaseAdapter(options, async (opts) => {
@@ -57154,7 +57156,7 @@ async function getAdapter(options) {
   });
 }
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/db/get-schema.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/db/get-schema.mjs
 init_internal();
 function getSchema(config) {
   const { indexesByTable, tables } = getAuthTablesWithResolvedIndexes(config);
@@ -57196,7 +57198,7 @@ function getSchema(config) {
   return schema;
 }
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/db/get-migration.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/db/get-migration.mjs
 init_env();
 init_error2();
 init_dist3();
@@ -57913,7 +57915,7 @@ async function getMigrations(config, { throwOnUnsafe = true } = {}) {
   };
 }
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/utils/wildcard.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/utils/wildcard.mjs
 function escapeRegExpChar(char) {
   if (char === "-" || char === "^" || char === "$" || char === "+" || char === "." || char === "(" || char === ")" || char === "|" || char === "[" || char === "]" || char === "{" || char === "}" || char === "*" || char === "?" || char === "\\")
     return `\\${char}`;
@@ -58011,7 +58013,7 @@ function wildcardMatch(pattern, options) {
   return fn;
 }
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/utils/url.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/utils/url.mjs
 init_env();
 init_error2();
 var SLASH_CHAR_CODE = 47;
@@ -58206,7 +58208,7 @@ function resolveBaseURL(config, basePath, source, loadEnv, trustedProxyHeaders) 
   return getBaseURL(undefined, basePath, request, loadEnv, trustedProxyHeaders);
 }
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/auth/trusted-origins.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/auth/trusted-origins.mjs
 var CONTROL_CHARACTER_PATTERN = /[\u0000-\u001f\u007f-\u009f]/;
 var RELATIVE_URL_PARSER_ORIGIN = "https://better-auth.invalid";
 var ENCODED_PATH_SEPARATOR_PATTERN = /%2[fF]|%5[cC]/;
@@ -58289,7 +58291,7 @@ var matchesOriginPattern = (url, pattern, settings) => {
   return parsed.path === parsedPattern.path || parsed.path.startsWith(`${parsedPattern.path}/`);
 };
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/context/store-capabilities.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/context/store-capabilities.mjs
 function hasServerSessionStore(options) {
   return !!options.database || !!options.secondaryStorage;
 }
@@ -58300,7 +58302,7 @@ function shouldBindAccountCookieToSessionUser(options) {
   return hasServerAccountStore(options);
 }
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/utils/is-promise.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/utils/is-promise.mjs
 function isPromise(obj) {
   return !!obj && (typeof obj === "object" || typeof obj === "function") && typeof obj.then === "function";
 }
@@ -58342,7 +58344,7 @@ async function verifyPassword(hash, password) {
   return targetKey.toString("hex") === key;
 }
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/crypto/password.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/crypto/password.mjs
 var hashPassword$1 = hashPassword;
 var verifyPassword$1 = async ({ hash, password }) => {
   return verifyPassword(hash, password);
@@ -60567,7 +60569,7 @@ function decodeJwt(jwt) {
   return result;
 }
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/crypto/jwt.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/crypto/jwt.mjs
 async function signJWT(payload, secret, expiresIn = 3600) {
   return await new SignJWT(payload).setProtectedHeader({ alg: "HS256" }).setIssuedAt().setExpirationTime(Math.floor(Date.now() / 1000) + expiresIn).sign(new TextEncoder().encode(secret));
 }
@@ -60715,7 +60717,7 @@ async function symmetricDecodeJWT(token, secret, salt) {
   }
 }
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/db/schema.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/db/schema.mjs
 init_error2();
 
 // ../node_modules/.bun/@better-auth+core@1.7.6+4261deccac756619/node_modules/@better-auth/core/dist/utils/db.mjs
@@ -60729,7 +60731,7 @@ function filterOutputFields(data, additionalFields) {
   }), {});
 }
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/db/schema.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/db/schema.mjs
 var cache2 = /* @__PURE__ */ new WeakMap;
 function getFields(options, modelName, mode) {
   const cacheKey = `${modelName}:${mode}`;
@@ -60870,12 +60872,12 @@ function getSessionDefaultFields(options) {
   return defaults;
 }
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/utils/date.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/utils/date.mjs
 var getDate = (span, unit = "ms") => {
   return new Date(Date.now() + (unit === "sec" ? span * 1000 : span));
 };
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/utils/time.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/utils/time.mjs
 var SEC = 1000;
 var MIN = SEC * 60;
 var HOUR = MIN * 60;
@@ -60946,7 +60948,7 @@ function sec(value) {
   return Math.round(parse4(value) / 1000);
 }
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/cookies/cache.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/cookies/cache.mjs
 init_env();
 init_json();
 init_zod();
@@ -60979,7 +60981,7 @@ function parseCompactCookieCache(value) {
   return result.success ? result.data : null;
 }
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/cookies/cookie-utils.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/cookies/cookie-utils.mjs
 function tryDecode(str) {
   if (str.indexOf("%") === -1)
     return str;
@@ -61061,7 +61063,7 @@ function parseCookies(cookie) {
   return cookieMap;
 }
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/cookies/session-store.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/cookies/session-store.mjs
 init_json();
 
 // ../node_modules/.bun/better-call@1.4.0+fff7ddf946fac095/node_modules/better-call/dist/index.mjs
@@ -62556,7 +62558,7 @@ var createRouter$1 = (endpoints, config) => {
   };
 };
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/cookies/session-store.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/cookies/session-store.mjs
 init_zod();
 var MAX_COOKIE_SIZE = 4050;
 var MAX_COOKIE_CHUNKS = 100;
@@ -62709,7 +62711,7 @@ var getSessionQuerySchema = optional(object({
   disableRefresh: boolean3().meta({ description: "Disable session refresh. Useful for checking session status, without updating the session" }).optional()
 }));
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/cookies/index.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/cookies/index.mjs
 init_env();
 init_error2();
 init_json();
@@ -62888,7 +62890,7 @@ var createHMAC = (algorithm = "SHA-256", encoding = "none") => {
   return hmac;
 };
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/cookies/index.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/cookies/index.mjs
 function createCookieGetter(options) {
   const baseURLString = typeof options.baseURL === "string" ? options.baseURL : undefined;
   const dynamicProtocol = typeof options.baseURL === "object" && options.baseURL !== null ? options.baseURL.protocol : undefined;
@@ -63119,7 +63121,7 @@ function deleteSessionCookie(ctx, skipDontRememberMe) {
     expireCookie(ctx, ctx.context.authCookies.dontRememberToken);
 }
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/utils/validate-user-info.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/utils/validate-user-info.mjs
 init_error2();
 function assertValidUserInfoSource(source) {
   if (!source?.method)
@@ -63186,7 +63188,7 @@ function createHash(algorithm, encoding) {
   };
 }
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/db/verification-token-storage.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/db/verification-token-storage.mjs
 var defaultKeyHasher = async (identifier) => {
   const hash = await createHash("SHA-256").digest(new TextEncoder().encode(identifier));
   return base64Url.encode(new Uint8Array(hash), { padding: false });
@@ -63422,7 +63424,7 @@ var queueAfterTransactionHook = async (hook, options) => {
   store.pendingHooks.push(executeHook);
 };
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/db/with-hooks.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/db/with-hooks.mjs
 init_instrumentation();
 function getWithHooks(adapter, ctx) {
   const withSpan = createWithSpan(ctx.options);
@@ -63683,7 +63685,7 @@ function getWithHooks(adapter, ctx) {
   };
 }
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/db/internal-adapter.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/db/internal-adapter.mjs
 init_error2();
 init_id();
 init_json();
@@ -63873,7 +63875,7 @@ function createRateLimitKey(ip, path) {
   return `${ip}|${path}`;
 }
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/db/internal-adapter.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/db/internal-adapter.mjs
 function getTTLSeconds(expiresAt, now = Date.now()) {
   const expiresMs = typeof expiresAt === "number" ? expiresAt : expiresAt.getTime();
   return Math.max(Math.floor((expiresMs - now) / 1000), 0);
@@ -64811,7 +64813,7 @@ var createInternalAdapter = (adapter, ctx) => {
   };
 };
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/context/helpers.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/context/helpers.mjs
 init_env();
 init_error2();
 
@@ -65073,7 +65075,7 @@ function isLoopbackHost(host) {
   return kind === "loopback" || kind === "localhost";
 }
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/context/helpers.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/context/helpers.mjs
 async function runPluginInit(context) {
   let options = context.options;
   const plugins = options.plugins || [];
@@ -65233,7 +65235,7 @@ async function getTrustedProviders(options, request) {
   return (await trustedProviders(request) ?? []).filter((v) => Boolean(v));
 }
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/utils/password.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/utils/password.mjs
 init_error2();
 function assertPasswordNotTooShort(ctx, password) {
   if (password.length < ctx.context.password.config.minPasswordLength) {
@@ -65338,7 +65340,7 @@ function withServerOnly(options) {
 }
 createAuthEndpoint.serverOnly = (options, handler) => createAuthEndpoint(withServerOnly(options), handler);
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/api/middlewares/origin-check.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/api/middlewares/origin-check.mjs
 init_error2();
 
 // ../node_modules/.bun/@better-auth+core@1.7.6+4261deccac756619/node_modules/@better-auth/core/dist/utils/url.mjs
@@ -65386,7 +65388,7 @@ function deprecate(fn, message, logger) {
   };
 }
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/api/middlewares/origin-check.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/api/middlewares/origin-check.mjs
 function shouldSkipCSRFForBackwardCompat(ctx) {
   return ctx.context.skipOriginCheck === true && ctx.context.options.advanced?.disableCSRFCheck === undefined;
 }
@@ -65537,7 +65539,7 @@ async function validateFormCsrf(ctx) {
     return await validateOrigin(ctx, true);
 }
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/api/rate-limiter/index.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/api/rate-limiter/index.mjs
 init_error2();
 var memory = /* @__PURE__ */ new Map;
 var MEMORY_STORE_MAX_ENTRIES = 1e5;
@@ -65870,14 +65872,14 @@ function getDefaultSpecialRules() {
   }];
 }
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/api/state/oauth.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/api/state/oauth.mjs
 var { get: getRawOAuthState, set: setOAuthState } = defineRequestState(() => null);
 var { get: getOAuthServerContext, set: setOAuthServerContext } = defineRequestState(() => null);
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/api/state/should-session-refresh.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/api/state/should-session-refresh.mjs
 var { get: getShouldSkipSessionRefresh, set: setShouldSkipSessionRefresh } = defineRequestState(() => false);
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/api/routes/session.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/api/routes/session.mjs
 init_error2();
 init_zod();
 var getSession = () => createAuthEndpoint("/get-session", {
@@ -66308,7 +66310,7 @@ var revokeOtherSessions = createAuthEndpoint("/revoke-other-sessions", {
   return ctx.json({ status: true });
 });
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/oauth2/account-key.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/oauth2/account-key.mjs
 init_error2();
 function toOAuthProfileRecord(profile) {
   return profile;
@@ -66336,7 +66338,7 @@ async function resolveOAuthAccountKeyForAPI(provider, tokens, profile) {
   }
 }
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/oauth2/errors.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/oauth2/errors.mjs
 var OAUTH_CALLBACK_ERROR_CODES = {
   NO_CODE: "no_code",
   PROVIDER_NOT_FOUND: "oauth_provider_not_found",
@@ -66364,7 +66366,7 @@ function missingEmailLogMessage(providerId, options) {
   return `${options?.source === "generic" ? `Generic OAuth provider "${providerId}"` : `Provider "${providerId}"`} did not return an email${options?.source === "id_token" ? " in the id token" : ""}. Either request the provider's email scope, or create a placeholder via \`mapProfileToUser\`. See ${HANDLING_DOCS_URL}`;
 }
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/crypto/random.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/crypto/random.mjs
 init_random();
 var generateRandomString = createRandomStringGenerator("a-z", "0-9", "A-Z", "-_");
 
@@ -67202,7 +67204,7 @@ var _poly1305_aead = (xorStream) => (key, nonce, AAD) => {
 };
 var xchacha20poly1305 = /* @__PURE__ */ wrapCipher({ blockSize: 64, nonceLength: 24, tagLength: 16, withAAD: true }, /* @__PURE__ */ _poly1305_aead(xchacha20));
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/crypto/index.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/crypto/index.mjs
 var ENVELOPE_PREFIX = "$ba$";
 function parseEnvelope(data) {
   if (!data.startsWith(ENVELOPE_PREFIX))
@@ -67257,7 +67259,7 @@ var symmetricDecrypt = async ({ key, data }) => {
   throw new Error("Cannot decrypt legacy bare-hex payload: no legacy secret available. Set BETTER_AUTH_SECRET for backwards compatibility.");
 };
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/oauth2/utils.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/oauth2/utils.mjs
 function isLikelyEncrypted(token) {
   if (token.startsWith("$ba$"))
     return true;
@@ -67290,7 +67292,7 @@ function getOAuthCallbackPath(provider) {
   return provider.callbackPath.startsWith("/") ? provider.callbackPath : `/${provider.callbackPath}`;
 }
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/utils/request.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/utils/request.mjs
 function safeCloneRequest(request) {
   if (!request)
     return;
@@ -67313,7 +67315,7 @@ function safeCloneRequest(request) {
   }
 }
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/api/routes/email-verification.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/api/routes/email-verification.mjs
 init_error2();
 init_zod();
 async function createEmailVerificationToken(secret, email, updateTo, expiresIn = 3600, extraPayload) {
@@ -67628,7 +67630,7 @@ var verifyEmail = createAuthEndpoint("/verify-email", {
   });
 });
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/oauth2/link-account.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/oauth2/link-account.mjs
 init_env();
 init_error2();
 
@@ -68616,7 +68618,7 @@ async function verifyProviderIdToken(provider, token, nonce, ctx) {
   }
 }
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/oauth2/link-account.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/oauth2/link-account.mjs
 function linkOAuthAccountFailure(code, message) {
   return {
     linked: false,
@@ -69018,7 +69020,7 @@ async function applyUpdateUserInfoOnLink(c, userId, userInfo) {
   }
 }
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/state.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/state.mjs
 init_error2();
 init_zod();
 var stateDataSchema = looseObject({
@@ -69151,7 +69153,7 @@ async function parseGenericState(c, state, settings) {
   return parsedData;
 }
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/oauth2/state.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/oauth2/state.mjs
 init_error2();
 function generateIdTokenNonce(provider) {
   return provider.requiresIdTokenNonce ? generateRandomString(32) : undefined;
@@ -69209,7 +69211,7 @@ async function parseState(c) {
   return parsedData;
 }
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/api/routes/account.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/api/routes/account.mjs
 init_error2();
 
 // ../node_modules/.bun/@better-auth+core@1.7.6+4261deccac756619/node_modules/@better-auth/core/dist/social-providers/apple.mjs
@@ -72334,7 +72336,7 @@ var socialProviders = {
 var socialProviderList = Object.keys(socialProviders);
 var SocialProviderListEnum = _enum(socialProviderList).or(string2());
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/api/routes/account.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/api/routes/account.mjs
 init_zod();
 function parseStoredScopes(scope) {
   if (!scope)
@@ -72891,10 +72893,10 @@ var accountInfo = createAuthEndpoint("/account-info", {
   });
 });
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/utils/hide-metadata.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/utils/hide-metadata.mjs
 var HIDE_METADATA = { scope: "server" };
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/api/routes/callback.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/api/routes/callback.mjs
 init_json();
 init_zod();
 var schema = object({
@@ -73101,7 +73103,7 @@ var callbackOAuth = createAuthEndpoint("/callback/:id", {
   throw c.redirect(toRedirectTo);
 });
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/api/routes/error.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/api/routes/error.mjs
 init_env();
 function sanitize(input) {
   return input.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;").replace(/&(?!amp;|lt;|gt;|quot;|#39;|#x[0-9a-fA-F]+;|#[0-9]+;)/g, "&amp;");
@@ -73486,7 +73488,7 @@ var error2 = createAuthEndpoint("/error", {
   return new Response(html(c.context.options, safeCode, safeDescription), { headers: { "Content-Type": "text/html" } });
 });
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/api/routes/ok.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/api/routes/ok.mjs
 var ok = createAuthEndpoint("/ok", {
   method: "GET",
   metadata: {
@@ -73510,7 +73512,7 @@ var ok = createAuthEndpoint("/ok", {
   return ctx.json({ ok: true });
 });
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/api/routes/password.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/api/routes/password.mjs
 init_error2();
 init_id();
 init_zod();
@@ -73705,7 +73707,7 @@ var verifyPassword2 = createAuthEndpoint("/verify-password", {
   return ctx.json({ status: true });
 });
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/api/routes/sign-in.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/api/routes/sign-in.mjs
 init_error2();
 init_zod();
 var socialSignInBodySchema = object({
@@ -73978,7 +73980,7 @@ var signInEmail = () => createAuthEndpoint("/sign-in/email", {
   });
 });
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/api/routes/sign-out.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/api/routes/sign-out.mjs
 init_zod();
 var signOutBodySchema = object({
   callbackURL: string2().meta({ description: "The URL to redirect to after provider logout" }).optional(),
@@ -74078,7 +74080,7 @@ var signOut = createAuthEndpoint("/sign-out", {
   return ctx.json(signOutResponse());
 });
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/api/routes/sign-up.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/api/routes/sign-up.mjs
 init_env();
 init_error2();
 init_id();
@@ -74338,7 +74340,7 @@ var signUpEmail = () => createAuthEndpoint("/sign-up/email", {
   });
 });
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/api/routes/update-session.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/api/routes/update-session.mjs
 init_error2();
 init_zod();
 var updateSessionBodySchema = record(string2().meta({ description: "Field name must be a string" }), any());
@@ -74392,7 +74394,7 @@ var updateSession = () => createAuthEndpoint("/update-session", {
   return ctx.json({ session: parseSessionOutput(ctx.context.options, newSession) });
 });
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/api/routes/update-user.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/api/routes/update-user.mjs
 init_error2();
 init_zod();
 var updateUserBodySchema = record(string2().meta({ description: "Field name must be a string" }), any());
@@ -74870,7 +74872,7 @@ var changeEmail = createAuthEndpoint("/change-email", {
   return ctx.json({ status: true });
 });
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/api/dispatch.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/api/dispatch.mjs
 init_env();
 init_error2();
 init_instrumentation();
@@ -75127,7 +75129,7 @@ async function dispatchAuthEndpoint(endpoint, input) {
   }));
 }
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/api/to-auth-endpoints.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/api/to-auth-endpoints.mjs
 init_error2();
 async function resolveDynamicContext(rawCtx, input) {
   if (rawCtx.baseURL)
@@ -75173,7 +75175,7 @@ function toAuthEndpoints(endpoints, ctx) {
   return api;
 }
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/api/index.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/api/index.mjs
 init_env();
 init_instrumentation();
 function checkEndpointConflicts(options, logger) {
@@ -75393,10 +75395,10 @@ var router = (ctx, options) => {
   });
 };
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/utils/constants.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/utils/constants.mjs
 var DEFAULT_SECRET = "better-auth-secret-12345678901234567890";
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/context/secret-utils.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/context/secret-utils.mjs
 init_error2();
 function estimateEntropy(str) {
   const unique = new Set(str).size;
@@ -75455,7 +75457,7 @@ function buildSecretConfig(secrets, legacySecret) {
   };
 }
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/context/create-context.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/context/create-context.mjs
 init_env();
 init_error2();
 init_id();
@@ -75962,7 +75964,7 @@ async function createTelemetry(options, context) {
   } };
 }
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/context/create-context.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/context/create-context.mjs
 function estimateEntropy2(str) {
   const unique = new Set(str).size;
   if (unique === 0)
@@ -76189,7 +76191,7 @@ Most of the features of Better Auth will not work correctly.`);
   return ctx;
 }
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/context/init.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/context/init.mjs
 init_error2();
 init_dist3();
 var init = async (options) => {
@@ -76205,7 +76207,7 @@ var init = async (options) => {
   return ctx;
 };
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/auth/base.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/auth/base.mjs
 init_error2();
 init_internal();
 var createBetterAuth = (options, initFn) => {
@@ -76270,12 +76272,12 @@ var createBetterAuth = (options, initFn) => {
   };
 };
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/auth/full.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/auth/full.mjs
 var betterAuth = (options) => {
   return createBetterAuth(options, init);
 };
 
-// ../node_modules/.bun/better-auth@1.7.6+dd252febe9af0ae6/node_modules/better-auth/dist/index.mjs
+// ../node_modules/.bun/better-auth@1.7.6+f922e20f3dd591df/node_modules/better-auth/dist/index.mjs
 init_env();
 init_error2();
 init_error_codes();
@@ -76832,6 +76834,10 @@ var auth = betterAuth({
         type: "string",
         defaultValue: "agent",
         required: false
+      },
+      deletedAt: {
+        type: "date",
+        required: false
       }
     }
   },
@@ -76866,6 +76872,9 @@ async function requireAuth(req, res, next) {
     if (!session) {
       return res.status(401).json({ error: "Unauthorized: Active session required" });
     }
+    if (session.user?.deletedAt) {
+      return res.status(401).json({ error: "Unauthorized: Account has been deactivated" });
+    }
     req.user = session.user;
     req.session = session.session;
     next();
@@ -76891,13 +76900,3840 @@ function requireRole(allowedRoles) {
 }
 
 // src/routes/users.ts
+import crypto2 from "crypto";
+
+// ../node_modules/.bun/zod@3.25.76/node_modules/zod/v3/helpers/util.js
+var util;
+(function(util) {
+  util.assertEqual = (_) => {};
+  function assertIs(_arg) {}
+  util.assertIs = assertIs;
+  function assertNever(_x) {
+    throw new Error;
+  }
+  util.assertNever = assertNever;
+  util.arrayToEnum = (items) => {
+    const obj = {};
+    for (const item of items) {
+      obj[item] = item;
+    }
+    return obj;
+  };
+  util.getValidEnumValues = (obj) => {
+    const validKeys = util.objectKeys(obj).filter((k) => typeof obj[obj[k]] !== "number");
+    const filtered = {};
+    for (const k of validKeys) {
+      filtered[k] = obj[k];
+    }
+    return util.objectValues(filtered);
+  };
+  util.objectValues = (obj) => {
+    return util.objectKeys(obj).map(function(e) {
+      return obj[e];
+    });
+  };
+  util.objectKeys = typeof Object.keys === "function" ? (obj) => Object.keys(obj) : (object) => {
+    const keys = [];
+    for (const key in object) {
+      if (Object.prototype.hasOwnProperty.call(object, key)) {
+        keys.push(key);
+      }
+    }
+    return keys;
+  };
+  util.find = (arr, checker) => {
+    for (const item of arr) {
+      if (checker(item))
+        return item;
+    }
+    return;
+  };
+  util.isInteger = typeof Number.isInteger === "function" ? (val) => Number.isInteger(val) : (val) => typeof val === "number" && Number.isFinite(val) && Math.floor(val) === val;
+  function joinValues(array, separator = " | ") {
+    return array.map((val) => typeof val === "string" ? `'${val}'` : val).join(separator);
+  }
+  util.joinValues = joinValues;
+  util.jsonStringifyReplacer = (_, value) => {
+    if (typeof value === "bigint") {
+      return value.toString();
+    }
+    return value;
+  };
+})(util || (util = {}));
+var objectUtil;
+(function(objectUtil) {
+  objectUtil.mergeShapes = (first, second) => {
+    return {
+      ...first,
+      ...second
+    };
+  };
+})(objectUtil || (objectUtil = {}));
+var ZodParsedType = util.arrayToEnum([
+  "string",
+  "nan",
+  "number",
+  "integer",
+  "float",
+  "boolean",
+  "date",
+  "bigint",
+  "symbol",
+  "function",
+  "undefined",
+  "null",
+  "array",
+  "object",
+  "unknown",
+  "promise",
+  "void",
+  "never",
+  "map",
+  "set"
+]);
+var getParsedType = (data) => {
+  const t = typeof data;
+  switch (t) {
+    case "undefined":
+      return ZodParsedType.undefined;
+    case "string":
+      return ZodParsedType.string;
+    case "number":
+      return Number.isNaN(data) ? ZodParsedType.nan : ZodParsedType.number;
+    case "boolean":
+      return ZodParsedType.boolean;
+    case "function":
+      return ZodParsedType.function;
+    case "bigint":
+      return ZodParsedType.bigint;
+    case "symbol":
+      return ZodParsedType.symbol;
+    case "object":
+      if (Array.isArray(data)) {
+        return ZodParsedType.array;
+      }
+      if (data === null) {
+        return ZodParsedType.null;
+      }
+      if (data.then && typeof data.then === "function" && data.catch && typeof data.catch === "function") {
+        return ZodParsedType.promise;
+      }
+      if (typeof Map !== "undefined" && data instanceof Map) {
+        return ZodParsedType.map;
+      }
+      if (typeof Set !== "undefined" && data instanceof Set) {
+        return ZodParsedType.set;
+      }
+      if (typeof Date !== "undefined" && data instanceof Date) {
+        return ZodParsedType.date;
+      }
+      return ZodParsedType.object;
+    default:
+      return ZodParsedType.unknown;
+  }
+};
+
+// ../node_modules/.bun/zod@3.25.76/node_modules/zod/v3/ZodError.js
+var ZodIssueCode = util.arrayToEnum([
+  "invalid_type",
+  "invalid_literal",
+  "custom",
+  "invalid_union",
+  "invalid_union_discriminator",
+  "invalid_enum_value",
+  "unrecognized_keys",
+  "invalid_arguments",
+  "invalid_return_type",
+  "invalid_date",
+  "invalid_string",
+  "too_small",
+  "too_big",
+  "invalid_intersection_types",
+  "not_multiple_of",
+  "not_finite"
+]);
+class ZodError extends Error {
+  get errors() {
+    return this.issues;
+  }
+  constructor(issues) {
+    super();
+    this.issues = [];
+    this.addIssue = (sub) => {
+      this.issues = [...this.issues, sub];
+    };
+    this.addIssues = (subs = []) => {
+      this.issues = [...this.issues, ...subs];
+    };
+    const actualProto = new.target.prototype;
+    if (Object.setPrototypeOf) {
+      Object.setPrototypeOf(this, actualProto);
+    } else {
+      this.__proto__ = actualProto;
+    }
+    this.name = "ZodError";
+    this.issues = issues;
+  }
+  format(_mapper) {
+    const mapper = _mapper || function(issue) {
+      return issue.message;
+    };
+    const fieldErrors = { _errors: [] };
+    const processError = (error) => {
+      for (const issue of error.issues) {
+        if (issue.code === "invalid_union") {
+          issue.unionErrors.map(processError);
+        } else if (issue.code === "invalid_return_type") {
+          processError(issue.returnTypeError);
+        } else if (issue.code === "invalid_arguments") {
+          processError(issue.argumentsError);
+        } else if (issue.path.length === 0) {
+          fieldErrors._errors.push(mapper(issue));
+        } else {
+          let curr = fieldErrors;
+          let i = 0;
+          while (i < issue.path.length) {
+            const el = issue.path[i];
+            const terminal = i === issue.path.length - 1;
+            if (!terminal) {
+              curr[el] = curr[el] || { _errors: [] };
+            } else {
+              curr[el] = curr[el] || { _errors: [] };
+              curr[el]._errors.push(mapper(issue));
+            }
+            curr = curr[el];
+            i++;
+          }
+        }
+      }
+    };
+    processError(this);
+    return fieldErrors;
+  }
+  static assert(value) {
+    if (!(value instanceof ZodError)) {
+      throw new Error(`Not a ZodError: ${value}`);
+    }
+  }
+  toString() {
+    return this.message;
+  }
+  get message() {
+    return JSON.stringify(this.issues, util.jsonStringifyReplacer, 2);
+  }
+  get isEmpty() {
+    return this.issues.length === 0;
+  }
+  flatten(mapper = (issue) => issue.message) {
+    const fieldErrors = {};
+    const formErrors = [];
+    for (const sub of this.issues) {
+      if (sub.path.length > 0) {
+        const firstEl = sub.path[0];
+        fieldErrors[firstEl] = fieldErrors[firstEl] || [];
+        fieldErrors[firstEl].push(mapper(sub));
+      } else {
+        formErrors.push(mapper(sub));
+      }
+    }
+    return { formErrors, fieldErrors };
+  }
+  get formErrors() {
+    return this.flatten();
+  }
+}
+ZodError.create = (issues) => {
+  const error = new ZodError(issues);
+  return error;
+};
+
+// ../node_modules/.bun/zod@3.25.76/node_modules/zod/v3/locales/en.js
+var errorMap = (issue, _ctx) => {
+  let message;
+  switch (issue.code) {
+    case ZodIssueCode.invalid_type:
+      if (issue.received === ZodParsedType.undefined) {
+        message = "Required";
+      } else {
+        message = `Expected ${issue.expected}, received ${issue.received}`;
+      }
+      break;
+    case ZodIssueCode.invalid_literal:
+      message = `Invalid literal value, expected ${JSON.stringify(issue.expected, util.jsonStringifyReplacer)}`;
+      break;
+    case ZodIssueCode.unrecognized_keys:
+      message = `Unrecognized key(s) in object: ${util.joinValues(issue.keys, ", ")}`;
+      break;
+    case ZodIssueCode.invalid_union:
+      message = `Invalid input`;
+      break;
+    case ZodIssueCode.invalid_union_discriminator:
+      message = `Invalid discriminator value. Expected ${util.joinValues(issue.options)}`;
+      break;
+    case ZodIssueCode.invalid_enum_value:
+      message = `Invalid enum value. Expected ${util.joinValues(issue.options)}, received '${issue.received}'`;
+      break;
+    case ZodIssueCode.invalid_arguments:
+      message = `Invalid function arguments`;
+      break;
+    case ZodIssueCode.invalid_return_type:
+      message = `Invalid function return type`;
+      break;
+    case ZodIssueCode.invalid_date:
+      message = `Invalid date`;
+      break;
+    case ZodIssueCode.invalid_string:
+      if (typeof issue.validation === "object") {
+        if ("includes" in issue.validation) {
+          message = `Invalid input: must include "${issue.validation.includes}"`;
+          if (typeof issue.validation.position === "number") {
+            message = `${message} at one or more positions greater than or equal to ${issue.validation.position}`;
+          }
+        } else if ("startsWith" in issue.validation) {
+          message = `Invalid input: must start with "${issue.validation.startsWith}"`;
+        } else if ("endsWith" in issue.validation) {
+          message = `Invalid input: must end with "${issue.validation.endsWith}"`;
+        } else {
+          util.assertNever(issue.validation);
+        }
+      } else if (issue.validation !== "regex") {
+        message = `Invalid ${issue.validation}`;
+      } else {
+        message = "Invalid";
+      }
+      break;
+    case ZodIssueCode.too_small:
+      if (issue.type === "array")
+        message = `Array must contain ${issue.exact ? "exactly" : issue.inclusive ? `at least` : `more than`} ${issue.minimum} element(s)`;
+      else if (issue.type === "string")
+        message = `String must contain ${issue.exact ? "exactly" : issue.inclusive ? `at least` : `over`} ${issue.minimum} character(s)`;
+      else if (issue.type === "number")
+        message = `Number must be ${issue.exact ? `exactly equal to ` : issue.inclusive ? `greater than or equal to ` : `greater than `}${issue.minimum}`;
+      else if (issue.type === "bigint")
+        message = `Number must be ${issue.exact ? `exactly equal to ` : issue.inclusive ? `greater than or equal to ` : `greater than `}${issue.minimum}`;
+      else if (issue.type === "date")
+        message = `Date must be ${issue.exact ? `exactly equal to ` : issue.inclusive ? `greater than or equal to ` : `greater than `}${new Date(Number(issue.minimum))}`;
+      else
+        message = "Invalid input";
+      break;
+    case ZodIssueCode.too_big:
+      if (issue.type === "array")
+        message = `Array must contain ${issue.exact ? `exactly` : issue.inclusive ? `at most` : `less than`} ${issue.maximum} element(s)`;
+      else if (issue.type === "string")
+        message = `String must contain ${issue.exact ? `exactly` : issue.inclusive ? `at most` : `under`} ${issue.maximum} character(s)`;
+      else if (issue.type === "number")
+        message = `Number must be ${issue.exact ? `exactly` : issue.inclusive ? `less than or equal to` : `less than`} ${issue.maximum}`;
+      else if (issue.type === "bigint")
+        message = `BigInt must be ${issue.exact ? `exactly` : issue.inclusive ? `less than or equal to` : `less than`} ${issue.maximum}`;
+      else if (issue.type === "date")
+        message = `Date must be ${issue.exact ? `exactly` : issue.inclusive ? `smaller than or equal to` : `smaller than`} ${new Date(Number(issue.maximum))}`;
+      else
+        message = "Invalid input";
+      break;
+    case ZodIssueCode.custom:
+      message = `Invalid input`;
+      break;
+    case ZodIssueCode.invalid_intersection_types:
+      message = `Intersection results could not be merged`;
+      break;
+    case ZodIssueCode.not_multiple_of:
+      message = `Number must be a multiple of ${issue.multipleOf}`;
+      break;
+    case ZodIssueCode.not_finite:
+      message = "Number must be finite";
+      break;
+    default:
+      message = _ctx.defaultError;
+      util.assertNever(issue);
+  }
+  return { message };
+};
+var en_default2 = errorMap;
+
+// ../node_modules/.bun/zod@3.25.76/node_modules/zod/v3/errors.js
+var overrideErrorMap = en_default2;
+function getErrorMap() {
+  return overrideErrorMap;
+}
+
+// ../node_modules/.bun/zod@3.25.76/node_modules/zod/v3/helpers/parseUtil.js
+var makeIssue = (params) => {
+  const { data, path, errorMaps, issueData } = params;
+  const fullPath = [...path, ...issueData.path || []];
+  const fullIssue = {
+    ...issueData,
+    path: fullPath
+  };
+  if (issueData.message !== undefined) {
+    return {
+      ...issueData,
+      path: fullPath,
+      message: issueData.message
+    };
+  }
+  let errorMessage = "";
+  const maps = errorMaps.filter((m) => !!m).slice().reverse();
+  for (const map of maps) {
+    errorMessage = map(fullIssue, { data, defaultError: errorMessage }).message;
+  }
+  return {
+    ...issueData,
+    path: fullPath,
+    message: errorMessage
+  };
+};
+function addIssueToContext(ctx, issueData) {
+  const overrideMap = getErrorMap();
+  const issue = makeIssue({
+    issueData,
+    data: ctx.data,
+    path: ctx.path,
+    errorMaps: [
+      ctx.common.contextualErrorMap,
+      ctx.schemaErrorMap,
+      overrideMap,
+      overrideMap === en_default2 ? undefined : en_default2
+    ].filter((x) => !!x)
+  });
+  ctx.common.issues.push(issue);
+}
+
+class ParseStatus {
+  constructor() {
+    this.value = "valid";
+  }
+  dirty() {
+    if (this.value === "valid")
+      this.value = "dirty";
+  }
+  abort() {
+    if (this.value !== "aborted")
+      this.value = "aborted";
+  }
+  static mergeArray(status, results) {
+    const arrayValue = [];
+    for (const s of results) {
+      if (s.status === "aborted")
+        return INVALID2;
+      if (s.status === "dirty")
+        status.dirty();
+      arrayValue.push(s.value);
+    }
+    return { status: status.value, value: arrayValue };
+  }
+  static async mergeObjectAsync(status, pairs) {
+    const syncPairs = [];
+    for (const pair of pairs) {
+      const key = await pair.key;
+      const value = await pair.value;
+      syncPairs.push({
+        key,
+        value
+      });
+    }
+    return ParseStatus.mergeObjectSync(status, syncPairs);
+  }
+  static mergeObjectSync(status, pairs) {
+    const finalObject = {};
+    for (const pair of pairs) {
+      const { key, value } = pair;
+      if (key.status === "aborted")
+        return INVALID2;
+      if (value.status === "aborted")
+        return INVALID2;
+      if (key.status === "dirty")
+        status.dirty();
+      if (value.status === "dirty")
+        status.dirty();
+      if (key.value !== "__proto__" && (typeof value.value !== "undefined" || pair.alwaysSet)) {
+        finalObject[key.value] = value.value;
+      }
+    }
+    return { status: status.value, value: finalObject };
+  }
+}
+var INVALID2 = Object.freeze({
+  status: "aborted"
+});
+var DIRTY = (value) => ({ status: "dirty", value });
+var OK = (value) => ({ status: "valid", value });
+var isAborted = (x) => x.status === "aborted";
+var isDirty = (x) => x.status === "dirty";
+var isValid = (x) => x.status === "valid";
+var isAsync = (x) => typeof Promise !== "undefined" && x instanceof Promise;
+
+// ../node_modules/.bun/zod@3.25.76/node_modules/zod/v3/helpers/errorUtil.js
+var errorUtil;
+(function(errorUtil) {
+  errorUtil.errToObj = (message) => typeof message === "string" ? { message } : message || {};
+  errorUtil.toString = (message) => typeof message === "string" ? message : message?.message;
+})(errorUtil || (errorUtil = {}));
+
+// ../node_modules/.bun/zod@3.25.76/node_modules/zod/v3/types.js
+class ParseInputLazyPath {
+  constructor(parent, value, path, key) {
+    this._cachedPath = [];
+    this.parent = parent;
+    this.data = value;
+    this._path = path;
+    this._key = key;
+  }
+  get path() {
+    if (!this._cachedPath.length) {
+      if (Array.isArray(this._key)) {
+        this._cachedPath.push(...this._path, ...this._key);
+      } else {
+        this._cachedPath.push(...this._path, this._key);
+      }
+    }
+    return this._cachedPath;
+  }
+}
+var handleResult = (ctx, result) => {
+  if (isValid(result)) {
+    return { success: true, data: result.value };
+  } else {
+    if (!ctx.common.issues.length) {
+      throw new Error("Validation failed but no issues detected.");
+    }
+    return {
+      success: false,
+      get error() {
+        if (this._error)
+          return this._error;
+        const error = new ZodError(ctx.common.issues);
+        this._error = error;
+        return this._error;
+      }
+    };
+  }
+};
+function processCreateParams(params) {
+  if (!params)
+    return {};
+  const { errorMap, invalid_type_error, required_error, description } = params;
+  if (errorMap && (invalid_type_error || required_error)) {
+    throw new Error(`Can't use "invalid_type_error" or "required_error" in conjunction with custom error map.`);
+  }
+  if (errorMap)
+    return { errorMap, description };
+  const customMap = (iss, ctx) => {
+    const { message } = params;
+    if (iss.code === "invalid_enum_value") {
+      return { message: message ?? ctx.defaultError };
+    }
+    if (typeof ctx.data === "undefined") {
+      return { message: message ?? required_error ?? ctx.defaultError };
+    }
+    if (iss.code !== "invalid_type")
+      return { message: ctx.defaultError };
+    return { message: message ?? invalid_type_error ?? ctx.defaultError };
+  };
+  return { errorMap: customMap, description };
+}
+
+class ZodType2 {
+  get description() {
+    return this._def.description;
+  }
+  _getType(input) {
+    return getParsedType(input.data);
+  }
+  _getOrReturnCtx(input, ctx) {
+    return ctx || {
+      common: input.parent.common,
+      data: input.data,
+      parsedType: getParsedType(input.data),
+      schemaErrorMap: this._def.errorMap,
+      path: input.path,
+      parent: input.parent
+    };
+  }
+  _processInputParams(input) {
+    return {
+      status: new ParseStatus,
+      ctx: {
+        common: input.parent.common,
+        data: input.data,
+        parsedType: getParsedType(input.data),
+        schemaErrorMap: this._def.errorMap,
+        path: input.path,
+        parent: input.parent
+      }
+    };
+  }
+  _parseSync(input) {
+    const result = this._parse(input);
+    if (isAsync(result)) {
+      throw new Error("Synchronous parse encountered promise.");
+    }
+    return result;
+  }
+  _parseAsync(input) {
+    const result = this._parse(input);
+    return Promise.resolve(result);
+  }
+  parse(data, params) {
+    const result = this.safeParse(data, params);
+    if (result.success)
+      return result.data;
+    throw result.error;
+  }
+  safeParse(data, params) {
+    const ctx = {
+      common: {
+        issues: [],
+        async: params?.async ?? false,
+        contextualErrorMap: params?.errorMap
+      },
+      path: params?.path || [],
+      schemaErrorMap: this._def.errorMap,
+      parent: null,
+      data,
+      parsedType: getParsedType(data)
+    };
+    const result = this._parseSync({ data, path: ctx.path, parent: ctx });
+    return handleResult(ctx, result);
+  }
+  "~validate"(data) {
+    const ctx = {
+      common: {
+        issues: [],
+        async: !!this["~standard"].async
+      },
+      path: [],
+      schemaErrorMap: this._def.errorMap,
+      parent: null,
+      data,
+      parsedType: getParsedType(data)
+    };
+    if (!this["~standard"].async) {
+      try {
+        const result = this._parseSync({ data, path: [], parent: ctx });
+        return isValid(result) ? {
+          value: result.value
+        } : {
+          issues: ctx.common.issues
+        };
+      } catch (err) {
+        if (err?.message?.toLowerCase()?.includes("encountered")) {
+          this["~standard"].async = true;
+        }
+        ctx.common = {
+          issues: [],
+          async: true
+        };
+      }
+    }
+    return this._parseAsync({ data, path: [], parent: ctx }).then((result) => isValid(result) ? {
+      value: result.value
+    } : {
+      issues: ctx.common.issues
+    });
+  }
+  async parseAsync(data, params) {
+    const result = await this.safeParseAsync(data, params);
+    if (result.success)
+      return result.data;
+    throw result.error;
+  }
+  async safeParseAsync(data, params) {
+    const ctx = {
+      common: {
+        issues: [],
+        contextualErrorMap: params?.errorMap,
+        async: true
+      },
+      path: params?.path || [],
+      schemaErrorMap: this._def.errorMap,
+      parent: null,
+      data,
+      parsedType: getParsedType(data)
+    };
+    const maybeAsyncResult = this._parse({ data, path: ctx.path, parent: ctx });
+    const result = await (isAsync(maybeAsyncResult) ? maybeAsyncResult : Promise.resolve(maybeAsyncResult));
+    return handleResult(ctx, result);
+  }
+  refine(check, message) {
+    const getIssueProperties = (val) => {
+      if (typeof message === "string" || typeof message === "undefined") {
+        return { message };
+      } else if (typeof message === "function") {
+        return message(val);
+      } else {
+        return message;
+      }
+    };
+    return this._refinement((val, ctx) => {
+      const result = check(val);
+      const setError = () => ctx.addIssue({
+        code: ZodIssueCode.custom,
+        ...getIssueProperties(val)
+      });
+      if (typeof Promise !== "undefined" && result instanceof Promise) {
+        return result.then((data) => {
+          if (!data) {
+            setError();
+            return false;
+          } else {
+            return true;
+          }
+        });
+      }
+      if (!result) {
+        setError();
+        return false;
+      } else {
+        return true;
+      }
+    });
+  }
+  refinement(check, refinementData) {
+    return this._refinement((val, ctx) => {
+      if (!check(val)) {
+        ctx.addIssue(typeof refinementData === "function" ? refinementData(val, ctx) : refinementData);
+        return false;
+      } else {
+        return true;
+      }
+    });
+  }
+  _refinement(refinement) {
+    return new ZodEffects({
+      schema: this,
+      typeName: ZodFirstPartyTypeKind2.ZodEffects,
+      effect: { type: "refinement", refinement }
+    });
+  }
+  superRefine(refinement) {
+    return this._refinement(refinement);
+  }
+  constructor(def) {
+    this.spa = this.safeParseAsync;
+    this._def = def;
+    this.parse = this.parse.bind(this);
+    this.safeParse = this.safeParse.bind(this);
+    this.parseAsync = this.parseAsync.bind(this);
+    this.safeParseAsync = this.safeParseAsync.bind(this);
+    this.spa = this.spa.bind(this);
+    this.refine = this.refine.bind(this);
+    this.refinement = this.refinement.bind(this);
+    this.superRefine = this.superRefine.bind(this);
+    this.optional = this.optional.bind(this);
+    this.nullable = this.nullable.bind(this);
+    this.nullish = this.nullish.bind(this);
+    this.array = this.array.bind(this);
+    this.promise = this.promise.bind(this);
+    this.or = this.or.bind(this);
+    this.and = this.and.bind(this);
+    this.transform = this.transform.bind(this);
+    this.brand = this.brand.bind(this);
+    this.default = this.default.bind(this);
+    this.catch = this.catch.bind(this);
+    this.describe = this.describe.bind(this);
+    this.pipe = this.pipe.bind(this);
+    this.readonly = this.readonly.bind(this);
+    this.isNullable = this.isNullable.bind(this);
+    this.isOptional = this.isOptional.bind(this);
+    this["~standard"] = {
+      version: 1,
+      vendor: "zod",
+      validate: (data) => this["~validate"](data)
+    };
+  }
+  optional() {
+    return ZodOptional2.create(this, this._def);
+  }
+  nullable() {
+    return ZodNullable2.create(this, this._def);
+  }
+  nullish() {
+    return this.nullable().optional();
+  }
+  array() {
+    return ZodArray2.create(this);
+  }
+  promise() {
+    return ZodPromise.create(this, this._def);
+  }
+  or(option) {
+    return ZodUnion2.create([this, option], this._def);
+  }
+  and(incoming) {
+    return ZodIntersection2.create(this, incoming, this._def);
+  }
+  transform(transform) {
+    return new ZodEffects({
+      ...processCreateParams(this._def),
+      schema: this,
+      typeName: ZodFirstPartyTypeKind2.ZodEffects,
+      effect: { type: "transform", transform }
+    });
+  }
+  default(def) {
+    const defaultValueFunc = typeof def === "function" ? def : () => def;
+    return new ZodDefault2({
+      ...processCreateParams(this._def),
+      innerType: this,
+      defaultValue: defaultValueFunc,
+      typeName: ZodFirstPartyTypeKind2.ZodDefault
+    });
+  }
+  brand() {
+    return new ZodBranded({
+      typeName: ZodFirstPartyTypeKind2.ZodBranded,
+      type: this,
+      ...processCreateParams(this._def)
+    });
+  }
+  catch(def) {
+    const catchValueFunc = typeof def === "function" ? def : () => def;
+    return new ZodCatch2({
+      ...processCreateParams(this._def),
+      innerType: this,
+      catchValue: catchValueFunc,
+      typeName: ZodFirstPartyTypeKind2.ZodCatch
+    });
+  }
+  describe(description) {
+    const This = this.constructor;
+    return new This({
+      ...this._def,
+      description
+    });
+  }
+  pipe(target) {
+    return ZodPipeline.create(this, target);
+  }
+  readonly() {
+    return ZodReadonly2.create(this);
+  }
+  isOptional() {
+    return this.safeParse(undefined).success;
+  }
+  isNullable() {
+    return this.safeParse(null).success;
+  }
+}
+var cuidRegex = /^c[^\s-]{8,}$/i;
+var cuid2Regex = /^[0-9a-z]+$/;
+var ulidRegex = /^[0-9A-HJKMNP-TV-Z]{26}$/i;
+var uuidRegex = /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/i;
+var nanoidRegex = /^[a-z0-9_-]{21}$/i;
+var jwtRegex = /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*$/;
+var durationRegex = /^[-+]?P(?!$)(?:(?:[-+]?\d+Y)|(?:[-+]?\d+[.,]\d+Y$))?(?:(?:[-+]?\d+M)|(?:[-+]?\d+[.,]\d+M$))?(?:(?:[-+]?\d+W)|(?:[-+]?\d+[.,]\d+W$))?(?:(?:[-+]?\d+D)|(?:[-+]?\d+[.,]\d+D$))?(?:T(?=[\d+-])(?:(?:[-+]?\d+H)|(?:[-+]?\d+[.,]\d+H$))?(?:(?:[-+]?\d+M)|(?:[-+]?\d+[.,]\d+M$))?(?:[-+]?\d+(?:[.,]\d+)?S)?)??$/;
+var emailRegex = /^(?!\.)(?!.*\.\.)([A-Z0-9_'+\-\.]*)[A-Z0-9_+-]@([A-Z0-9][A-Z0-9\-]*\.)+[A-Z]{2,}$/i;
+var _emojiRegex = `^(\\p{Extended_Pictographic}|\\p{Emoji_Component})+$`;
+var emojiRegex;
+var ipv4Regex = /^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])$/;
+var ipv4CidrRegex = /^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\/(3[0-2]|[12]?[0-9])$/;
+var ipv6Regex = /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$/;
+var ipv6CidrRegex = /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))\/(12[0-8]|1[01][0-9]|[1-9]?[0-9])$/;
+var base64Regex = /^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/;
+var base64urlRegex = /^([0-9a-zA-Z-_]{4})*(([0-9a-zA-Z-_]{2}(==)?)|([0-9a-zA-Z-_]{3}(=)?))?$/;
+var dateRegexSource = `((\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-((0[13578]|1[02])-(0[1-9]|[12]\\d|3[01])|(0[469]|11)-(0[1-9]|[12]\\d|30)|(02)-(0[1-9]|1\\d|2[0-8])))`;
+var dateRegex = new RegExp(`^${dateRegexSource}$`);
+function timeRegexSource(args) {
+  let secondsRegexSource = `[0-5]\\d`;
+  if (args.precision) {
+    secondsRegexSource = `${secondsRegexSource}\\.\\d{${args.precision}}`;
+  } else if (args.precision == null) {
+    secondsRegexSource = `${secondsRegexSource}(\\.\\d+)?`;
+  }
+  const secondsQuantifier = args.precision ? "+" : "?";
+  return `([01]\\d|2[0-3]):[0-5]\\d(:${secondsRegexSource})${secondsQuantifier}`;
+}
+function timeRegex(args) {
+  return new RegExp(`^${timeRegexSource(args)}$`);
+}
+function datetimeRegex(args) {
+  let regex = `${dateRegexSource}T${timeRegexSource(args)}`;
+  const opts = [];
+  opts.push(args.local ? `Z?` : `Z`);
+  if (args.offset)
+    opts.push(`([+-]\\d{2}:?\\d{2})`);
+  regex = `${regex}(${opts.join("|")})`;
+  return new RegExp(`^${regex}$`);
+}
+function isValidIP2(ip, version) {
+  if ((version === "v4" || !version) && ipv4Regex.test(ip)) {
+    return true;
+  }
+  if ((version === "v6" || !version) && ipv6Regex.test(ip)) {
+    return true;
+  }
+  return false;
+}
+function isValidJWT2(jwt, alg) {
+  if (!jwtRegex.test(jwt))
+    return false;
+  try {
+    const [header] = jwt.split(".");
+    if (!header)
+      return false;
+    const base64 = header.replace(/-/g, "+").replace(/_/g, "/").padEnd(header.length + (4 - header.length % 4) % 4, "=");
+    const decoded = JSON.parse(atob(base64));
+    if (typeof decoded !== "object" || decoded === null)
+      return false;
+    if ("typ" in decoded && decoded?.typ !== "JWT")
+      return false;
+    if (!decoded.alg)
+      return false;
+    if (alg && decoded.alg !== alg)
+      return false;
+    return true;
+  } catch {
+    return false;
+  }
+}
+function isValidCidr(ip, version) {
+  if ((version === "v4" || !version) && ipv4CidrRegex.test(ip)) {
+    return true;
+  }
+  if ((version === "v6" || !version) && ipv6CidrRegex.test(ip)) {
+    return true;
+  }
+  return false;
+}
+
+class ZodString2 extends ZodType2 {
+  _parse(input) {
+    if (this._def.coerce) {
+      input.data = String(input.data);
+    }
+    const parsedType = this._getType(input);
+    if (parsedType !== ZodParsedType.string) {
+      const ctx = this._getOrReturnCtx(input);
+      addIssueToContext(ctx, {
+        code: ZodIssueCode.invalid_type,
+        expected: ZodParsedType.string,
+        received: ctx.parsedType
+      });
+      return INVALID2;
+    }
+    const status = new ParseStatus;
+    let ctx = undefined;
+    for (const check of this._def.checks) {
+      if (check.kind === "min") {
+        if (input.data.length < check.value) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            code: ZodIssueCode.too_small,
+            minimum: check.value,
+            type: "string",
+            inclusive: true,
+            exact: false,
+            message: check.message
+          });
+          status.dirty();
+        }
+      } else if (check.kind === "max") {
+        if (input.data.length > check.value) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            code: ZodIssueCode.too_big,
+            maximum: check.value,
+            type: "string",
+            inclusive: true,
+            exact: false,
+            message: check.message
+          });
+          status.dirty();
+        }
+      } else if (check.kind === "length") {
+        const tooBig = input.data.length > check.value;
+        const tooSmall = input.data.length < check.value;
+        if (tooBig || tooSmall) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          if (tooBig) {
+            addIssueToContext(ctx, {
+              code: ZodIssueCode.too_big,
+              maximum: check.value,
+              type: "string",
+              inclusive: true,
+              exact: true,
+              message: check.message
+            });
+          } else if (tooSmall) {
+            addIssueToContext(ctx, {
+              code: ZodIssueCode.too_small,
+              minimum: check.value,
+              type: "string",
+              inclusive: true,
+              exact: true,
+              message: check.message
+            });
+          }
+          status.dirty();
+        }
+      } else if (check.kind === "email") {
+        if (!emailRegex.test(input.data)) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            validation: "email",
+            code: ZodIssueCode.invalid_string,
+            message: check.message
+          });
+          status.dirty();
+        }
+      } else if (check.kind === "emoji") {
+        if (!emojiRegex) {
+          emojiRegex = new RegExp(_emojiRegex, "u");
+        }
+        if (!emojiRegex.test(input.data)) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            validation: "emoji",
+            code: ZodIssueCode.invalid_string,
+            message: check.message
+          });
+          status.dirty();
+        }
+      } else if (check.kind === "uuid") {
+        if (!uuidRegex.test(input.data)) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            validation: "uuid",
+            code: ZodIssueCode.invalid_string,
+            message: check.message
+          });
+          status.dirty();
+        }
+      } else if (check.kind === "nanoid") {
+        if (!nanoidRegex.test(input.data)) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            validation: "nanoid",
+            code: ZodIssueCode.invalid_string,
+            message: check.message
+          });
+          status.dirty();
+        }
+      } else if (check.kind === "cuid") {
+        if (!cuidRegex.test(input.data)) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            validation: "cuid",
+            code: ZodIssueCode.invalid_string,
+            message: check.message
+          });
+          status.dirty();
+        }
+      } else if (check.kind === "cuid2") {
+        if (!cuid2Regex.test(input.data)) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            validation: "cuid2",
+            code: ZodIssueCode.invalid_string,
+            message: check.message
+          });
+          status.dirty();
+        }
+      } else if (check.kind === "ulid") {
+        if (!ulidRegex.test(input.data)) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            validation: "ulid",
+            code: ZodIssueCode.invalid_string,
+            message: check.message
+          });
+          status.dirty();
+        }
+      } else if (check.kind === "url") {
+        try {
+          new URL(input.data);
+        } catch {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            validation: "url",
+            code: ZodIssueCode.invalid_string,
+            message: check.message
+          });
+          status.dirty();
+        }
+      } else if (check.kind === "regex") {
+        check.regex.lastIndex = 0;
+        const testResult = check.regex.test(input.data);
+        if (!testResult) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            validation: "regex",
+            code: ZodIssueCode.invalid_string,
+            message: check.message
+          });
+          status.dirty();
+        }
+      } else if (check.kind === "trim") {
+        input.data = input.data.trim();
+      } else if (check.kind === "includes") {
+        if (!input.data.includes(check.value, check.position)) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            code: ZodIssueCode.invalid_string,
+            validation: { includes: check.value, position: check.position },
+            message: check.message
+          });
+          status.dirty();
+        }
+      } else if (check.kind === "toLowerCase") {
+        input.data = input.data.toLowerCase();
+      } else if (check.kind === "toUpperCase") {
+        input.data = input.data.toUpperCase();
+      } else if (check.kind === "startsWith") {
+        if (!input.data.startsWith(check.value)) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            code: ZodIssueCode.invalid_string,
+            validation: { startsWith: check.value },
+            message: check.message
+          });
+          status.dirty();
+        }
+      } else if (check.kind === "endsWith") {
+        if (!input.data.endsWith(check.value)) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            code: ZodIssueCode.invalid_string,
+            validation: { endsWith: check.value },
+            message: check.message
+          });
+          status.dirty();
+        }
+      } else if (check.kind === "datetime") {
+        const regex = datetimeRegex(check);
+        if (!regex.test(input.data)) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            code: ZodIssueCode.invalid_string,
+            validation: "datetime",
+            message: check.message
+          });
+          status.dirty();
+        }
+      } else if (check.kind === "date") {
+        const regex = dateRegex;
+        if (!regex.test(input.data)) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            code: ZodIssueCode.invalid_string,
+            validation: "date",
+            message: check.message
+          });
+          status.dirty();
+        }
+      } else if (check.kind === "time") {
+        const regex = timeRegex(check);
+        if (!regex.test(input.data)) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            code: ZodIssueCode.invalid_string,
+            validation: "time",
+            message: check.message
+          });
+          status.dirty();
+        }
+      } else if (check.kind === "duration") {
+        if (!durationRegex.test(input.data)) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            validation: "duration",
+            code: ZodIssueCode.invalid_string,
+            message: check.message
+          });
+          status.dirty();
+        }
+      } else if (check.kind === "ip") {
+        if (!isValidIP2(input.data, check.version)) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            validation: "ip",
+            code: ZodIssueCode.invalid_string,
+            message: check.message
+          });
+          status.dirty();
+        }
+      } else if (check.kind === "jwt") {
+        if (!isValidJWT2(input.data, check.alg)) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            validation: "jwt",
+            code: ZodIssueCode.invalid_string,
+            message: check.message
+          });
+          status.dirty();
+        }
+      } else if (check.kind === "cidr") {
+        if (!isValidCidr(input.data, check.version)) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            validation: "cidr",
+            code: ZodIssueCode.invalid_string,
+            message: check.message
+          });
+          status.dirty();
+        }
+      } else if (check.kind === "base64") {
+        if (!base64Regex.test(input.data)) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            validation: "base64",
+            code: ZodIssueCode.invalid_string,
+            message: check.message
+          });
+          status.dirty();
+        }
+      } else if (check.kind === "base64url") {
+        if (!base64urlRegex.test(input.data)) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            validation: "base64url",
+            code: ZodIssueCode.invalid_string,
+            message: check.message
+          });
+          status.dirty();
+        }
+      } else {
+        util.assertNever(check);
+      }
+    }
+    return { status: status.value, value: input.data };
+  }
+  _regex(regex, validation, message) {
+    return this.refinement((data) => regex.test(data), {
+      validation,
+      code: ZodIssueCode.invalid_string,
+      ...errorUtil.errToObj(message)
+    });
+  }
+  _addCheck(check) {
+    return new ZodString2({
+      ...this._def,
+      checks: [...this._def.checks, check]
+    });
+  }
+  email(message) {
+    return this._addCheck({ kind: "email", ...errorUtil.errToObj(message) });
+  }
+  url(message) {
+    return this._addCheck({ kind: "url", ...errorUtil.errToObj(message) });
+  }
+  emoji(message) {
+    return this._addCheck({ kind: "emoji", ...errorUtil.errToObj(message) });
+  }
+  uuid(message) {
+    return this._addCheck({ kind: "uuid", ...errorUtil.errToObj(message) });
+  }
+  nanoid(message) {
+    return this._addCheck({ kind: "nanoid", ...errorUtil.errToObj(message) });
+  }
+  cuid(message) {
+    return this._addCheck({ kind: "cuid", ...errorUtil.errToObj(message) });
+  }
+  cuid2(message) {
+    return this._addCheck({ kind: "cuid2", ...errorUtil.errToObj(message) });
+  }
+  ulid(message) {
+    return this._addCheck({ kind: "ulid", ...errorUtil.errToObj(message) });
+  }
+  base64(message) {
+    return this._addCheck({ kind: "base64", ...errorUtil.errToObj(message) });
+  }
+  base64url(message) {
+    return this._addCheck({
+      kind: "base64url",
+      ...errorUtil.errToObj(message)
+    });
+  }
+  jwt(options) {
+    return this._addCheck({ kind: "jwt", ...errorUtil.errToObj(options) });
+  }
+  ip(options) {
+    return this._addCheck({ kind: "ip", ...errorUtil.errToObj(options) });
+  }
+  cidr(options) {
+    return this._addCheck({ kind: "cidr", ...errorUtil.errToObj(options) });
+  }
+  datetime(options) {
+    if (typeof options === "string") {
+      return this._addCheck({
+        kind: "datetime",
+        precision: null,
+        offset: false,
+        local: false,
+        message: options
+      });
+    }
+    return this._addCheck({
+      kind: "datetime",
+      precision: typeof options?.precision === "undefined" ? null : options?.precision,
+      offset: options?.offset ?? false,
+      local: options?.local ?? false,
+      ...errorUtil.errToObj(options?.message)
+    });
+  }
+  date(message) {
+    return this._addCheck({ kind: "date", message });
+  }
+  time(options) {
+    if (typeof options === "string") {
+      return this._addCheck({
+        kind: "time",
+        precision: null,
+        message: options
+      });
+    }
+    return this._addCheck({
+      kind: "time",
+      precision: typeof options?.precision === "undefined" ? null : options?.precision,
+      ...errorUtil.errToObj(options?.message)
+    });
+  }
+  duration(message) {
+    return this._addCheck({ kind: "duration", ...errorUtil.errToObj(message) });
+  }
+  regex(regex, message) {
+    return this._addCheck({
+      kind: "regex",
+      regex,
+      ...errorUtil.errToObj(message)
+    });
+  }
+  includes(value, options) {
+    return this._addCheck({
+      kind: "includes",
+      value,
+      position: options?.position,
+      ...errorUtil.errToObj(options?.message)
+    });
+  }
+  startsWith(value, message) {
+    return this._addCheck({
+      kind: "startsWith",
+      value,
+      ...errorUtil.errToObj(message)
+    });
+  }
+  endsWith(value, message) {
+    return this._addCheck({
+      kind: "endsWith",
+      value,
+      ...errorUtil.errToObj(message)
+    });
+  }
+  min(minLength, message) {
+    return this._addCheck({
+      kind: "min",
+      value: minLength,
+      ...errorUtil.errToObj(message)
+    });
+  }
+  max(maxLength, message) {
+    return this._addCheck({
+      kind: "max",
+      value: maxLength,
+      ...errorUtil.errToObj(message)
+    });
+  }
+  length(len, message) {
+    return this._addCheck({
+      kind: "length",
+      value: len,
+      ...errorUtil.errToObj(message)
+    });
+  }
+  nonempty(message) {
+    return this.min(1, errorUtil.errToObj(message));
+  }
+  trim() {
+    return new ZodString2({
+      ...this._def,
+      checks: [...this._def.checks, { kind: "trim" }]
+    });
+  }
+  toLowerCase() {
+    return new ZodString2({
+      ...this._def,
+      checks: [...this._def.checks, { kind: "toLowerCase" }]
+    });
+  }
+  toUpperCase() {
+    return new ZodString2({
+      ...this._def,
+      checks: [...this._def.checks, { kind: "toUpperCase" }]
+    });
+  }
+  get isDatetime() {
+    return !!this._def.checks.find((ch) => ch.kind === "datetime");
+  }
+  get isDate() {
+    return !!this._def.checks.find((ch) => ch.kind === "date");
+  }
+  get isTime() {
+    return !!this._def.checks.find((ch) => ch.kind === "time");
+  }
+  get isDuration() {
+    return !!this._def.checks.find((ch) => ch.kind === "duration");
+  }
+  get isEmail() {
+    return !!this._def.checks.find((ch) => ch.kind === "email");
+  }
+  get isURL() {
+    return !!this._def.checks.find((ch) => ch.kind === "url");
+  }
+  get isEmoji() {
+    return !!this._def.checks.find((ch) => ch.kind === "emoji");
+  }
+  get isUUID() {
+    return !!this._def.checks.find((ch) => ch.kind === "uuid");
+  }
+  get isNANOID() {
+    return !!this._def.checks.find((ch) => ch.kind === "nanoid");
+  }
+  get isCUID() {
+    return !!this._def.checks.find((ch) => ch.kind === "cuid");
+  }
+  get isCUID2() {
+    return !!this._def.checks.find((ch) => ch.kind === "cuid2");
+  }
+  get isULID() {
+    return !!this._def.checks.find((ch) => ch.kind === "ulid");
+  }
+  get isIP() {
+    return !!this._def.checks.find((ch) => ch.kind === "ip");
+  }
+  get isCIDR() {
+    return !!this._def.checks.find((ch) => ch.kind === "cidr");
+  }
+  get isBase64() {
+    return !!this._def.checks.find((ch) => ch.kind === "base64");
+  }
+  get isBase64url() {
+    return !!this._def.checks.find((ch) => ch.kind === "base64url");
+  }
+  get minLength() {
+    let min = null;
+    for (const ch of this._def.checks) {
+      if (ch.kind === "min") {
+        if (min === null || ch.value > min)
+          min = ch.value;
+      }
+    }
+    return min;
+  }
+  get maxLength() {
+    let max = null;
+    for (const ch of this._def.checks) {
+      if (ch.kind === "max") {
+        if (max === null || ch.value < max)
+          max = ch.value;
+      }
+    }
+    return max;
+  }
+}
+ZodString2.create = (params) => {
+  return new ZodString2({
+    checks: [],
+    typeName: ZodFirstPartyTypeKind2.ZodString,
+    coerce: params?.coerce ?? false,
+    ...processCreateParams(params)
+  });
+};
+function floatSafeRemainder2(val, step) {
+  const valDecCount = (val.toString().split(".")[1] || "").length;
+  const stepDecCount = (step.toString().split(".")[1] || "").length;
+  const decCount = valDecCount > stepDecCount ? valDecCount : stepDecCount;
+  const valInt = Number.parseInt(val.toFixed(decCount).replace(".", ""));
+  const stepInt = Number.parseInt(step.toFixed(decCount).replace(".", ""));
+  return valInt % stepInt / 10 ** decCount;
+}
+
+class ZodNumber2 extends ZodType2 {
+  constructor() {
+    super(...arguments);
+    this.min = this.gte;
+    this.max = this.lte;
+    this.step = this.multipleOf;
+  }
+  _parse(input) {
+    if (this._def.coerce) {
+      input.data = Number(input.data);
+    }
+    const parsedType = this._getType(input);
+    if (parsedType !== ZodParsedType.number) {
+      const ctx = this._getOrReturnCtx(input);
+      addIssueToContext(ctx, {
+        code: ZodIssueCode.invalid_type,
+        expected: ZodParsedType.number,
+        received: ctx.parsedType
+      });
+      return INVALID2;
+    }
+    let ctx = undefined;
+    const status = new ParseStatus;
+    for (const check of this._def.checks) {
+      if (check.kind === "int") {
+        if (!util.isInteger(input.data)) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            code: ZodIssueCode.invalid_type,
+            expected: "integer",
+            received: "float",
+            message: check.message
+          });
+          status.dirty();
+        }
+      } else if (check.kind === "min") {
+        const tooSmall = check.inclusive ? input.data < check.value : input.data <= check.value;
+        if (tooSmall) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            code: ZodIssueCode.too_small,
+            minimum: check.value,
+            type: "number",
+            inclusive: check.inclusive,
+            exact: false,
+            message: check.message
+          });
+          status.dirty();
+        }
+      } else if (check.kind === "max") {
+        const tooBig = check.inclusive ? input.data > check.value : input.data >= check.value;
+        if (tooBig) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            code: ZodIssueCode.too_big,
+            maximum: check.value,
+            type: "number",
+            inclusive: check.inclusive,
+            exact: false,
+            message: check.message
+          });
+          status.dirty();
+        }
+      } else if (check.kind === "multipleOf") {
+        if (floatSafeRemainder2(input.data, check.value) !== 0) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            code: ZodIssueCode.not_multiple_of,
+            multipleOf: check.value,
+            message: check.message
+          });
+          status.dirty();
+        }
+      } else if (check.kind === "finite") {
+        if (!Number.isFinite(input.data)) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            code: ZodIssueCode.not_finite,
+            message: check.message
+          });
+          status.dirty();
+        }
+      } else {
+        util.assertNever(check);
+      }
+    }
+    return { status: status.value, value: input.data };
+  }
+  gte(value, message) {
+    return this.setLimit("min", value, true, errorUtil.toString(message));
+  }
+  gt(value, message) {
+    return this.setLimit("min", value, false, errorUtil.toString(message));
+  }
+  lte(value, message) {
+    return this.setLimit("max", value, true, errorUtil.toString(message));
+  }
+  lt(value, message) {
+    return this.setLimit("max", value, false, errorUtil.toString(message));
+  }
+  setLimit(kind, value, inclusive, message) {
+    return new ZodNumber2({
+      ...this._def,
+      checks: [
+        ...this._def.checks,
+        {
+          kind,
+          value,
+          inclusive,
+          message: errorUtil.toString(message)
+        }
+      ]
+    });
+  }
+  _addCheck(check) {
+    return new ZodNumber2({
+      ...this._def,
+      checks: [...this._def.checks, check]
+    });
+  }
+  int(message) {
+    return this._addCheck({
+      kind: "int",
+      message: errorUtil.toString(message)
+    });
+  }
+  positive(message) {
+    return this._addCheck({
+      kind: "min",
+      value: 0,
+      inclusive: false,
+      message: errorUtil.toString(message)
+    });
+  }
+  negative(message) {
+    return this._addCheck({
+      kind: "max",
+      value: 0,
+      inclusive: false,
+      message: errorUtil.toString(message)
+    });
+  }
+  nonpositive(message) {
+    return this._addCheck({
+      kind: "max",
+      value: 0,
+      inclusive: true,
+      message: errorUtil.toString(message)
+    });
+  }
+  nonnegative(message) {
+    return this._addCheck({
+      kind: "min",
+      value: 0,
+      inclusive: true,
+      message: errorUtil.toString(message)
+    });
+  }
+  multipleOf(value, message) {
+    return this._addCheck({
+      kind: "multipleOf",
+      value,
+      message: errorUtil.toString(message)
+    });
+  }
+  finite(message) {
+    return this._addCheck({
+      kind: "finite",
+      message: errorUtil.toString(message)
+    });
+  }
+  safe(message) {
+    return this._addCheck({
+      kind: "min",
+      inclusive: true,
+      value: Number.MIN_SAFE_INTEGER,
+      message: errorUtil.toString(message)
+    })._addCheck({
+      kind: "max",
+      inclusive: true,
+      value: Number.MAX_SAFE_INTEGER,
+      message: errorUtil.toString(message)
+    });
+  }
+  get minValue() {
+    let min = null;
+    for (const ch of this._def.checks) {
+      if (ch.kind === "min") {
+        if (min === null || ch.value > min)
+          min = ch.value;
+      }
+    }
+    return min;
+  }
+  get maxValue() {
+    let max = null;
+    for (const ch of this._def.checks) {
+      if (ch.kind === "max") {
+        if (max === null || ch.value < max)
+          max = ch.value;
+      }
+    }
+    return max;
+  }
+  get isInt() {
+    return !!this._def.checks.find((ch) => ch.kind === "int" || ch.kind === "multipleOf" && util.isInteger(ch.value));
+  }
+  get isFinite() {
+    let max = null;
+    let min = null;
+    for (const ch of this._def.checks) {
+      if (ch.kind === "finite" || ch.kind === "int" || ch.kind === "multipleOf") {
+        return true;
+      } else if (ch.kind === "min") {
+        if (min === null || ch.value > min)
+          min = ch.value;
+      } else if (ch.kind === "max") {
+        if (max === null || ch.value < max)
+          max = ch.value;
+      }
+    }
+    return Number.isFinite(min) && Number.isFinite(max);
+  }
+}
+ZodNumber2.create = (params) => {
+  return new ZodNumber2({
+    checks: [],
+    typeName: ZodFirstPartyTypeKind2.ZodNumber,
+    coerce: params?.coerce || false,
+    ...processCreateParams(params)
+  });
+};
+
+class ZodBigInt2 extends ZodType2 {
+  constructor() {
+    super(...arguments);
+    this.min = this.gte;
+    this.max = this.lte;
+  }
+  _parse(input) {
+    if (this._def.coerce) {
+      try {
+        input.data = BigInt(input.data);
+      } catch {
+        return this._getInvalidInput(input);
+      }
+    }
+    const parsedType = this._getType(input);
+    if (parsedType !== ZodParsedType.bigint) {
+      return this._getInvalidInput(input);
+    }
+    let ctx = undefined;
+    const status = new ParseStatus;
+    for (const check of this._def.checks) {
+      if (check.kind === "min") {
+        const tooSmall = check.inclusive ? input.data < check.value : input.data <= check.value;
+        if (tooSmall) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            code: ZodIssueCode.too_small,
+            type: "bigint",
+            minimum: check.value,
+            inclusive: check.inclusive,
+            message: check.message
+          });
+          status.dirty();
+        }
+      } else if (check.kind === "max") {
+        const tooBig = check.inclusive ? input.data > check.value : input.data >= check.value;
+        if (tooBig) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            code: ZodIssueCode.too_big,
+            type: "bigint",
+            maximum: check.value,
+            inclusive: check.inclusive,
+            message: check.message
+          });
+          status.dirty();
+        }
+      } else if (check.kind === "multipleOf") {
+        if (input.data % check.value !== BigInt(0)) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            code: ZodIssueCode.not_multiple_of,
+            multipleOf: check.value,
+            message: check.message
+          });
+          status.dirty();
+        }
+      } else {
+        util.assertNever(check);
+      }
+    }
+    return { status: status.value, value: input.data };
+  }
+  _getInvalidInput(input) {
+    const ctx = this._getOrReturnCtx(input);
+    addIssueToContext(ctx, {
+      code: ZodIssueCode.invalid_type,
+      expected: ZodParsedType.bigint,
+      received: ctx.parsedType
+    });
+    return INVALID2;
+  }
+  gte(value, message) {
+    return this.setLimit("min", value, true, errorUtil.toString(message));
+  }
+  gt(value, message) {
+    return this.setLimit("min", value, false, errorUtil.toString(message));
+  }
+  lte(value, message) {
+    return this.setLimit("max", value, true, errorUtil.toString(message));
+  }
+  lt(value, message) {
+    return this.setLimit("max", value, false, errorUtil.toString(message));
+  }
+  setLimit(kind, value, inclusive, message) {
+    return new ZodBigInt2({
+      ...this._def,
+      checks: [
+        ...this._def.checks,
+        {
+          kind,
+          value,
+          inclusive,
+          message: errorUtil.toString(message)
+        }
+      ]
+    });
+  }
+  _addCheck(check) {
+    return new ZodBigInt2({
+      ...this._def,
+      checks: [...this._def.checks, check]
+    });
+  }
+  positive(message) {
+    return this._addCheck({
+      kind: "min",
+      value: BigInt(0),
+      inclusive: false,
+      message: errorUtil.toString(message)
+    });
+  }
+  negative(message) {
+    return this._addCheck({
+      kind: "max",
+      value: BigInt(0),
+      inclusive: false,
+      message: errorUtil.toString(message)
+    });
+  }
+  nonpositive(message) {
+    return this._addCheck({
+      kind: "max",
+      value: BigInt(0),
+      inclusive: true,
+      message: errorUtil.toString(message)
+    });
+  }
+  nonnegative(message) {
+    return this._addCheck({
+      kind: "min",
+      value: BigInt(0),
+      inclusive: true,
+      message: errorUtil.toString(message)
+    });
+  }
+  multipleOf(value, message) {
+    return this._addCheck({
+      kind: "multipleOf",
+      value,
+      message: errorUtil.toString(message)
+    });
+  }
+  get minValue() {
+    let min = null;
+    for (const ch of this._def.checks) {
+      if (ch.kind === "min") {
+        if (min === null || ch.value > min)
+          min = ch.value;
+      }
+    }
+    return min;
+  }
+  get maxValue() {
+    let max = null;
+    for (const ch of this._def.checks) {
+      if (ch.kind === "max") {
+        if (max === null || ch.value < max)
+          max = ch.value;
+      }
+    }
+    return max;
+  }
+}
+ZodBigInt2.create = (params) => {
+  return new ZodBigInt2({
+    checks: [],
+    typeName: ZodFirstPartyTypeKind2.ZodBigInt,
+    coerce: params?.coerce ?? false,
+    ...processCreateParams(params)
+  });
+};
+
+class ZodBoolean2 extends ZodType2 {
+  _parse(input) {
+    if (this._def.coerce) {
+      input.data = Boolean(input.data);
+    }
+    const parsedType = this._getType(input);
+    if (parsedType !== ZodParsedType.boolean) {
+      const ctx = this._getOrReturnCtx(input);
+      addIssueToContext(ctx, {
+        code: ZodIssueCode.invalid_type,
+        expected: ZodParsedType.boolean,
+        received: ctx.parsedType
+      });
+      return INVALID2;
+    }
+    return OK(input.data);
+  }
+}
+ZodBoolean2.create = (params) => {
+  return new ZodBoolean2({
+    typeName: ZodFirstPartyTypeKind2.ZodBoolean,
+    coerce: params?.coerce || false,
+    ...processCreateParams(params)
+  });
+};
+
+class ZodDate2 extends ZodType2 {
+  _parse(input) {
+    if (this._def.coerce) {
+      input.data = new Date(input.data);
+    }
+    const parsedType = this._getType(input);
+    if (parsedType !== ZodParsedType.date) {
+      const ctx = this._getOrReturnCtx(input);
+      addIssueToContext(ctx, {
+        code: ZodIssueCode.invalid_type,
+        expected: ZodParsedType.date,
+        received: ctx.parsedType
+      });
+      return INVALID2;
+    }
+    if (Number.isNaN(input.data.getTime())) {
+      const ctx = this._getOrReturnCtx(input);
+      addIssueToContext(ctx, {
+        code: ZodIssueCode.invalid_date
+      });
+      return INVALID2;
+    }
+    const status = new ParseStatus;
+    let ctx = undefined;
+    for (const check of this._def.checks) {
+      if (check.kind === "min") {
+        if (input.data.getTime() < check.value) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            code: ZodIssueCode.too_small,
+            message: check.message,
+            inclusive: true,
+            exact: false,
+            minimum: check.value,
+            type: "date"
+          });
+          status.dirty();
+        }
+      } else if (check.kind === "max") {
+        if (input.data.getTime() > check.value) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            code: ZodIssueCode.too_big,
+            message: check.message,
+            inclusive: true,
+            exact: false,
+            maximum: check.value,
+            type: "date"
+          });
+          status.dirty();
+        }
+      } else {
+        util.assertNever(check);
+      }
+    }
+    return {
+      status: status.value,
+      value: new Date(input.data.getTime())
+    };
+  }
+  _addCheck(check) {
+    return new ZodDate2({
+      ...this._def,
+      checks: [...this._def.checks, check]
+    });
+  }
+  min(minDate, message) {
+    return this._addCheck({
+      kind: "min",
+      value: minDate.getTime(),
+      message: errorUtil.toString(message)
+    });
+  }
+  max(maxDate, message) {
+    return this._addCheck({
+      kind: "max",
+      value: maxDate.getTime(),
+      message: errorUtil.toString(message)
+    });
+  }
+  get minDate() {
+    let min = null;
+    for (const ch of this._def.checks) {
+      if (ch.kind === "min") {
+        if (min === null || ch.value > min)
+          min = ch.value;
+      }
+    }
+    return min != null ? new Date(min) : null;
+  }
+  get maxDate() {
+    let max = null;
+    for (const ch of this._def.checks) {
+      if (ch.kind === "max") {
+        if (max === null || ch.value < max)
+          max = ch.value;
+      }
+    }
+    return max != null ? new Date(max) : null;
+  }
+}
+ZodDate2.create = (params) => {
+  return new ZodDate2({
+    checks: [],
+    coerce: params?.coerce || false,
+    typeName: ZodFirstPartyTypeKind2.ZodDate,
+    ...processCreateParams(params)
+  });
+};
+
+class ZodSymbol extends ZodType2 {
+  _parse(input) {
+    const parsedType = this._getType(input);
+    if (parsedType !== ZodParsedType.symbol) {
+      const ctx = this._getOrReturnCtx(input);
+      addIssueToContext(ctx, {
+        code: ZodIssueCode.invalid_type,
+        expected: ZodParsedType.symbol,
+        received: ctx.parsedType
+      });
+      return INVALID2;
+    }
+    return OK(input.data);
+  }
+}
+ZodSymbol.create = (params) => {
+  return new ZodSymbol({
+    typeName: ZodFirstPartyTypeKind2.ZodSymbol,
+    ...processCreateParams(params)
+  });
+};
+
+class ZodUndefined extends ZodType2 {
+  _parse(input) {
+    const parsedType = this._getType(input);
+    if (parsedType !== ZodParsedType.undefined) {
+      const ctx = this._getOrReturnCtx(input);
+      addIssueToContext(ctx, {
+        code: ZodIssueCode.invalid_type,
+        expected: ZodParsedType.undefined,
+        received: ctx.parsedType
+      });
+      return INVALID2;
+    }
+    return OK(input.data);
+  }
+}
+ZodUndefined.create = (params) => {
+  return new ZodUndefined({
+    typeName: ZodFirstPartyTypeKind2.ZodUndefined,
+    ...processCreateParams(params)
+  });
+};
+
+class ZodNull extends ZodType2 {
+  _parse(input) {
+    const parsedType = this._getType(input);
+    if (parsedType !== ZodParsedType.null) {
+      const ctx = this._getOrReturnCtx(input);
+      addIssueToContext(ctx, {
+        code: ZodIssueCode.invalid_type,
+        expected: ZodParsedType.null,
+        received: ctx.parsedType
+      });
+      return INVALID2;
+    }
+    return OK(input.data);
+  }
+}
+ZodNull.create = (params) => {
+  return new ZodNull({
+    typeName: ZodFirstPartyTypeKind2.ZodNull,
+    ...processCreateParams(params)
+  });
+};
+
+class ZodAny2 extends ZodType2 {
+  constructor() {
+    super(...arguments);
+    this._any = true;
+  }
+  _parse(input) {
+    return OK(input.data);
+  }
+}
+ZodAny2.create = (params) => {
+  return new ZodAny2({
+    typeName: ZodFirstPartyTypeKind2.ZodAny,
+    ...processCreateParams(params)
+  });
+};
+
+class ZodUnknown2 extends ZodType2 {
+  constructor() {
+    super(...arguments);
+    this._unknown = true;
+  }
+  _parse(input) {
+    return OK(input.data);
+  }
+}
+ZodUnknown2.create = (params) => {
+  return new ZodUnknown2({
+    typeName: ZodFirstPartyTypeKind2.ZodUnknown,
+    ...processCreateParams(params)
+  });
+};
+
+class ZodNever2 extends ZodType2 {
+  _parse(input) {
+    const ctx = this._getOrReturnCtx(input);
+    addIssueToContext(ctx, {
+      code: ZodIssueCode.invalid_type,
+      expected: ZodParsedType.never,
+      received: ctx.parsedType
+    });
+    return INVALID2;
+  }
+}
+ZodNever2.create = (params) => {
+  return new ZodNever2({
+    typeName: ZodFirstPartyTypeKind2.ZodNever,
+    ...processCreateParams(params)
+  });
+};
+
+class ZodVoid extends ZodType2 {
+  _parse(input) {
+    const parsedType = this._getType(input);
+    if (parsedType !== ZodParsedType.undefined) {
+      const ctx = this._getOrReturnCtx(input);
+      addIssueToContext(ctx, {
+        code: ZodIssueCode.invalid_type,
+        expected: ZodParsedType.void,
+        received: ctx.parsedType
+      });
+      return INVALID2;
+    }
+    return OK(input.data);
+  }
+}
+ZodVoid.create = (params) => {
+  return new ZodVoid({
+    typeName: ZodFirstPartyTypeKind2.ZodVoid,
+    ...processCreateParams(params)
+  });
+};
+
+class ZodArray2 extends ZodType2 {
+  _parse(input) {
+    const { ctx, status } = this._processInputParams(input);
+    const def = this._def;
+    if (ctx.parsedType !== ZodParsedType.array) {
+      addIssueToContext(ctx, {
+        code: ZodIssueCode.invalid_type,
+        expected: ZodParsedType.array,
+        received: ctx.parsedType
+      });
+      return INVALID2;
+    }
+    if (def.exactLength !== null) {
+      const tooBig = ctx.data.length > def.exactLength.value;
+      const tooSmall = ctx.data.length < def.exactLength.value;
+      if (tooBig || tooSmall) {
+        addIssueToContext(ctx, {
+          code: tooBig ? ZodIssueCode.too_big : ZodIssueCode.too_small,
+          minimum: tooSmall ? def.exactLength.value : undefined,
+          maximum: tooBig ? def.exactLength.value : undefined,
+          type: "array",
+          inclusive: true,
+          exact: true,
+          message: def.exactLength.message
+        });
+        status.dirty();
+      }
+    }
+    if (def.minLength !== null) {
+      if (ctx.data.length < def.minLength.value) {
+        addIssueToContext(ctx, {
+          code: ZodIssueCode.too_small,
+          minimum: def.minLength.value,
+          type: "array",
+          inclusive: true,
+          exact: false,
+          message: def.minLength.message
+        });
+        status.dirty();
+      }
+    }
+    if (def.maxLength !== null) {
+      if (ctx.data.length > def.maxLength.value) {
+        addIssueToContext(ctx, {
+          code: ZodIssueCode.too_big,
+          maximum: def.maxLength.value,
+          type: "array",
+          inclusive: true,
+          exact: false,
+          message: def.maxLength.message
+        });
+        status.dirty();
+      }
+    }
+    if (ctx.common.async) {
+      return Promise.all([...ctx.data].map((item, i) => {
+        return def.type._parseAsync(new ParseInputLazyPath(ctx, item, ctx.path, i));
+      })).then((result) => {
+        return ParseStatus.mergeArray(status, result);
+      });
+    }
+    const result = [...ctx.data].map((item, i) => {
+      return def.type._parseSync(new ParseInputLazyPath(ctx, item, ctx.path, i));
+    });
+    return ParseStatus.mergeArray(status, result);
+  }
+  get element() {
+    return this._def.type;
+  }
+  min(minLength, message) {
+    return new ZodArray2({
+      ...this._def,
+      minLength: { value: minLength, message: errorUtil.toString(message) }
+    });
+  }
+  max(maxLength, message) {
+    return new ZodArray2({
+      ...this._def,
+      maxLength: { value: maxLength, message: errorUtil.toString(message) }
+    });
+  }
+  length(len, message) {
+    return new ZodArray2({
+      ...this._def,
+      exactLength: { value: len, message: errorUtil.toString(message) }
+    });
+  }
+  nonempty(message) {
+    return this.min(1, message);
+  }
+}
+ZodArray2.create = (schema, params) => {
+  return new ZodArray2({
+    type: schema,
+    minLength: null,
+    maxLength: null,
+    exactLength: null,
+    typeName: ZodFirstPartyTypeKind2.ZodArray,
+    ...processCreateParams(params)
+  });
+};
+function deepPartialify(schema) {
+  if (schema instanceof ZodObject2) {
+    const newShape = {};
+    for (const key in schema.shape) {
+      const fieldSchema = schema.shape[key];
+      newShape[key] = ZodOptional2.create(deepPartialify(fieldSchema));
+    }
+    return new ZodObject2({
+      ...schema._def,
+      shape: () => newShape
+    });
+  } else if (schema instanceof ZodArray2) {
+    return new ZodArray2({
+      ...schema._def,
+      type: deepPartialify(schema.element)
+    });
+  } else if (schema instanceof ZodOptional2) {
+    return ZodOptional2.create(deepPartialify(schema.unwrap()));
+  } else if (schema instanceof ZodNullable2) {
+    return ZodNullable2.create(deepPartialify(schema.unwrap()));
+  } else if (schema instanceof ZodTuple) {
+    return ZodTuple.create(schema.items.map((item) => deepPartialify(item)));
+  } else {
+    return schema;
+  }
+}
+
+class ZodObject2 extends ZodType2 {
+  constructor() {
+    super(...arguments);
+    this._cached = null;
+    this.nonstrict = this.passthrough;
+    this.augment = this.extend;
+  }
+  _getCached() {
+    if (this._cached !== null)
+      return this._cached;
+    const shape = this._def.shape();
+    const keys = util.objectKeys(shape);
+    this._cached = { shape, keys };
+    return this._cached;
+  }
+  _parse(input) {
+    const parsedType = this._getType(input);
+    if (parsedType !== ZodParsedType.object) {
+      const ctx = this._getOrReturnCtx(input);
+      addIssueToContext(ctx, {
+        code: ZodIssueCode.invalid_type,
+        expected: ZodParsedType.object,
+        received: ctx.parsedType
+      });
+      return INVALID2;
+    }
+    const { status, ctx } = this._processInputParams(input);
+    const { shape, keys: shapeKeys } = this._getCached();
+    const extraKeys = [];
+    if (!(this._def.catchall instanceof ZodNever2 && this._def.unknownKeys === "strip")) {
+      for (const key in ctx.data) {
+        if (!shapeKeys.includes(key)) {
+          extraKeys.push(key);
+        }
+      }
+    }
+    const pairs = [];
+    for (const key of shapeKeys) {
+      const keyValidator = shape[key];
+      const value = ctx.data[key];
+      pairs.push({
+        key: { status: "valid", value: key },
+        value: keyValidator._parse(new ParseInputLazyPath(ctx, value, ctx.path, key)),
+        alwaysSet: key in ctx.data
+      });
+    }
+    if (this._def.catchall instanceof ZodNever2) {
+      const unknownKeys = this._def.unknownKeys;
+      if (unknownKeys === "passthrough") {
+        for (const key of extraKeys) {
+          pairs.push({
+            key: { status: "valid", value: key },
+            value: { status: "valid", value: ctx.data[key] }
+          });
+        }
+      } else if (unknownKeys === "strict") {
+        if (extraKeys.length > 0) {
+          addIssueToContext(ctx, {
+            code: ZodIssueCode.unrecognized_keys,
+            keys: extraKeys
+          });
+          status.dirty();
+        }
+      } else if (unknownKeys === "strip") {} else {
+        throw new Error(`Internal ZodObject error: invalid unknownKeys value.`);
+      }
+    } else {
+      const catchall = this._def.catchall;
+      for (const key of extraKeys) {
+        const value = ctx.data[key];
+        pairs.push({
+          key: { status: "valid", value: key },
+          value: catchall._parse(new ParseInputLazyPath(ctx, value, ctx.path, key)),
+          alwaysSet: key in ctx.data
+        });
+      }
+    }
+    if (ctx.common.async) {
+      return Promise.resolve().then(async () => {
+        const syncPairs = [];
+        for (const pair of pairs) {
+          const key = await pair.key;
+          const value = await pair.value;
+          syncPairs.push({
+            key,
+            value,
+            alwaysSet: pair.alwaysSet
+          });
+        }
+        return syncPairs;
+      }).then((syncPairs) => {
+        return ParseStatus.mergeObjectSync(status, syncPairs);
+      });
+    } else {
+      return ParseStatus.mergeObjectSync(status, pairs);
+    }
+  }
+  get shape() {
+    return this._def.shape();
+  }
+  strict(message) {
+    errorUtil.errToObj;
+    return new ZodObject2({
+      ...this._def,
+      unknownKeys: "strict",
+      ...message !== undefined ? {
+        errorMap: (issue, ctx) => {
+          const defaultError = this._def.errorMap?.(issue, ctx).message ?? ctx.defaultError;
+          if (issue.code === "unrecognized_keys")
+            return {
+              message: errorUtil.errToObj(message).message ?? defaultError
+            };
+          return {
+            message: defaultError
+          };
+        }
+      } : {}
+    });
+  }
+  strip() {
+    return new ZodObject2({
+      ...this._def,
+      unknownKeys: "strip"
+    });
+  }
+  passthrough() {
+    return new ZodObject2({
+      ...this._def,
+      unknownKeys: "passthrough"
+    });
+  }
+  extend(augmentation) {
+    return new ZodObject2({
+      ...this._def,
+      shape: () => ({
+        ...this._def.shape(),
+        ...augmentation
+      })
+    });
+  }
+  merge(merging) {
+    const merged = new ZodObject2({
+      unknownKeys: merging._def.unknownKeys,
+      catchall: merging._def.catchall,
+      shape: () => ({
+        ...this._def.shape(),
+        ...merging._def.shape()
+      }),
+      typeName: ZodFirstPartyTypeKind2.ZodObject
+    });
+    return merged;
+  }
+  setKey(key, schema) {
+    return this.augment({ [key]: schema });
+  }
+  catchall(index) {
+    return new ZodObject2({
+      ...this._def,
+      catchall: index
+    });
+  }
+  pick(mask) {
+    const shape = {};
+    for (const key of util.objectKeys(mask)) {
+      if (mask[key] && this.shape[key]) {
+        shape[key] = this.shape[key];
+      }
+    }
+    return new ZodObject2({
+      ...this._def,
+      shape: () => shape
+    });
+  }
+  omit(mask) {
+    const shape = {};
+    for (const key of util.objectKeys(this.shape)) {
+      if (!mask[key]) {
+        shape[key] = this.shape[key];
+      }
+    }
+    return new ZodObject2({
+      ...this._def,
+      shape: () => shape
+    });
+  }
+  deepPartial() {
+    return deepPartialify(this);
+  }
+  partial(mask) {
+    const newShape = {};
+    for (const key of util.objectKeys(this.shape)) {
+      const fieldSchema = this.shape[key];
+      if (mask && !mask[key]) {
+        newShape[key] = fieldSchema;
+      } else {
+        newShape[key] = fieldSchema.optional();
+      }
+    }
+    return new ZodObject2({
+      ...this._def,
+      shape: () => newShape
+    });
+  }
+  required(mask) {
+    const newShape = {};
+    for (const key of util.objectKeys(this.shape)) {
+      if (mask && !mask[key]) {
+        newShape[key] = this.shape[key];
+      } else {
+        const fieldSchema = this.shape[key];
+        let newField = fieldSchema;
+        while (newField instanceof ZodOptional2) {
+          newField = newField._def.innerType;
+        }
+        newShape[key] = newField;
+      }
+    }
+    return new ZodObject2({
+      ...this._def,
+      shape: () => newShape
+    });
+  }
+  keyof() {
+    return createZodEnum(util.objectKeys(this.shape));
+  }
+}
+ZodObject2.create = (shape, params) => {
+  return new ZodObject2({
+    shape: () => shape,
+    unknownKeys: "strip",
+    catchall: ZodNever2.create(),
+    typeName: ZodFirstPartyTypeKind2.ZodObject,
+    ...processCreateParams(params)
+  });
+};
+ZodObject2.strictCreate = (shape, params) => {
+  return new ZodObject2({
+    shape: () => shape,
+    unknownKeys: "strict",
+    catchall: ZodNever2.create(),
+    typeName: ZodFirstPartyTypeKind2.ZodObject,
+    ...processCreateParams(params)
+  });
+};
+ZodObject2.lazycreate = (shape, params) => {
+  return new ZodObject2({
+    shape,
+    unknownKeys: "strip",
+    catchall: ZodNever2.create(),
+    typeName: ZodFirstPartyTypeKind2.ZodObject,
+    ...processCreateParams(params)
+  });
+};
+
+class ZodUnion2 extends ZodType2 {
+  _parse(input) {
+    const { ctx } = this._processInputParams(input);
+    const options = this._def.options;
+    function handleResults(results) {
+      for (const result of results) {
+        if (result.result.status === "valid") {
+          return result.result;
+        }
+      }
+      for (const result of results) {
+        if (result.result.status === "dirty") {
+          ctx.common.issues.push(...result.ctx.common.issues);
+          return result.result;
+        }
+      }
+      const unionErrors = results.map((result) => new ZodError(result.ctx.common.issues));
+      addIssueToContext(ctx, {
+        code: ZodIssueCode.invalid_union,
+        unionErrors
+      });
+      return INVALID2;
+    }
+    if (ctx.common.async) {
+      return Promise.all(options.map(async (option) => {
+        const childCtx = {
+          ...ctx,
+          common: {
+            ...ctx.common,
+            issues: []
+          },
+          parent: null
+        };
+        return {
+          result: await option._parseAsync({
+            data: ctx.data,
+            path: ctx.path,
+            parent: childCtx
+          }),
+          ctx: childCtx
+        };
+      })).then(handleResults);
+    } else {
+      let dirty = undefined;
+      const issues = [];
+      for (const option of options) {
+        const childCtx = {
+          ...ctx,
+          common: {
+            ...ctx.common,
+            issues: []
+          },
+          parent: null
+        };
+        const result = option._parseSync({
+          data: ctx.data,
+          path: ctx.path,
+          parent: childCtx
+        });
+        if (result.status === "valid") {
+          return result;
+        } else if (result.status === "dirty" && !dirty) {
+          dirty = { result, ctx: childCtx };
+        }
+        if (childCtx.common.issues.length) {
+          issues.push(childCtx.common.issues);
+        }
+      }
+      if (dirty) {
+        ctx.common.issues.push(...dirty.ctx.common.issues);
+        return dirty.result;
+      }
+      const unionErrors = issues.map((issues) => new ZodError(issues));
+      addIssueToContext(ctx, {
+        code: ZodIssueCode.invalid_union,
+        unionErrors
+      });
+      return INVALID2;
+    }
+  }
+  get options() {
+    return this._def.options;
+  }
+}
+ZodUnion2.create = (types, params) => {
+  return new ZodUnion2({
+    options: types,
+    typeName: ZodFirstPartyTypeKind2.ZodUnion,
+    ...processCreateParams(params)
+  });
+};
+var getDiscriminator = (type) => {
+  if (type instanceof ZodLazy) {
+    return getDiscriminator(type.schema);
+  } else if (type instanceof ZodEffects) {
+    return getDiscriminator(type.innerType());
+  } else if (type instanceof ZodLiteral2) {
+    return [type.value];
+  } else if (type instanceof ZodEnum2) {
+    return type.options;
+  } else if (type instanceof ZodNativeEnum) {
+    return util.objectValues(type.enum);
+  } else if (type instanceof ZodDefault2) {
+    return getDiscriminator(type._def.innerType);
+  } else if (type instanceof ZodUndefined) {
+    return [undefined];
+  } else if (type instanceof ZodNull) {
+    return [null];
+  } else if (type instanceof ZodOptional2) {
+    return [undefined, ...getDiscriminator(type.unwrap())];
+  } else if (type instanceof ZodNullable2) {
+    return [null, ...getDiscriminator(type.unwrap())];
+  } else if (type instanceof ZodBranded) {
+    return getDiscriminator(type.unwrap());
+  } else if (type instanceof ZodReadonly2) {
+    return getDiscriminator(type.unwrap());
+  } else if (type instanceof ZodCatch2) {
+    return getDiscriminator(type._def.innerType);
+  } else {
+    return [];
+  }
+};
+
+class ZodDiscriminatedUnion extends ZodType2 {
+  _parse(input) {
+    const { ctx } = this._processInputParams(input);
+    if (ctx.parsedType !== ZodParsedType.object) {
+      addIssueToContext(ctx, {
+        code: ZodIssueCode.invalid_type,
+        expected: ZodParsedType.object,
+        received: ctx.parsedType
+      });
+      return INVALID2;
+    }
+    const discriminator = this.discriminator;
+    const discriminatorValue = ctx.data[discriminator];
+    const option = this.optionsMap.get(discriminatorValue);
+    if (!option) {
+      addIssueToContext(ctx, {
+        code: ZodIssueCode.invalid_union_discriminator,
+        options: Array.from(this.optionsMap.keys()),
+        path: [discriminator]
+      });
+      return INVALID2;
+    }
+    if (ctx.common.async) {
+      return option._parseAsync({
+        data: ctx.data,
+        path: ctx.path,
+        parent: ctx
+      });
+    } else {
+      return option._parseSync({
+        data: ctx.data,
+        path: ctx.path,
+        parent: ctx
+      });
+    }
+  }
+  get discriminator() {
+    return this._def.discriminator;
+  }
+  get options() {
+    return this._def.options;
+  }
+  get optionsMap() {
+    return this._def.optionsMap;
+  }
+  static create(discriminator, options, params) {
+    const optionsMap = new Map;
+    for (const type of options) {
+      const discriminatorValues = getDiscriminator(type.shape[discriminator]);
+      if (!discriminatorValues.length) {
+        throw new Error(`A discriminator value for key \`${discriminator}\` could not be extracted from all schema options`);
+      }
+      for (const value of discriminatorValues) {
+        if (optionsMap.has(value)) {
+          throw new Error(`Discriminator property ${String(discriminator)} has duplicate value ${String(value)}`);
+        }
+        optionsMap.set(value, type);
+      }
+    }
+    return new ZodDiscriminatedUnion({
+      typeName: ZodFirstPartyTypeKind2.ZodDiscriminatedUnion,
+      discriminator,
+      options,
+      optionsMap,
+      ...processCreateParams(params)
+    });
+  }
+}
+function mergeValues2(a, b) {
+  const aType = getParsedType(a);
+  const bType = getParsedType(b);
+  if (a === b) {
+    return { valid: true, data: a };
+  } else if (aType === ZodParsedType.object && bType === ZodParsedType.object) {
+    const bKeys = util.objectKeys(b);
+    const sharedKeys = util.objectKeys(a).filter((key) => bKeys.indexOf(key) !== -1);
+    const newObj = { ...a, ...b };
+    for (const key of sharedKeys) {
+      const sharedValue = mergeValues2(a[key], b[key]);
+      if (!sharedValue.valid) {
+        return { valid: false };
+      }
+      newObj[key] = sharedValue.data;
+    }
+    return { valid: true, data: newObj };
+  } else if (aType === ZodParsedType.array && bType === ZodParsedType.array) {
+    if (a.length !== b.length) {
+      return { valid: false };
+    }
+    const newArray = [];
+    for (let index = 0;index < a.length; index++) {
+      const itemA = a[index];
+      const itemB = b[index];
+      const sharedValue = mergeValues2(itemA, itemB);
+      if (!sharedValue.valid) {
+        return { valid: false };
+      }
+      newArray.push(sharedValue.data);
+    }
+    return { valid: true, data: newArray };
+  } else if (aType === ZodParsedType.date && bType === ZodParsedType.date && +a === +b) {
+    return { valid: true, data: a };
+  } else {
+    return { valid: false };
+  }
+}
+
+class ZodIntersection2 extends ZodType2 {
+  _parse(input) {
+    const { status, ctx } = this._processInputParams(input);
+    const handleParsed = (parsedLeft, parsedRight) => {
+      if (isAborted(parsedLeft) || isAborted(parsedRight)) {
+        return INVALID2;
+      }
+      const merged = mergeValues2(parsedLeft.value, parsedRight.value);
+      if (!merged.valid) {
+        addIssueToContext(ctx, {
+          code: ZodIssueCode.invalid_intersection_types
+        });
+        return INVALID2;
+      }
+      if (isDirty(parsedLeft) || isDirty(parsedRight)) {
+        status.dirty();
+      }
+      return { status: status.value, value: merged.data };
+    };
+    if (ctx.common.async) {
+      return Promise.all([
+        this._def.left._parseAsync({
+          data: ctx.data,
+          path: ctx.path,
+          parent: ctx
+        }),
+        this._def.right._parseAsync({
+          data: ctx.data,
+          path: ctx.path,
+          parent: ctx
+        })
+      ]).then(([left, right]) => handleParsed(left, right));
+    } else {
+      return handleParsed(this._def.left._parseSync({
+        data: ctx.data,
+        path: ctx.path,
+        parent: ctx
+      }), this._def.right._parseSync({
+        data: ctx.data,
+        path: ctx.path,
+        parent: ctx
+      }));
+    }
+  }
+}
+ZodIntersection2.create = (left, right, params) => {
+  return new ZodIntersection2({
+    left,
+    right,
+    typeName: ZodFirstPartyTypeKind2.ZodIntersection,
+    ...processCreateParams(params)
+  });
+};
+
+class ZodTuple extends ZodType2 {
+  _parse(input) {
+    const { status, ctx } = this._processInputParams(input);
+    if (ctx.parsedType !== ZodParsedType.array) {
+      addIssueToContext(ctx, {
+        code: ZodIssueCode.invalid_type,
+        expected: ZodParsedType.array,
+        received: ctx.parsedType
+      });
+      return INVALID2;
+    }
+    if (ctx.data.length < this._def.items.length) {
+      addIssueToContext(ctx, {
+        code: ZodIssueCode.too_small,
+        minimum: this._def.items.length,
+        inclusive: true,
+        exact: false,
+        type: "array"
+      });
+      return INVALID2;
+    }
+    const rest = this._def.rest;
+    if (!rest && ctx.data.length > this._def.items.length) {
+      addIssueToContext(ctx, {
+        code: ZodIssueCode.too_big,
+        maximum: this._def.items.length,
+        inclusive: true,
+        exact: false,
+        type: "array"
+      });
+      status.dirty();
+    }
+    const items = [...ctx.data].map((item, itemIndex) => {
+      const schema = this._def.items[itemIndex] || this._def.rest;
+      if (!schema)
+        return null;
+      return schema._parse(new ParseInputLazyPath(ctx, item, ctx.path, itemIndex));
+    }).filter((x) => !!x);
+    if (ctx.common.async) {
+      return Promise.all(items).then((results) => {
+        return ParseStatus.mergeArray(status, results);
+      });
+    } else {
+      return ParseStatus.mergeArray(status, items);
+    }
+  }
+  get items() {
+    return this._def.items;
+  }
+  rest(rest) {
+    return new ZodTuple({
+      ...this._def,
+      rest
+    });
+  }
+}
+ZodTuple.create = (schemas, params) => {
+  if (!Array.isArray(schemas)) {
+    throw new Error("You must pass an array of schemas to z.tuple([ ... ])");
+  }
+  return new ZodTuple({
+    items: schemas,
+    typeName: ZodFirstPartyTypeKind2.ZodTuple,
+    rest: null,
+    ...processCreateParams(params)
+  });
+};
+
+class ZodRecord2 extends ZodType2 {
+  get keySchema() {
+    return this._def.keyType;
+  }
+  get valueSchema() {
+    return this._def.valueType;
+  }
+  _parse(input) {
+    const { status, ctx } = this._processInputParams(input);
+    if (ctx.parsedType !== ZodParsedType.object) {
+      addIssueToContext(ctx, {
+        code: ZodIssueCode.invalid_type,
+        expected: ZodParsedType.object,
+        received: ctx.parsedType
+      });
+      return INVALID2;
+    }
+    const pairs = [];
+    const keyType = this._def.keyType;
+    const valueType = this._def.valueType;
+    for (const key in ctx.data) {
+      pairs.push({
+        key: keyType._parse(new ParseInputLazyPath(ctx, key, ctx.path, key)),
+        value: valueType._parse(new ParseInputLazyPath(ctx, ctx.data[key], ctx.path, key)),
+        alwaysSet: key in ctx.data
+      });
+    }
+    if (ctx.common.async) {
+      return ParseStatus.mergeObjectAsync(status, pairs);
+    } else {
+      return ParseStatus.mergeObjectSync(status, pairs);
+    }
+  }
+  get element() {
+    return this._def.valueType;
+  }
+  static create(first, second, third) {
+    if (second instanceof ZodType2) {
+      return new ZodRecord2({
+        keyType: first,
+        valueType: second,
+        typeName: ZodFirstPartyTypeKind2.ZodRecord,
+        ...processCreateParams(third)
+      });
+    }
+    return new ZodRecord2({
+      keyType: ZodString2.create(),
+      valueType: first,
+      typeName: ZodFirstPartyTypeKind2.ZodRecord,
+      ...processCreateParams(second)
+    });
+  }
+}
+
+class ZodMap extends ZodType2 {
+  get keySchema() {
+    return this._def.keyType;
+  }
+  get valueSchema() {
+    return this._def.valueType;
+  }
+  _parse(input) {
+    const { status, ctx } = this._processInputParams(input);
+    if (ctx.parsedType !== ZodParsedType.map) {
+      addIssueToContext(ctx, {
+        code: ZodIssueCode.invalid_type,
+        expected: ZodParsedType.map,
+        received: ctx.parsedType
+      });
+      return INVALID2;
+    }
+    const keyType = this._def.keyType;
+    const valueType = this._def.valueType;
+    const pairs = [...ctx.data.entries()].map(([key, value], index) => {
+      return {
+        key: keyType._parse(new ParseInputLazyPath(ctx, key, ctx.path, [index, "key"])),
+        value: valueType._parse(new ParseInputLazyPath(ctx, value, ctx.path, [index, "value"]))
+      };
+    });
+    if (ctx.common.async) {
+      const finalMap = new Map;
+      return Promise.resolve().then(async () => {
+        for (const pair of pairs) {
+          const key = await pair.key;
+          const value = await pair.value;
+          if (key.status === "aborted" || value.status === "aborted") {
+            return INVALID2;
+          }
+          if (key.status === "dirty" || value.status === "dirty") {
+            status.dirty();
+          }
+          finalMap.set(key.value, value.value);
+        }
+        return { status: status.value, value: finalMap };
+      });
+    } else {
+      const finalMap = new Map;
+      for (const pair of pairs) {
+        const key = pair.key;
+        const value = pair.value;
+        if (key.status === "aborted" || value.status === "aborted") {
+          return INVALID2;
+        }
+        if (key.status === "dirty" || value.status === "dirty") {
+          status.dirty();
+        }
+        finalMap.set(key.value, value.value);
+      }
+      return { status: status.value, value: finalMap };
+    }
+  }
+}
+ZodMap.create = (keyType, valueType, params) => {
+  return new ZodMap({
+    valueType,
+    keyType,
+    typeName: ZodFirstPartyTypeKind2.ZodMap,
+    ...processCreateParams(params)
+  });
+};
+
+class ZodSet extends ZodType2 {
+  _parse(input) {
+    const { status, ctx } = this._processInputParams(input);
+    if (ctx.parsedType !== ZodParsedType.set) {
+      addIssueToContext(ctx, {
+        code: ZodIssueCode.invalid_type,
+        expected: ZodParsedType.set,
+        received: ctx.parsedType
+      });
+      return INVALID2;
+    }
+    const def = this._def;
+    if (def.minSize !== null) {
+      if (ctx.data.size < def.minSize.value) {
+        addIssueToContext(ctx, {
+          code: ZodIssueCode.too_small,
+          minimum: def.minSize.value,
+          type: "set",
+          inclusive: true,
+          exact: false,
+          message: def.minSize.message
+        });
+        status.dirty();
+      }
+    }
+    if (def.maxSize !== null) {
+      if (ctx.data.size > def.maxSize.value) {
+        addIssueToContext(ctx, {
+          code: ZodIssueCode.too_big,
+          maximum: def.maxSize.value,
+          type: "set",
+          inclusive: true,
+          exact: false,
+          message: def.maxSize.message
+        });
+        status.dirty();
+      }
+    }
+    const valueType = this._def.valueType;
+    function finalizeSet(elements) {
+      const parsedSet = new Set;
+      for (const element of elements) {
+        if (element.status === "aborted")
+          return INVALID2;
+        if (element.status === "dirty")
+          status.dirty();
+        parsedSet.add(element.value);
+      }
+      return { status: status.value, value: parsedSet };
+    }
+    const elements = [...ctx.data.values()].map((item, i) => valueType._parse(new ParseInputLazyPath(ctx, item, ctx.path, i)));
+    if (ctx.common.async) {
+      return Promise.all(elements).then((elements) => finalizeSet(elements));
+    } else {
+      return finalizeSet(elements);
+    }
+  }
+  min(minSize, message) {
+    return new ZodSet({
+      ...this._def,
+      minSize: { value: minSize, message: errorUtil.toString(message) }
+    });
+  }
+  max(maxSize, message) {
+    return new ZodSet({
+      ...this._def,
+      maxSize: { value: maxSize, message: errorUtil.toString(message) }
+    });
+  }
+  size(size, message) {
+    return this.min(size, message).max(size, message);
+  }
+  nonempty(message) {
+    return this.min(1, message);
+  }
+}
+ZodSet.create = (valueType, params) => {
+  return new ZodSet({
+    valueType,
+    minSize: null,
+    maxSize: null,
+    typeName: ZodFirstPartyTypeKind2.ZodSet,
+    ...processCreateParams(params)
+  });
+};
+
+class ZodFunction extends ZodType2 {
+  constructor() {
+    super(...arguments);
+    this.validate = this.implement;
+  }
+  _parse(input) {
+    const { ctx } = this._processInputParams(input);
+    if (ctx.parsedType !== ZodParsedType.function) {
+      addIssueToContext(ctx, {
+        code: ZodIssueCode.invalid_type,
+        expected: ZodParsedType.function,
+        received: ctx.parsedType
+      });
+      return INVALID2;
+    }
+    function makeArgsIssue(args, error) {
+      return makeIssue({
+        data: args,
+        path: ctx.path,
+        errorMaps: [ctx.common.contextualErrorMap, ctx.schemaErrorMap, getErrorMap(), en_default2].filter((x) => !!x),
+        issueData: {
+          code: ZodIssueCode.invalid_arguments,
+          argumentsError: error
+        }
+      });
+    }
+    function makeReturnsIssue(returns, error) {
+      return makeIssue({
+        data: returns,
+        path: ctx.path,
+        errorMaps: [ctx.common.contextualErrorMap, ctx.schemaErrorMap, getErrorMap(), en_default2].filter((x) => !!x),
+        issueData: {
+          code: ZodIssueCode.invalid_return_type,
+          returnTypeError: error
+        }
+      });
+    }
+    const params = { errorMap: ctx.common.contextualErrorMap };
+    const fn = ctx.data;
+    if (this._def.returns instanceof ZodPromise) {
+      const me = this;
+      return OK(async function(...args) {
+        const error = new ZodError([]);
+        const parsedArgs = await me._def.args.parseAsync(args, params).catch((e) => {
+          error.addIssue(makeArgsIssue(args, e));
+          throw error;
+        });
+        const result = await Reflect.apply(fn, this, parsedArgs);
+        const parsedReturns = await me._def.returns._def.type.parseAsync(result, params).catch((e) => {
+          error.addIssue(makeReturnsIssue(result, e));
+          throw error;
+        });
+        return parsedReturns;
+      });
+    } else {
+      const me = this;
+      return OK(function(...args) {
+        const parsedArgs = me._def.args.safeParse(args, params);
+        if (!parsedArgs.success) {
+          throw new ZodError([makeArgsIssue(args, parsedArgs.error)]);
+        }
+        const result = Reflect.apply(fn, this, parsedArgs.data);
+        const parsedReturns = me._def.returns.safeParse(result, params);
+        if (!parsedReturns.success) {
+          throw new ZodError([makeReturnsIssue(result, parsedReturns.error)]);
+        }
+        return parsedReturns.data;
+      });
+    }
+  }
+  parameters() {
+    return this._def.args;
+  }
+  returnType() {
+    return this._def.returns;
+  }
+  args(...items) {
+    return new ZodFunction({
+      ...this._def,
+      args: ZodTuple.create(items).rest(ZodUnknown2.create())
+    });
+  }
+  returns(returnType) {
+    return new ZodFunction({
+      ...this._def,
+      returns: returnType
+    });
+  }
+  implement(func) {
+    const validatedFunc = this.parse(func);
+    return validatedFunc;
+  }
+  strictImplement(func) {
+    const validatedFunc = this.parse(func);
+    return validatedFunc;
+  }
+  static create(args, returns, params) {
+    return new ZodFunction({
+      args: args ? args : ZodTuple.create([]).rest(ZodUnknown2.create()),
+      returns: returns || ZodUnknown2.create(),
+      typeName: ZodFirstPartyTypeKind2.ZodFunction,
+      ...processCreateParams(params)
+    });
+  }
+}
+
+class ZodLazy extends ZodType2 {
+  get schema() {
+    return this._def.getter();
+  }
+  _parse(input) {
+    const { ctx } = this._processInputParams(input);
+    const lazySchema = this._def.getter();
+    return lazySchema._parse({ data: ctx.data, path: ctx.path, parent: ctx });
+  }
+}
+ZodLazy.create = (getter, params) => {
+  return new ZodLazy({
+    getter,
+    typeName: ZodFirstPartyTypeKind2.ZodLazy,
+    ...processCreateParams(params)
+  });
+};
+
+class ZodLiteral2 extends ZodType2 {
+  _parse(input) {
+    if (input.data !== this._def.value) {
+      const ctx = this._getOrReturnCtx(input);
+      addIssueToContext(ctx, {
+        received: ctx.data,
+        code: ZodIssueCode.invalid_literal,
+        expected: this._def.value
+      });
+      return INVALID2;
+    }
+    return { status: "valid", value: input.data };
+  }
+  get value() {
+    return this._def.value;
+  }
+}
+ZodLiteral2.create = (value, params) => {
+  return new ZodLiteral2({
+    value,
+    typeName: ZodFirstPartyTypeKind2.ZodLiteral,
+    ...processCreateParams(params)
+  });
+};
+function createZodEnum(values, params) {
+  return new ZodEnum2({
+    values,
+    typeName: ZodFirstPartyTypeKind2.ZodEnum,
+    ...processCreateParams(params)
+  });
+}
+
+class ZodEnum2 extends ZodType2 {
+  _parse(input) {
+    if (typeof input.data !== "string") {
+      const ctx = this._getOrReturnCtx(input);
+      const expectedValues = this._def.values;
+      addIssueToContext(ctx, {
+        expected: util.joinValues(expectedValues),
+        received: ctx.parsedType,
+        code: ZodIssueCode.invalid_type
+      });
+      return INVALID2;
+    }
+    if (!this._cache) {
+      this._cache = new Set(this._def.values);
+    }
+    if (!this._cache.has(input.data)) {
+      const ctx = this._getOrReturnCtx(input);
+      const expectedValues = this._def.values;
+      addIssueToContext(ctx, {
+        received: ctx.data,
+        code: ZodIssueCode.invalid_enum_value,
+        options: expectedValues
+      });
+      return INVALID2;
+    }
+    return OK(input.data);
+  }
+  get options() {
+    return this._def.values;
+  }
+  get enum() {
+    const enumValues = {};
+    for (const val of this._def.values) {
+      enumValues[val] = val;
+    }
+    return enumValues;
+  }
+  get Values() {
+    const enumValues = {};
+    for (const val of this._def.values) {
+      enumValues[val] = val;
+    }
+    return enumValues;
+  }
+  get Enum() {
+    const enumValues = {};
+    for (const val of this._def.values) {
+      enumValues[val] = val;
+    }
+    return enumValues;
+  }
+  extract(values, newDef = this._def) {
+    return ZodEnum2.create(values, {
+      ...this._def,
+      ...newDef
+    });
+  }
+  exclude(values, newDef = this._def) {
+    return ZodEnum2.create(this.options.filter((opt) => !values.includes(opt)), {
+      ...this._def,
+      ...newDef
+    });
+  }
+}
+ZodEnum2.create = createZodEnum;
+
+class ZodNativeEnum extends ZodType2 {
+  _parse(input) {
+    const nativeEnumValues = util.getValidEnumValues(this._def.values);
+    const ctx = this._getOrReturnCtx(input);
+    if (ctx.parsedType !== ZodParsedType.string && ctx.parsedType !== ZodParsedType.number) {
+      const expectedValues = util.objectValues(nativeEnumValues);
+      addIssueToContext(ctx, {
+        expected: util.joinValues(expectedValues),
+        received: ctx.parsedType,
+        code: ZodIssueCode.invalid_type
+      });
+      return INVALID2;
+    }
+    if (!this._cache) {
+      this._cache = new Set(util.getValidEnumValues(this._def.values));
+    }
+    if (!this._cache.has(input.data)) {
+      const expectedValues = util.objectValues(nativeEnumValues);
+      addIssueToContext(ctx, {
+        received: ctx.data,
+        code: ZodIssueCode.invalid_enum_value,
+        options: expectedValues
+      });
+      return INVALID2;
+    }
+    return OK(input.data);
+  }
+  get enum() {
+    return this._def.values;
+  }
+}
+ZodNativeEnum.create = (values, params) => {
+  return new ZodNativeEnum({
+    values,
+    typeName: ZodFirstPartyTypeKind2.ZodNativeEnum,
+    ...processCreateParams(params)
+  });
+};
+
+class ZodPromise extends ZodType2 {
+  unwrap() {
+    return this._def.type;
+  }
+  _parse(input) {
+    const { ctx } = this._processInputParams(input);
+    if (ctx.parsedType !== ZodParsedType.promise && ctx.common.async === false) {
+      addIssueToContext(ctx, {
+        code: ZodIssueCode.invalid_type,
+        expected: ZodParsedType.promise,
+        received: ctx.parsedType
+      });
+      return INVALID2;
+    }
+    const promisified = ctx.parsedType === ZodParsedType.promise ? ctx.data : Promise.resolve(ctx.data);
+    return OK(promisified.then((data) => {
+      return this._def.type.parseAsync(data, {
+        path: ctx.path,
+        errorMap: ctx.common.contextualErrorMap
+      });
+    }));
+  }
+}
+ZodPromise.create = (schema, params) => {
+  return new ZodPromise({
+    type: schema,
+    typeName: ZodFirstPartyTypeKind2.ZodPromise,
+    ...processCreateParams(params)
+  });
+};
+
+class ZodEffects extends ZodType2 {
+  innerType() {
+    return this._def.schema;
+  }
+  sourceType() {
+    return this._def.schema._def.typeName === ZodFirstPartyTypeKind2.ZodEffects ? this._def.schema.sourceType() : this._def.schema;
+  }
+  _parse(input) {
+    const { status, ctx } = this._processInputParams(input);
+    const effect = this._def.effect || null;
+    const checkCtx = {
+      addIssue: (arg) => {
+        addIssueToContext(ctx, arg);
+        if (arg.fatal) {
+          status.abort();
+        } else {
+          status.dirty();
+        }
+      },
+      get path() {
+        return ctx.path;
+      }
+    };
+    checkCtx.addIssue = checkCtx.addIssue.bind(checkCtx);
+    if (effect.type === "preprocess") {
+      const processed = effect.transform(ctx.data, checkCtx);
+      if (ctx.common.async) {
+        return Promise.resolve(processed).then(async (processed) => {
+          if (status.value === "aborted")
+            return INVALID2;
+          const result = await this._def.schema._parseAsync({
+            data: processed,
+            path: ctx.path,
+            parent: ctx
+          });
+          if (result.status === "aborted")
+            return INVALID2;
+          if (result.status === "dirty")
+            return DIRTY(result.value);
+          if (status.value === "dirty")
+            return DIRTY(result.value);
+          return result;
+        });
+      } else {
+        if (status.value === "aborted")
+          return INVALID2;
+        const result = this._def.schema._parseSync({
+          data: processed,
+          path: ctx.path,
+          parent: ctx
+        });
+        if (result.status === "aborted")
+          return INVALID2;
+        if (result.status === "dirty")
+          return DIRTY(result.value);
+        if (status.value === "dirty")
+          return DIRTY(result.value);
+        return result;
+      }
+    }
+    if (effect.type === "refinement") {
+      const executeRefinement = (acc) => {
+        const result = effect.refinement(acc, checkCtx);
+        if (ctx.common.async) {
+          return Promise.resolve(result);
+        }
+        if (result instanceof Promise) {
+          throw new Error("Async refinement encountered during synchronous parse operation. Use .parseAsync instead.");
+        }
+        return acc;
+      };
+      if (ctx.common.async === false) {
+        const inner = this._def.schema._parseSync({
+          data: ctx.data,
+          path: ctx.path,
+          parent: ctx
+        });
+        if (inner.status === "aborted")
+          return INVALID2;
+        if (inner.status === "dirty")
+          status.dirty();
+        executeRefinement(inner.value);
+        return { status: status.value, value: inner.value };
+      } else {
+        return this._def.schema._parseAsync({ data: ctx.data, path: ctx.path, parent: ctx }).then((inner) => {
+          if (inner.status === "aborted")
+            return INVALID2;
+          if (inner.status === "dirty")
+            status.dirty();
+          return executeRefinement(inner.value).then(() => {
+            return { status: status.value, value: inner.value };
+          });
+        });
+      }
+    }
+    if (effect.type === "transform") {
+      if (ctx.common.async === false) {
+        const base = this._def.schema._parseSync({
+          data: ctx.data,
+          path: ctx.path,
+          parent: ctx
+        });
+        if (!isValid(base))
+          return INVALID2;
+        const result = effect.transform(base.value, checkCtx);
+        if (result instanceof Promise) {
+          throw new Error(`Asynchronous transform encountered during synchronous parse operation. Use .parseAsync instead.`);
+        }
+        return { status: status.value, value: result };
+      } else {
+        return this._def.schema._parseAsync({ data: ctx.data, path: ctx.path, parent: ctx }).then((base) => {
+          if (!isValid(base))
+            return INVALID2;
+          return Promise.resolve(effect.transform(base.value, checkCtx)).then((result) => ({
+            status: status.value,
+            value: result
+          }));
+        });
+      }
+    }
+    util.assertNever(effect);
+  }
+}
+ZodEffects.create = (schema, effect, params) => {
+  return new ZodEffects({
+    schema,
+    typeName: ZodFirstPartyTypeKind2.ZodEffects,
+    effect,
+    ...processCreateParams(params)
+  });
+};
+ZodEffects.createWithPreprocess = (preprocess, schema, params) => {
+  return new ZodEffects({
+    schema,
+    effect: { type: "preprocess", transform: preprocess },
+    typeName: ZodFirstPartyTypeKind2.ZodEffects,
+    ...processCreateParams(params)
+  });
+};
+class ZodOptional2 extends ZodType2 {
+  _parse(input) {
+    const parsedType = this._getType(input);
+    if (parsedType === ZodParsedType.undefined) {
+      return OK(undefined);
+    }
+    return this._def.innerType._parse(input);
+  }
+  unwrap() {
+    return this._def.innerType;
+  }
+}
+ZodOptional2.create = (type, params) => {
+  return new ZodOptional2({
+    innerType: type,
+    typeName: ZodFirstPartyTypeKind2.ZodOptional,
+    ...processCreateParams(params)
+  });
+};
+
+class ZodNullable2 extends ZodType2 {
+  _parse(input) {
+    const parsedType = this._getType(input);
+    if (parsedType === ZodParsedType.null) {
+      return OK(null);
+    }
+    return this._def.innerType._parse(input);
+  }
+  unwrap() {
+    return this._def.innerType;
+  }
+}
+ZodNullable2.create = (type, params) => {
+  return new ZodNullable2({
+    innerType: type,
+    typeName: ZodFirstPartyTypeKind2.ZodNullable,
+    ...processCreateParams(params)
+  });
+};
+
+class ZodDefault2 extends ZodType2 {
+  _parse(input) {
+    const { ctx } = this._processInputParams(input);
+    let data = ctx.data;
+    if (ctx.parsedType === ZodParsedType.undefined) {
+      data = this._def.defaultValue();
+    }
+    return this._def.innerType._parse({
+      data,
+      path: ctx.path,
+      parent: ctx
+    });
+  }
+  removeDefault() {
+    return this._def.innerType;
+  }
+}
+ZodDefault2.create = (type, params) => {
+  return new ZodDefault2({
+    innerType: type,
+    typeName: ZodFirstPartyTypeKind2.ZodDefault,
+    defaultValue: typeof params.default === "function" ? params.default : () => params.default,
+    ...processCreateParams(params)
+  });
+};
+
+class ZodCatch2 extends ZodType2 {
+  _parse(input) {
+    const { ctx } = this._processInputParams(input);
+    const newCtx = {
+      ...ctx,
+      common: {
+        ...ctx.common,
+        issues: []
+      }
+    };
+    const result = this._def.innerType._parse({
+      data: newCtx.data,
+      path: newCtx.path,
+      parent: {
+        ...newCtx
+      }
+    });
+    if (isAsync(result)) {
+      return result.then((result) => {
+        return {
+          status: "valid",
+          value: result.status === "valid" ? result.value : this._def.catchValue({
+            get error() {
+              return new ZodError(newCtx.common.issues);
+            },
+            input: newCtx.data
+          })
+        };
+      });
+    } else {
+      return {
+        status: "valid",
+        value: result.status === "valid" ? result.value : this._def.catchValue({
+          get error() {
+            return new ZodError(newCtx.common.issues);
+          },
+          input: newCtx.data
+        })
+      };
+    }
+  }
+  removeCatch() {
+    return this._def.innerType;
+  }
+}
+ZodCatch2.create = (type, params) => {
+  return new ZodCatch2({
+    innerType: type,
+    typeName: ZodFirstPartyTypeKind2.ZodCatch,
+    catchValue: typeof params.catch === "function" ? params.catch : () => params.catch,
+    ...processCreateParams(params)
+  });
+};
+
+class ZodNaN extends ZodType2 {
+  _parse(input) {
+    const parsedType = this._getType(input);
+    if (parsedType !== ZodParsedType.nan) {
+      const ctx = this._getOrReturnCtx(input);
+      addIssueToContext(ctx, {
+        code: ZodIssueCode.invalid_type,
+        expected: ZodParsedType.nan,
+        received: ctx.parsedType
+      });
+      return INVALID2;
+    }
+    return { status: "valid", value: input.data };
+  }
+}
+ZodNaN.create = (params) => {
+  return new ZodNaN({
+    typeName: ZodFirstPartyTypeKind2.ZodNaN,
+    ...processCreateParams(params)
+  });
+};
+var BRAND = Symbol("zod_brand");
+
+class ZodBranded extends ZodType2 {
+  _parse(input) {
+    const { ctx } = this._processInputParams(input);
+    const data = ctx.data;
+    return this._def.type._parse({
+      data,
+      path: ctx.path,
+      parent: ctx
+    });
+  }
+  unwrap() {
+    return this._def.type;
+  }
+}
+
+class ZodPipeline extends ZodType2 {
+  _parse(input) {
+    const { status, ctx } = this._processInputParams(input);
+    if (ctx.common.async) {
+      const handleAsync = async () => {
+        const inResult = await this._def.in._parseAsync({
+          data: ctx.data,
+          path: ctx.path,
+          parent: ctx
+        });
+        if (inResult.status === "aborted")
+          return INVALID2;
+        if (inResult.status === "dirty") {
+          status.dirty();
+          return DIRTY(inResult.value);
+        } else {
+          return this._def.out._parseAsync({
+            data: inResult.value,
+            path: ctx.path,
+            parent: ctx
+          });
+        }
+      };
+      return handleAsync();
+    } else {
+      const inResult = this._def.in._parseSync({
+        data: ctx.data,
+        path: ctx.path,
+        parent: ctx
+      });
+      if (inResult.status === "aborted")
+        return INVALID2;
+      if (inResult.status === "dirty") {
+        status.dirty();
+        return {
+          status: "dirty",
+          value: inResult.value
+        };
+      } else {
+        return this._def.out._parseSync({
+          data: inResult.value,
+          path: ctx.path,
+          parent: ctx
+        });
+      }
+    }
+  }
+  static create(a, b) {
+    return new ZodPipeline({
+      in: a,
+      out: b,
+      typeName: ZodFirstPartyTypeKind2.ZodPipeline
+    });
+  }
+}
+
+class ZodReadonly2 extends ZodType2 {
+  _parse(input) {
+    const result = this._def.innerType._parse(input);
+    const freeze = (data) => {
+      if (isValid(data)) {
+        data.value = Object.freeze(data.value);
+      }
+      return data;
+    };
+    return isAsync(result) ? result.then((data) => freeze(data)) : freeze(result);
+  }
+  unwrap() {
+    return this._def.innerType;
+  }
+}
+ZodReadonly2.create = (type, params) => {
+  return new ZodReadonly2({
+    innerType: type,
+    typeName: ZodFirstPartyTypeKind2.ZodReadonly,
+    ...processCreateParams(params)
+  });
+};
+var late = {
+  object: ZodObject2.lazycreate
+};
+var ZodFirstPartyTypeKind2;
+(function(ZodFirstPartyTypeKind) {
+  ZodFirstPartyTypeKind["ZodString"] = "ZodString";
+  ZodFirstPartyTypeKind["ZodNumber"] = "ZodNumber";
+  ZodFirstPartyTypeKind["ZodNaN"] = "ZodNaN";
+  ZodFirstPartyTypeKind["ZodBigInt"] = "ZodBigInt";
+  ZodFirstPartyTypeKind["ZodBoolean"] = "ZodBoolean";
+  ZodFirstPartyTypeKind["ZodDate"] = "ZodDate";
+  ZodFirstPartyTypeKind["ZodSymbol"] = "ZodSymbol";
+  ZodFirstPartyTypeKind["ZodUndefined"] = "ZodUndefined";
+  ZodFirstPartyTypeKind["ZodNull"] = "ZodNull";
+  ZodFirstPartyTypeKind["ZodAny"] = "ZodAny";
+  ZodFirstPartyTypeKind["ZodUnknown"] = "ZodUnknown";
+  ZodFirstPartyTypeKind["ZodNever"] = "ZodNever";
+  ZodFirstPartyTypeKind["ZodVoid"] = "ZodVoid";
+  ZodFirstPartyTypeKind["ZodArray"] = "ZodArray";
+  ZodFirstPartyTypeKind["ZodObject"] = "ZodObject";
+  ZodFirstPartyTypeKind["ZodUnion"] = "ZodUnion";
+  ZodFirstPartyTypeKind["ZodDiscriminatedUnion"] = "ZodDiscriminatedUnion";
+  ZodFirstPartyTypeKind["ZodIntersection"] = "ZodIntersection";
+  ZodFirstPartyTypeKind["ZodTuple"] = "ZodTuple";
+  ZodFirstPartyTypeKind["ZodRecord"] = "ZodRecord";
+  ZodFirstPartyTypeKind["ZodMap"] = "ZodMap";
+  ZodFirstPartyTypeKind["ZodSet"] = "ZodSet";
+  ZodFirstPartyTypeKind["ZodFunction"] = "ZodFunction";
+  ZodFirstPartyTypeKind["ZodLazy"] = "ZodLazy";
+  ZodFirstPartyTypeKind["ZodLiteral"] = "ZodLiteral";
+  ZodFirstPartyTypeKind["ZodEnum"] = "ZodEnum";
+  ZodFirstPartyTypeKind["ZodEffects"] = "ZodEffects";
+  ZodFirstPartyTypeKind["ZodNativeEnum"] = "ZodNativeEnum";
+  ZodFirstPartyTypeKind["ZodOptional"] = "ZodOptional";
+  ZodFirstPartyTypeKind["ZodNullable"] = "ZodNullable";
+  ZodFirstPartyTypeKind["ZodDefault"] = "ZodDefault";
+  ZodFirstPartyTypeKind["ZodCatch"] = "ZodCatch";
+  ZodFirstPartyTypeKind["ZodPromise"] = "ZodPromise";
+  ZodFirstPartyTypeKind["ZodBranded"] = "ZodBranded";
+  ZodFirstPartyTypeKind["ZodPipeline"] = "ZodPipeline";
+  ZodFirstPartyTypeKind["ZodReadonly"] = "ZodReadonly";
+})(ZodFirstPartyTypeKind2 || (ZodFirstPartyTypeKind2 = {}));
+var stringType = ZodString2.create;
+var numberType = ZodNumber2.create;
+var nanType = ZodNaN.create;
+var bigIntType = ZodBigInt2.create;
+var booleanType = ZodBoolean2.create;
+var dateType = ZodDate2.create;
+var symbolType = ZodSymbol.create;
+var undefinedType = ZodUndefined.create;
+var nullType = ZodNull.create;
+var anyType = ZodAny2.create;
+var unknownType = ZodUnknown2.create;
+var neverType = ZodNever2.create;
+var voidType = ZodVoid.create;
+var arrayType = ZodArray2.create;
+var objectType = ZodObject2.create;
+var strictObjectType = ZodObject2.strictCreate;
+var unionType = ZodUnion2.create;
+var discriminatedUnionType = ZodDiscriminatedUnion.create;
+var intersectionType = ZodIntersection2.create;
+var tupleType = ZodTuple.create;
+var recordType = ZodRecord2.create;
+var mapType = ZodMap.create;
+var setType = ZodSet.create;
+var functionType = ZodFunction.create;
+var lazyType = ZodLazy.create;
+var literalType = ZodLiteral2.create;
+var enumType = ZodEnum2.create;
+var nativeEnumType = ZodNativeEnum.create;
+var promiseType = ZodPromise.create;
+var effectsType = ZodEffects.create;
+var optionalType = ZodOptional2.create;
+var nullableType = ZodNullable2.create;
+var preprocessType = ZodEffects.createWithPreprocess;
+var pipelineType = ZodPipeline.create;
+// ../core/src/schemas/user.ts
+var createUserSchema = objectType({
+  name: stringType().trim().min(3, "Name must be at least 3 characters"),
+  email: stringType().trim().email("Please enter a valid email address"),
+  password: stringType().min(8, "Password must be at least 8 characters")
+});
+var editUserSchema = objectType({
+  name: stringType().trim().min(3, "Name must be at least 3 characters"),
+  email: stringType().trim().email("Please enter a valid email address"),
+  password: stringType().min(8, "Password must be at least 8 characters").optional().or(literalType(""))
+});
+
+// src/routes/users.ts
 var usersRouter = import_express.Router();
 usersRouter.use(requireAuth);
 usersRouter.use(requireRole(["admin"]));
 usersRouter.get("/", async (req, res) => {
   try {
     const { role, search } = req.query;
-    const where = {};
+    const where = {
+      deletedAt: null
+    };
     if (role && typeof role === "string" && (role === "admin" || role === "agent")) {
       where.role = role;
     }
@@ -76925,9 +80761,9 @@ usersRouter.get("/", async (req, res) => {
           createdAt: "desc"
         }
       }),
-      prisma.user.count(),
-      prisma.user.count({ where: { role: "admin" } }),
-      prisma.user.count({ where: { role: "agent" } })
+      prisma.user.count({ where: { deletedAt: null } }),
+      prisma.user.count({ where: { role: "admin", deletedAt: null } }),
+      prisma.user.count({ where: { role: "agent", deletedAt: null } })
     ]);
     return res.json({
       users,
@@ -76948,8 +80784,8 @@ usersRouter.get("/", async (req, res) => {
 usersRouter.get("/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const user = await prisma.user.findUnique({
-      where: { id },
+    const user = await prisma.user.findFirst({
+      where: { id, deletedAt: null },
       select: {
         id: true,
         name: true,
@@ -76970,6 +80806,170 @@ usersRouter.get("/:id", async (req, res) => {
     return res.status(500).json({
       error: "Internal Server Error",
       message: "Failed to retrieve user details"
+    });
+  }
+});
+usersRouter.post("/", async (req, res) => {
+  try {
+    const parsedBody = createUserSchema.safeParse(req.body);
+    if (!parsedBody.success) {
+      return res.status(400).json({ error: parsedBody.error.issues[0].message });
+    }
+    const { name, email, password } = parsedBody.data;
+    const trimmedName = name.trim();
+    const cleanEmail = email.toLowerCase().trim();
+    const existingUser = await prisma.user.findUnique({
+      where: { email: cleanEmail }
+    });
+    if (existingUser) {
+      return res.status(409).json({ error: "A user with this email address already exists" });
+    }
+    const ctx = await auth.$context;
+    const hashedPassword = await ctx.password.hash(password);
+    const userId = crypto2.randomUUID();
+    const newUser = await prisma.user.create({
+      data: {
+        id: userId,
+        name: trimmedName,
+        email: cleanEmail,
+        role: "agent",
+        emailVerified: true,
+        accounts: {
+          create: {
+            accountId: userId,
+            providerId: "credential",
+            password: hashedPassword
+          }
+        }
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        emailVerified: true,
+        image: true,
+        createdAt: true,
+        updatedAt: true
+      }
+    });
+    return res.status(201).json({
+      user: newUser,
+      message: "User created successfully"
+    });
+  } catch (error) {
+    console.error("[Users API] Failed to create user:", error);
+    return res.status(500).json({
+      error: "Internal Server Error",
+      message: "Failed to create user"
+    });
+  }
+});
+usersRouter.patch("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const existingUser = await prisma.user.findFirst({
+      where: { id, deletedAt: null },
+      include: { accounts: true }
+    });
+    if (!existingUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    const parsedBody = editUserSchema.safeParse(req.body);
+    if (!parsedBody.success) {
+      return res.status(400).json({ error: parsedBody.error.issues[0].message });
+    }
+    const { name, email, password } = parsedBody.data;
+    const trimmedName = name.trim();
+    const cleanEmail = email.toLowerCase().trim();
+    if (cleanEmail !== existingUser.email) {
+      const emailTaken = await prisma.user.findFirst({
+        where: { email: cleanEmail, deletedAt: null }
+      });
+      if (emailTaken) {
+        return res.status(409).json({ error: "A user with this email address already exists" });
+      }
+    }
+    const updatedUser = await prisma.user.update({
+      where: { id },
+      data: {
+        name: trimmedName,
+        email: cleanEmail
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        emailVerified: true,
+        image: true,
+        createdAt: true,
+        updatedAt: true
+      }
+    });
+    if (password && password.length >= 8) {
+      const ctx = await auth.$context;
+      const hashedPassword = await ctx.password.hash(password);
+      const credentialAccount = existingUser.accounts.find((acc) => acc.providerId === "credential");
+      if (credentialAccount) {
+        await prisma.account.update({
+          where: { id: credentialAccount.id },
+          data: { password: hashedPassword }
+        });
+      } else {
+        await prisma.account.create({
+          data: {
+            userId: existingUser.id,
+            accountId: existingUser.id,
+            providerId: "credential",
+            password: hashedPassword
+          }
+        });
+      }
+    }
+    return res.status(200).json({
+      user: updatedUser,
+      message: "User updated successfully"
+    });
+  } catch (error) {
+    console.error(`[Users API] Failed to update user ${req.params.id}:`, error);
+    return res.status(500).json({
+      error: "Internal Server Error",
+      message: "Failed to update user"
+    });
+  }
+});
+usersRouter.delete("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await prisma.user.findFirst({
+      where: { id, deletedAt: null }
+    });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    if (user.role === "admin") {
+      return res.status(400).json({
+        error: "Admin users cannot be deleted",
+        message: "Administrator accounts cannot be deleted."
+      });
+    }
+    await prisma.user.update({
+      where: { id },
+      data: { deletedAt: new Date }
+    });
+    await prisma.session.deleteMany({
+      where: { userId: id }
+    });
+    return res.status(200).json({
+      message: "User deleted successfully",
+      id
+    });
+  } catch (error) {
+    console.error(`[Users API] Failed to delete user ${req.params.id}:`, error);
+    return res.status(500).json({
+      error: "Internal Server Error",
+      message: "Failed to delete user"
     });
   }
 });

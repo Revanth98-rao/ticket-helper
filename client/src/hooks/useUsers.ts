@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import type { CreateUserInput } from "core/schemas/user";
 import { api } from "../lib/axios";
 
 export interface UserItem {
@@ -57,17 +58,37 @@ export function useUsers(role: "all" | "admin" | "agent" = "all") {
   });
 }
 
-export interface CreateUserInput {
-  name: string;
-  email: string;
-  password: string;
-}
-
 export function useCreateUser() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (input: CreateUserInput) => {
       const response = await api.post<{ user: UserItem; message: string }>("/users", input);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+    },
+  });
+}
+
+export function useEditUser() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: import("core/schemas/user").EditUserInput }) => {
+      const response = await api.patch<{ user: UserItem; message: string }>(`/users/${id}`, data);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+    },
+  });
+}
+
+export function useDeleteUser() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const response = await api.delete<{ message: string; id: string }>(`/users/${id}`);
       return response.data;
     },
     onSuccess: () => {

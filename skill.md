@@ -12,6 +12,7 @@ This document defines the mandatory architectural standard for client-side HTTP 
 ## 1. Core Mandate
 
 All client-side API requests and server-state management in the frontend (`client/`) MUST use:
+
 1. **Axios** as the exclusive HTTP client library.
 2. **TanStack React Query (`@tanstack/react-query`)** as the server state management and caching layer.
 
@@ -23,6 +24,7 @@ All client-side API requests and server-state management in the frontend (`clien
 ## 2. Axios Architecture & Configuration
 
 ### A. Centralized Axios Instance
+
 All API requests must go through a centralized Axios client (`client/src/lib/axios.ts` or `client/src/lib/api.ts`):
 
 - **Base URL:** `/api`
@@ -52,7 +54,7 @@ api.interceptors.response.use(
       error.message ||
       "An unexpected network error occurred";
     return Promise.reject(new Error(message));
-  }
+  },
 );
 ```
 
@@ -61,13 +63,16 @@ api.interceptors.response.use(
 ## 3. React Query (TanStack Query) Guidelines
 
 ### A. Query Client Configuration
+
 The global `QueryClient` (`client/src/lib/query-client.ts`) governs caching policies:
+
 - `staleTime: 1000 * 60 * 2` (2 minutes fresh cache)
 - `gcTime: 1000 * 60 * 10` (10 minutes garbage collection retention)
 - `retry: 1`
 - `refetchOnWindowFocus: false`
 
 ### B. Custom Hooks Pattern
+
 Every resource or domain entity must have dedicated React Query hooks in `client/src/hooks/`:
 
 1. **Queries (`useQuery`):**
@@ -122,4 +127,3 @@ export function useCreateUser() {
 2. **Refetching & Refresh:** Use `refetch()` for manual user-triggered refreshes.
 3. **Instant Filtering:** For instantaneous UI search filtering on small datasets, use `useMemo` over the query result. For large paginated datasets, pass filter/search terms to query keys.
 4. **DevTools:** Keep `<ReactQueryDevtools initialIsOpen={false} />` enabled in development for cache inspection and query debugging.
-

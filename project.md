@@ -53,6 +53,7 @@ Build an **AI-powered student ticket management system** that automatically clas
 ## 5. Technical Stack
 
 - **Runtime & Package Manager:** Bun (v1.4+)
+- **Workspace Packages:** `client`, `server`, and shared `core`
 - **Backend:** Express.js + TypeScript
 - **Frontend:** React 18 + Vite + Tailwind CSS + Lucide Icons + React Router DOM
 - **Database:** PostgreSQL 16 with `pgvector` extension (Docker Compose)
@@ -64,6 +65,12 @@ Build an **AI-powered student ticket management system** that automatically clas
   - Roles: `admin` | `agent`
 - **AI Engine:** Vercel AI SDK (`ai`) with Google Gemini 1.5 Flash/Pro
 - **Documentation Tool:** Context7 (`ctx7`)
+
+### Shared Validation Schemas
+
+- Define reusable Zod schemas and their inferred types in `core/src/schemas/`.
+- Import the shared schema (for example, from `core/schemas/user`) in both `client` and `server` instead of duplicating validation rules.
+- Keep the Zod version used by `core` compatible with both consumers.
 
 ---
 

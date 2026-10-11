@@ -44,13 +44,13 @@ module.exports = defineConfig({
     {
       command: "bun --env-file=.env.test run --cwd server dev",
       url: "http://localhost:5001/api/health",
-      reuseExistingServer: false,
+      reuseExistingServer: true,
       timeout: 60 * 1000,
     },
     {
       command: "bun --env-file=.env.test run --cwd client dev",
       url: BASE_URL,
-      reuseExistingServer: false,
+      reuseExistingServer: true,
       timeout: 60 * 1000,
     },
   ],

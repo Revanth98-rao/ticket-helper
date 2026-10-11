@@ -2,37 +2,47 @@ import React, { useEffect, useState } from "react";
 import { X, Loader2, Eye, EyeOff } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { useCreateUser, CreateUserInput } from "../hooks/useUsers";
+import {
+  createUserSchema,
+  editUserSchema,
+  type CreateUserInput,
+  type EditUserInput,
+} from "core/schemas/user";
+import { useCreateUser, useEditUser, UserItem } from "../hooks/useUsers";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 
-const createUserSchema = z.object({
-  name: z.string().trim().min(3, "Name must be at least 3 characters"),
-  email: z.string().trim().email("Please enter a valid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-});
-
-type CreateUserFormValues = z.infer<typeof createUserSchema>;
-
-interface CreateUserModalProps {
+interface UserFormModalProps {
   isOpen: boolean;
   onClose: () => void;
+  mode: "create" | "edit";
+  initialData?: UserItem | null;
 }
 
-export function CreateUserModal({ isOpen, onClose }: CreateUserModalProps) {
-  const { mutateAsync: createUser, isPending } = useCreateUser();
+export function UserFormModal({
+  isOpen,
+  onClose,
+  mode,
+  initialData,
+}: UserFormModalProps) {
+  const { mutateAsync: createUser, isPending: isCreating } = useCreateUser();
+  const { mutateAsync: editUser, isPending: isEditing } = useEditUser();
+  const isPending = isCreating || isEditing;
+
   const [serverError, setServerError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+
+  const isEdit = mode === "edit";
+  const schema = isEdit ? editUserSchema : createUserSchema;
 
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<CreateUserFormValues>({
-    resolver: zodResolver(createUserSchema),
+  } = useForm<CreateUserInput | EditUserInput>({
+    resolver: zodResolver(schema),
     mode: "onChange",
     defaultValues: {
       name: "",
@@ -41,14 +51,29 @@ export function CreateUserModal({ isOpen, onClose }: CreateUserModalProps) {
     },
   });
 
-  // Reset form and errors when modal opens/closes
+  // Reset form and errors when modal opens/closes or initialData changes
   useEffect(() => {
-    if (!isOpen) {
-      reset();
+    if (isOpen) {
       setServerError(null);
       setShowPassword(false);
+      if (isEdit && initialData) {
+        reset({
+          name: initialData.name,
+          email: initialData.email,
+          password: "",
+        });
+      } else {
+        reset({
+          name: "",
+          email: "",
+          password: "",
+        });
+      }
+    } else {
+      reset();
+      setServerError(null);
     }
-  }, [isOpen, reset]);
+  }, [isOpen, isEdit, initialData, reset]);
 
   // Handle Escape key to close modal
   useEffect(() => {
@@ -63,21 +88,30 @@ export function CreateUserModal({ isOpen, onClose }: CreateUserModalProps) {
 
   if (!isOpen) return null;
 
-  const onSubmit = async (data: CreateUserFormValues) => {
+  const onSubmit = async (data: CreateUserInput | EditUserInput) => {
     setServerError(null);
     try {
-      await createUser(data);
+      if (isEdit && initialData) {
+        await editUser({ id: initialData.id, data: data as EditUserInput });
+      } else {
+        await createUser(data as CreateUserInput);
+      }
       onClose(); // Close modal on success
     } catch (err: any) {
       setServerError(
-        err.response?.data?.error || err.message || "Failed to create user"
+        err.response?.data?.error ||
+          err.message ||
+          `Failed to ${isEdit ? "update" : "create"} user`,
       );
     }
   };
 
+  const title = isEdit ? "Edit User" : "Create New User";
+  const buttonText = isEdit ? "Save Changes" : "Create User";
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div 
+      <div
         className="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden relative"
         role="dialog"
         aria-modal="true"
@@ -85,7 +119,7 @@ export function CreateUserModal({ isOpen, onClose }: CreateUserModalProps) {
       >
         <div className="flex items-center justify-between p-4 border-b">
           <h2 id="modal-title" className="text-lg font-semibold">
-            Create New User
+            {title}
           </h2>
           <button
             onClick={onClose}
@@ -134,7 +168,14 @@ export function CreateUserModal({ isOpen, onClose }: CreateUserModalProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">
+                Password{" "}
+                {isEdit && (
+                  <span className="text-xs text-slate-500 font-normal">
+                    (Leave blank to keep current)
+                  </span>
+                )}
+              </Label>
               <div className="relative">
                 <Input
                   id="password"
@@ -158,7 +199,9 @@ export function CreateUserModal({ isOpen, onClose }: CreateUserModalProps) {
                 </button>
               </div>
               {errors.password && (
-                <p className="text-sm text-red-500">{errors.password.message}</p>
+                <p className="text-sm text-red-500">
+                  {errors.password.message}
+                </p>
               )}
             </div>
 
@@ -173,7 +216,7 @@ export function CreateUserModal({ isOpen, onClose }: CreateUserModalProps) {
               </Button>
               <Button type="submit" disabled={isPending}>
                 {isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                Create User
+                {buttonText}
               </Button>
             </div>
           </form>
@@ -182,4 +225,3 @@ export function CreateUserModal({ isOpen, onClose }: CreateUserModalProps) {
     </div>
   );
 }
-

@@ -19,6 +19,7 @@
     "better-auth": "^1.7.6",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
+    "core": "workspace:*",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "prisma": "^6.4.1",

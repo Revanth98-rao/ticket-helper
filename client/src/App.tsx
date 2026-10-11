@@ -12,62 +12,69 @@ import { useSession, signOut } from "@/lib/auth-client";
 import Login from "@/pages/Login";
 import UsersPage from "@/pages/UsersPage";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import { useTickets } from "@/hooks/useTickets";
+import TicketListTable from "@/components/TicketListTable";
 
 function WorkspaceDashboard() {
   const { data: session } = useSession();
   const userName = session?.user?.name || "Support User";
+  const { data: ticketsData } = useTickets();
+
+  const counts = ticketsData?.counts || { total: 0, open: 0, in_progress: 0, resolved: 0 };
 
   return (
-    <div className="p-8">
-      <div className="mb-6">
-        <p className="text-sm text-slate-500">
-          AI-assisted ticket classification and suggested responses
-        </p>
+    <div className="p-8 space-y-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h2 className="text-xl font-extrabold text-slate-900">Support Ticket Inbox</h2>
+          <p className="text-xs text-slate-500 mt-1">
+            Inbound emails received at support addresses are automatically converted to actionable tickets
+          </p>
+        </div>
+        <div>
+          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-700 bg-white border border-slate-200 px-3 py-1.5 rounded-lg shadow-xs">
+            Welcome back, {userName}!
+          </span>
+        </div>
       </div>
 
       {/* KPI Stat Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
+        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
           <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+            Total Ingested
+          </span>
+          <p className="text-2xl font-extrabold text-slate-900 mt-2">{counts.total}</p>
+          <p className="text-xs text-slate-500 mt-1">All email tickets</p>
+        </div>
+
+        <div className="bg-white p-5 rounded-xl border border-blue-200 shadow-xs bg-gradient-to-br from-white to-blue-50/30">
+          <span className="text-xs font-semibold text-blue-600 uppercase tracking-wider">
             Open Tickets
           </span>
-          <p className="text-3xl font-extrabold text-slate-900 mt-2">0</p>
-          <p className="text-xs text-slate-500 mt-1">
-            Ready for classification & triage
-          </p>
+          <p className="text-2xl font-extrabold text-blue-700 mt-2">{counts.open}</p>
+          <p className="text-xs text-blue-600/80 mt-1">Awaiting triage & review</p>
         </div>
-        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-          <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-            Resolved Today
+
+        <div className="bg-white p-5 rounded-xl border border-amber-200 shadow-xs bg-gradient-to-br from-white to-amber-50/30">
+          <span className="text-xs font-semibold text-amber-600 uppercase tracking-wider">
+            In Progress
           </span>
-          <p className="text-3xl font-extrabold text-emerald-600 mt-2">0</p>
-          <p className="text-xs text-slate-500 mt-1">
-            Average response time: --
-          </p>
+          <p className="text-2xl font-extrabold text-amber-700 mt-2">{counts.in_progress}</p>
+          <p className="text-xs text-amber-600/80 mt-1">Under investigation</p>
         </div>
-        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-          <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-            Refund Requests
+
+        <div className="bg-white p-5 rounded-xl border border-emerald-200 shadow-xs bg-gradient-to-br from-white to-emerald-50/30">
+          <span className="text-xs font-semibold text-emerald-600 uppercase tracking-wider">
+            Resolved
           </span>
-          <p className="text-3xl font-extrabold text-amber-600 mt-2">0</p>
-          <p className="text-xs text-slate-500 mt-1">
-            Requires human review
-          </p>
+          <p className="text-2xl font-extrabold text-emerald-700 mt-2">{counts.resolved}</p>
+          <p className="text-xs text-emerald-600/80 mt-1">Completed issues</p>
         </div>
       </div>
 
-      {/* Status Box */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 text-center text-slate-600">
-        <div className="inline-flex p-3 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-600 mb-3">
-          <Sparkles className="w-6 h-6" />
-        </div>
-        <h3 className="text-base font-semibold text-slate-900">
-          Welcome back, {userName}!
-        </h3>
-        <p className="text-sm text-slate-500 mt-1 max-w-md mx-auto">
-          Your session is active via Better Auth database sessions.
-        </p>
-      </div>
+      {/* Tickets List Table with Inbound Simulation */}
+      <TicketListTable />
     </div>
   );
 }

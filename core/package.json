@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "exports": {
-    "./schemas/user": "./src/schemas/user.ts"
+    "./schemas/user": "./src/schemas/user.ts",
+    "./schemas/ticket": "./src/schemas/ticket.ts"
   },
   "dependencies": {
     "zod": "^3.24.2"

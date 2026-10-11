@@ -19,6 +19,7 @@ model User {
   deletedAt     DateTime?
   sessions      Session[]
   accounts      Account[]
+  assignedTickets Ticket[]
 
   @@map("user")
 }
@@ -65,4 +66,42 @@ model Verification {
   updatedAt  DateTime @updatedAt
 
   @@map("verification")
+}
+
+model Ticket {
+  id             String          @id @default(uuid())
+  ticketNumber   Int             @unique @default(autoincrement())
+  subject        String
+  description    String
+  status         String          @default("open")
+  priority       String          @default("medium")
+  customerEmail  String
+  customerName   String?
+  recipientEmail String
+  assignedToId   String?
+  assignedTo     User?           @relation(fields: [assignedToId], references: [id])
+  source         String          @default("email")
+  messageId      String?
+  rawPayload     Json?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  deletedAt      DateTime?
+  messages       TicketMessage[]
+
+  @@map("ticket")
+}
+
+model TicketMessage {
+  id          String   @id @default(uuid())
+  ticketId    String
+  ticket      Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  senderType  String   @default("customer")
+  senderEmail String
+  senderName  String?
+  bodyText    String
+  bodyHtml    String?
+  messageId   String?
+  createdAt   DateTime @default(now())
+
+  @@map("ticket_message")
 }

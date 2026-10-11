@@ -56491,9 +56491,42 @@ var require_client = __commonJS(function(exports) {
     createdAt: "createdAt",
     updatedAt: "updatedAt"
   };
+  exports.Prisma.TicketScalarFieldEnum = {
+    id: "id",
+    ticketNumber: "ticketNumber",
+    subject: "subject",
+    description: "description",
+    status: "status",
+    priority: "priority",
+    customerEmail: "customerEmail",
+    customerName: "customerName",
+    recipientEmail: "recipientEmail",
+    assignedToId: "assignedToId",
+    source: "source",
+    messageId: "messageId",
+    rawPayload: "rawPayload",
+    createdAt: "createdAt",
+    updatedAt: "updatedAt",
+    deletedAt: "deletedAt"
+  };
+  exports.Prisma.TicketMessageScalarFieldEnum = {
+    id: "id",
+    ticketId: "ticketId",
+    senderType: "senderType",
+    senderEmail: "senderEmail",
+    senderName: "senderName",
+    bodyText: "bodyText",
+    bodyHtml: "bodyHtml",
+    messageId: "messageId",
+    createdAt: "createdAt"
+  };
   exports.Prisma.SortOrder = {
     asc: "asc",
     desc: "desc"
+  };
+  exports.Prisma.NullableJsonNullValueInput = {
+    DbNull: Prisma.DbNull,
+    JsonNull: Prisma.JsonNull
   };
   exports.Prisma.QueryMode = {
     default: "default",
@@ -56503,11 +56536,18 @@ var require_client = __commonJS(function(exports) {
     first: "first",
     last: "last"
   };
+  exports.Prisma.JsonNullValueFilter = {
+    DbNull: Prisma.DbNull,
+    JsonNull: Prisma.JsonNull,
+    AnyNull: Prisma.AnyNull
+  };
   exports.Prisma.ModelName = {
     User: "User",
     Session: "Session",
     Account: "Account",
-    Verification: "Verification"
+    Verification: "Verification",
+    Ticket: "Ticket",
+    TicketMessage: "TicketMessage"
   };
   var config = {
     generator: {
@@ -56563,17 +56603,18 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(uuid())
-  name          String
-  email         String    @unique
-  emailVerified Boolean   @default(false)
-  image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  role          String    @default("agent")
-  deletedAt     DateTime?
-  sessions      Session[]
-  accounts      Account[]
+  id              String    @id @default(uuid())
+  name            String
+  email           String    @unique
+  emailVerified   Boolean   @default(false)
+  image           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  role            String    @default("agent")
+  deletedAt       DateTime?
+  sessions        Session[]
+  accounts        Account[]
+  assignedTickets Ticket[]
 
   @@map("user")
 }
@@ -56621,8 +56662,46 @@ model Verification {
 
   @@map("verification")
 }
+
+model Ticket {
+  id             String          @id @default(uuid())
+  ticketNumber   Int             @unique @default(autoincrement())
+  subject        String
+  description    String
+  status         String          @default("open")
+  priority       String          @default("medium")
+  customerEmail  String
+  customerName   String?
+  recipientEmail String
+  assignedToId   String?
+  assignedTo     User?           @relation(fields: [assignedToId], references: [id])
+  source         String          @default("email")
+  messageId      String?
+  rawPayload     Json?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  deletedAt      DateTime?
+  messages       TicketMessage[]
+
+  @@map("ticket")
+}
+
+model TicketMessage {
+  id          String   @id @default(uuid())
+  ticketId    String
+  ticket      Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  senderType  String   @default("customer")
+  senderEmail String
+  senderName  String?
+  bodyText    String
+  bodyHtml    String?
+  messageId   String?
+  createdAt   DateTime @default(now())
+
+  @@map("ticket_message")
+}
 `,
-    inlineSchemaHash: "18fb385679f468458698f0f26026601de05e227bcaa4fed7c5aa73e20c83f67b",
+    inlineSchemaHash: "1e606fef1773babdc81be44a8344d4319090d9cdbcf4303d23eaeb68bce0b279",
     copyEngine: true
   };
   var fs = __require("fs");
@@ -56638,7 +56717,7 @@ model Verification {
     config.dirname = path.join(process.cwd(), alternativePath);
     config.isBundled = true;
   }
-  config.runtimeDataModel = JSON.parse('{"models":{"User":{"dbName":"user","schema":null,"fields":[{"name":"id","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":true,"isReadOnly":false,"hasDefaultValue":true,"type":"String","nativeType":null,"default":{"name":"uuid","args":[4]},"isGenerated":false,"isUpdatedAt":false},{"name":"name","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"email","kind":"scalar","isList":false,"isRequired":true,"isUnique":true,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"emailVerified","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":true,"type":"Boolean","nativeType":null,"default":false,"isGenerated":false,"isUpdatedAt":false},{"name":"image","kind":"scalar","isList":false,"isRequired":false,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"createdAt","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":true,"type":"DateTime","nativeType":null,"default":{"name":"now","args":[]},"isGenerated":false,"isUpdatedAt":false},{"name":"updatedAt","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"DateTime","nativeType":null,"isGenerated":false,"isUpdatedAt":true},{"name":"role","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":true,"type":"String","nativeType":null,"default":"agent","isGenerated":false,"isUpdatedAt":false},{"name":"deletedAt","kind":"scalar","isList":false,"isRequired":false,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"DateTime","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"sessions","kind":"object","isList":true,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"Session","nativeType":null,"relationName":"SessionToUser","relationFromFields":[],"relationToFields":[],"isGenerated":false,"isUpdatedAt":false},{"name":"accounts","kind":"object","isList":true,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"Account","nativeType":null,"relationName":"AccountToUser","relationFromFields":[],"relationToFields":[],"isGenerated":false,"isUpdatedAt":false}],"primaryKey":null,"uniqueFields":[],"uniqueIndexes":[],"isGenerated":false},"Session":{"dbName":"session","schema":null,"fields":[{"name":"id","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":true,"isReadOnly":false,"hasDefaultValue":true,"type":"String","nativeType":null,"default":{"name":"uuid","args":[4]},"isGenerated":false,"isUpdatedAt":false},{"name":"expiresAt","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"DateTime","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"token","kind":"scalar","isList":false,"isRequired":true,"isUnique":true,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"createdAt","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":true,"type":"DateTime","nativeType":null,"default":{"name":"now","args":[]},"isGenerated":false,"isUpdatedAt":false},{"name":"updatedAt","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"DateTime","nativeType":null,"isGenerated":false,"isUpdatedAt":true},{"name":"ipAddress","kind":"scalar","isList":false,"isRequired":false,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"userAgent","kind":"scalar","isList":false,"isRequired":false,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"userId","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":true,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"user","kind":"object","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"User","nativeType":null,"relationName":"SessionToUser","relationFromFields":["userId"],"relationToFields":["id"],"relationOnDelete":"Cascade","isGenerated":false,"isUpdatedAt":false}],"primaryKey":null,"uniqueFields":[],"uniqueIndexes":[],"isGenerated":false},"Account":{"dbName":"account","schema":null,"fields":[{"name":"id","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":true,"isReadOnly":false,"hasDefaultValue":true,"type":"String","nativeType":null,"default":{"name":"uuid","args":[4]},"isGenerated":false,"isUpdatedAt":false},{"name":"accountId","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"providerId","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"userId","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":true,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"user","kind":"object","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"User","nativeType":null,"relationName":"AccountToUser","relationFromFields":["userId"],"relationToFields":["id"],"relationOnDelete":"Cascade","isGenerated":false,"isUpdatedAt":false},{"name":"accessToken","kind":"scalar","isList":false,"isRequired":false,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"refreshToken","kind":"scalar","isList":false,"isRequired":false,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"idToken","kind":"scalar","isList":false,"isRequired":false,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"accessTokenExpiresAt","kind":"scalar","isList":false,"isRequired":false,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"DateTime","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"refreshTokenExpiresAt","kind":"scalar","isList":false,"isRequired":false,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"DateTime","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"scope","kind":"scalar","isList":false,"isRequired":false,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"password","kind":"scalar","isList":false,"isRequired":false,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"createdAt","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":true,"type":"DateTime","nativeType":null,"default":{"name":"now","args":[]},"isGenerated":false,"isUpdatedAt":false},{"name":"updatedAt","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"DateTime","nativeType":null,"isGenerated":false,"isUpdatedAt":true}],"primaryKey":null,"uniqueFields":[],"uniqueIndexes":[],"isGenerated":false},"Verification":{"dbName":"verification","schema":null,"fields":[{"name":"id","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":true,"isReadOnly":false,"hasDefaultValue":true,"type":"String","nativeType":null,"default":{"name":"uuid","args":[4]},"isGenerated":false,"isUpdatedAt":false},{"name":"identifier","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"value","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"expiresAt","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"DateTime","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"createdAt","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":true,"type":"DateTime","nativeType":null,"default":{"name":"now","args":[]},"isGenerated":false,"isUpdatedAt":false},{"name":"updatedAt","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"DateTime","nativeType":null,"isGenerated":false,"isUpdatedAt":true}],"primaryKey":null,"uniqueFields":[],"uniqueIndexes":[],"isGenerated":false}},"enums":{},"types":{}}');
+  config.runtimeDataModel = JSON.parse('{"models":{"User":{"dbName":"user","schema":null,"fields":[{"name":"id","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":true,"isReadOnly":false,"hasDefaultValue":true,"type":"String","nativeType":null,"default":{"name":"uuid","args":[4]},"isGenerated":false,"isUpdatedAt":false},{"name":"name","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"email","kind":"scalar","isList":false,"isRequired":true,"isUnique":true,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"emailVerified","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":true,"type":"Boolean","nativeType":null,"default":false,"isGenerated":false,"isUpdatedAt":false},{"name":"image","kind":"scalar","isList":false,"isRequired":false,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"createdAt","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":true,"type":"DateTime","nativeType":null,"default":{"name":"now","args":[]},"isGenerated":false,"isUpdatedAt":false},{"name":"updatedAt","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"DateTime","nativeType":null,"isGenerated":false,"isUpdatedAt":true},{"name":"role","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":true,"type":"String","nativeType":null,"default":"agent","isGenerated":false,"isUpdatedAt":false},{"name":"deletedAt","kind":"scalar","isList":false,"isRequired":false,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"DateTime","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"sessions","kind":"object","isList":true,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"Session","nativeType":null,"relationName":"SessionToUser","relationFromFields":[],"relationToFields":[],"isGenerated":false,"isUpdatedAt":false},{"name":"accounts","kind":"object","isList":true,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"Account","nativeType":null,"relationName":"AccountToUser","relationFromFields":[],"relationToFields":[],"isGenerated":false,"isUpdatedAt":false},{"name":"assignedTickets","kind":"object","isList":true,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"Ticket","nativeType":null,"relationName":"TicketToUser","relationFromFields":[],"relationToFields":[],"isGenerated":false,"isUpdatedAt":false}],"primaryKey":null,"uniqueFields":[],"uniqueIndexes":[],"isGenerated":false},"Session":{"dbName":"session","schema":null,"fields":[{"name":"id","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":true,"isReadOnly":false,"hasDefaultValue":true,"type":"String","nativeType":null,"default":{"name":"uuid","args":[4]},"isGenerated":false,"isUpdatedAt":false},{"name":"expiresAt","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"DateTime","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"token","kind":"scalar","isList":false,"isRequired":true,"isUnique":true,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"createdAt","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":true,"type":"DateTime","nativeType":null,"default":{"name":"now","args":[]},"isGenerated":false,"isUpdatedAt":false},{"name":"updatedAt","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"DateTime","nativeType":null,"isGenerated":false,"isUpdatedAt":true},{"name":"ipAddress","kind":"scalar","isList":false,"isRequired":false,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"userAgent","kind":"scalar","isList":false,"isRequired":false,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"userId","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":true,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"user","kind":"object","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"User","nativeType":null,"relationName":"SessionToUser","relationFromFields":["userId"],"relationToFields":["id"],"relationOnDelete":"Cascade","isGenerated":false,"isUpdatedAt":false}],"primaryKey":null,"uniqueFields":[],"uniqueIndexes":[],"isGenerated":false},"Account":{"dbName":"account","schema":null,"fields":[{"name":"id","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":true,"isReadOnly":false,"hasDefaultValue":true,"type":"String","nativeType":null,"default":{"name":"uuid","args":[4]},"isGenerated":false,"isUpdatedAt":false},{"name":"accountId","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"providerId","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"userId","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":true,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"user","kind":"object","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"User","nativeType":null,"relationName":"AccountToUser","relationFromFields":["userId"],"relationToFields":["id"],"relationOnDelete":"Cascade","isGenerated":false,"isUpdatedAt":false},{"name":"accessToken","kind":"scalar","isList":false,"isRequired":false,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"refreshToken","kind":"scalar","isList":false,"isRequired":false,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"idToken","kind":"scalar","isList":false,"isRequired":false,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"accessTokenExpiresAt","kind":"scalar","isList":false,"isRequired":false,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"DateTime","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"refreshTokenExpiresAt","kind":"scalar","isList":false,"isRequired":false,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"DateTime","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"scope","kind":"scalar","isList":false,"isRequired":false,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"password","kind":"scalar","isList":false,"isRequired":false,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"createdAt","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":true,"type":"DateTime","nativeType":null,"default":{"name":"now","args":[]},"isGenerated":false,"isUpdatedAt":false},{"name":"updatedAt","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"DateTime","nativeType":null,"isGenerated":false,"isUpdatedAt":true}],"primaryKey":null,"uniqueFields":[],"uniqueIndexes":[],"isGenerated":false},"Verification":{"dbName":"verification","schema":null,"fields":[{"name":"id","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":true,"isReadOnly":false,"hasDefaultValue":true,"type":"String","nativeType":null,"default":{"name":"uuid","args":[4]},"isGenerated":false,"isUpdatedAt":false},{"name":"identifier","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"value","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"expiresAt","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"DateTime","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"createdAt","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":true,"type":"DateTime","nativeType":null,"default":{"name":"now","args":[]},"isGenerated":false,"isUpdatedAt":false},{"name":"updatedAt","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"DateTime","nativeType":null,"isGenerated":false,"isUpdatedAt":true}],"primaryKey":null,"uniqueFields":[],"uniqueIndexes":[],"isGenerated":false},"Ticket":{"dbName":"ticket","schema":null,"fields":[{"name":"id","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":true,"isReadOnly":false,"hasDefaultValue":true,"type":"String","nativeType":null,"default":{"name":"uuid","args":[4]},"isGenerated":false,"isUpdatedAt":false},{"name":"ticketNumber","kind":"scalar","isList":false,"isRequired":true,"isUnique":true,"isId":false,"isReadOnly":false,"hasDefaultValue":true,"type":"Int","nativeType":null,"default":{"name":"autoincrement","args":[]},"isGenerated":false,"isUpdatedAt":false},{"name":"subject","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"description","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"status","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":true,"type":"String","nativeType":null,"default":"open","isGenerated":false,"isUpdatedAt":false},{"name":"priority","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":true,"type":"String","nativeType":null,"default":"medium","isGenerated":false,"isUpdatedAt":false},{"name":"customerEmail","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"customerName","kind":"scalar","isList":false,"isRequired":false,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"recipientEmail","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"assignedToId","kind":"scalar","isList":false,"isRequired":false,"isUnique":false,"isId":false,"isReadOnly":true,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"assignedTo","kind":"object","isList":false,"isRequired":false,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"User","nativeType":null,"relationName":"TicketToUser","relationFromFields":["assignedToId"],"relationToFields":["id"],"isGenerated":false,"isUpdatedAt":false},{"name":"source","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":true,"type":"String","nativeType":null,"default":"email","isGenerated":false,"isUpdatedAt":false},{"name":"messageId","kind":"scalar","isList":false,"isRequired":false,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"rawPayload","kind":"scalar","isList":false,"isRequired":false,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"Json","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"createdAt","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":true,"type":"DateTime","nativeType":null,"default":{"name":"now","args":[]},"isGenerated":false,"isUpdatedAt":false},{"name":"updatedAt","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"DateTime","nativeType":null,"isGenerated":false,"isUpdatedAt":true},{"name":"deletedAt","kind":"scalar","isList":false,"isRequired":false,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"DateTime","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"messages","kind":"object","isList":true,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"TicketMessage","nativeType":null,"relationName":"TicketToTicketMessage","relationFromFields":[],"relationToFields":[],"isGenerated":false,"isUpdatedAt":false}],"primaryKey":null,"uniqueFields":[],"uniqueIndexes":[],"isGenerated":false},"TicketMessage":{"dbName":"ticket_message","schema":null,"fields":[{"name":"id","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":true,"isReadOnly":false,"hasDefaultValue":true,"type":"String","nativeType":null,"default":{"name":"uuid","args":[4]},"isGenerated":false,"isUpdatedAt":false},{"name":"ticketId","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":true,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"ticket","kind":"object","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"Ticket","nativeType":null,"relationName":"TicketToTicketMessage","relationFromFields":["ticketId"],"relationToFields":["id"],"relationOnDelete":"Cascade","isGenerated":false,"isUpdatedAt":false},{"name":"senderType","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":true,"type":"String","nativeType":null,"default":"customer","isGenerated":false,"isUpdatedAt":false},{"name":"senderEmail","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"senderName","kind":"scalar","isList":false,"isRequired":false,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"bodyText","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"bodyHtml","kind":"scalar","isList":false,"isRequired":false,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"messageId","kind":"scalar","isList":false,"isRequired":false,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":false,"type":"String","nativeType":null,"isGenerated":false,"isUpdatedAt":false},{"name":"createdAt","kind":"scalar","isList":false,"isRequired":true,"isUnique":false,"isId":false,"isReadOnly":false,"hasDefaultValue":true,"type":"DateTime","nativeType":null,"default":{"name":"now","args":[]},"isGenerated":false,"isUpdatedAt":false}],"primaryKey":null,"uniqueFields":[],"uniqueIndexes":[],"isGenerated":false}},"enums":{},"types":{}}');
   defineDmmfProperty2(exports.Prisma, config.runtimeDataModel);
   config.engineWasm = undefined;
   config.compilerWasm = undefined;
@@ -56670,7 +56749,7 @@ var require_default2 = __commonJS(function(exports, module) {
 
 // src/index.ts
 var import_config2 = __toESM(require_config(), 1);
-var import_express2 = __toESM(require_express(), 1);
+var import_express4 = __toESM(require_express(), 1);
 var import_cors = __toESM(require_lib3(), 1);
 var import_cookie_parser = __toESM(require_cookie_parser(), 1);
 
@@ -80974,8 +81053,375 @@ usersRouter.delete("/:id", async (req, res) => {
   }
 });
 
+// src/routes/webhooks.ts
+var import_express2 = __toESM(require_express(), 1);
+
+// ../core/src/schemas/ticket.ts
+var TICKET_STATUSES = ["open", "in_progress", "resolved", "closed"];
+var TICKET_PRIORITIES = ["low", "medium", "high", "urgent"];
+function parseEmailSender(input) {
+  if (typeof input === "object" && input !== null) {
+    const cleanEmail = input.email.trim().toLowerCase();
+    const cleanName = input.name?.trim() || cleanEmail.split("@")[0] || cleanEmail;
+    return { email: cleanEmail, name: cleanName };
+  }
+  const raw2 = String(input || "").trim();
+  const match = raw2.match(/^(?:"?([^"]*)"?\s)?<?([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})>?$/);
+  if (match) {
+    const namePart = (match[1] || "").trim();
+    const emailPart = match[2].trim().toLowerCase();
+    return {
+      email: emailPart,
+      name: namePart || emailPart.split("@")[0] || emailPart
+    };
+  }
+  const fallbackEmail = raw2.toLowerCase();
+  return {
+    email: fallbackEmail,
+    name: fallbackEmail.split("@")[0] || fallbackEmail
+  };
+}
+var inboundEmailWebhookSchema = objectType({
+  from: unionType([
+    stringType().min(1, "Sender 'from' is required"),
+    objectType({
+      email: stringType().email(),
+      name: stringType().optional()
+    })
+  ]),
+  to: unionType([
+    stringType().min(1),
+    arrayType(stringType().min(1))
+  ]),
+  subject: stringType().default("(No Subject)"),
+  text: stringType().optional().default(""),
+  html: stringType().optional().default(""),
+  messageId: stringType().optional(),
+  headers: recordType(anyType()).optional(),
+  date: unionType([stringType(), dateType()]).optional()
+});
+var simulateEmailSchema = objectType({
+  fromName: stringType().trim().optional(),
+  fromEmail: stringType().trim().email("Please enter a valid sender email"),
+  to: stringType().trim().email().default("support@yourdomain.com"),
+  subject: stringType().trim().min(1, "Subject is required"),
+  body: stringType().trim().min(1, "Email body is required")
+});
+var updateTicketSchema = objectType({
+  status: enumType(TICKET_STATUSES).optional(),
+  priority: enumType(TICKET_PRIORITIES).optional(),
+  assignedToId: stringType().uuid().nullable().optional()
+});
+
+// src/services/email-ingestion.service.ts
+function stripHtml(html) {
+  return html.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "").replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "").replace(/<[^>]+>/g, " ").replace(/&nbsp;/gi, " ").replace(/&amp;/gi, "&").replace(/&lt;/gi, "<").replace(/&gt;/gi, ">").replace(/\s+/g, " ").trim();
+}
+function extractRecipientEmail(toField) {
+  if (Array.isArray(toField)) {
+    const first = toField[0] || "";
+    return parseEmailSender(first).email;
+  }
+  return parseEmailSender(toField).email;
+}
+async function ingestInboundEmail(payload) {
+  const sender = parseEmailSender(payload.from);
+  if (!sender.email || !sender.email.includes("@")) {
+    throw new Error(`Invalid sender email address: '${sender.email}'`);
+  }
+  const recipientEmail = extractRecipientEmail(payload.to) || process.env.EMAIL_FROM || "support@yourdomain.com";
+  let bodyText = (payload.text || "").trim();
+  if (!bodyText && payload.html) {
+    bodyText = stripHtml(payload.html);
+  }
+  if (!bodyText) {
+    bodyText = "(Empty email body)";
+  }
+  const cleanSubject = (payload.subject || "").trim() || "(No Subject)";
+  const ticket = await prisma.$transaction(async (tx) => {
+    const createdTicket = await tx.ticket.create({
+      data: {
+        subject: cleanSubject,
+        description: bodyText,
+        status: "open",
+        priority: "medium",
+        customerEmail: sender.email,
+        customerName: sender.name,
+        recipientEmail,
+        source: "email",
+        messageId: payload.messageId || null,
+        rawPayload: payload,
+        messages: {
+          create: {
+            senderType: "customer",
+            senderEmail: sender.email,
+            senderName: sender.name,
+            bodyText,
+            bodyHtml: payload.html || null,
+            messageId: payload.messageId || null
+          }
+        }
+      },
+      include: {
+        messages: true
+      }
+    });
+    return createdTicket;
+  });
+  return {
+    id: ticket.id,
+    ticketNumber: ticket.ticketNumber,
+    subject: ticket.subject,
+    description: ticket.description,
+    status: ticket.status,
+    priority: ticket.priority,
+    customerEmail: ticket.customerEmail,
+    customerName: ticket.customerName,
+    recipientEmail: ticket.recipientEmail,
+    source: ticket.source,
+    createdAt: ticket.createdAt,
+    messagesCount: ticket.messages.length
+  };
+}
+
+// src/routes/webhooks.ts
+var webhooksRouter = import_express2.Router();
+webhooksRouter.post("/inbound-email", async (req, res) => {
+  try {
+    const configuredSecret = process.env.WEBHOOK_SIGNING_SECRET;
+    if (configuredSecret && configuredSecret.trim().length > 0) {
+      const incomingSecretHeader = req.headers["x-webhook-secret"] || req.headers["x-resend-signature"] || req.headers["svix-signature"] || req.headers.authorization?.replace(/^Bearer\s+/i, "");
+      if (!incomingSecretHeader || incomingSecretHeader !== configuredSecret) {
+        return res.status(401).json({
+          error: "Unauthorized",
+          message: "Invalid or missing webhook signature/secret"
+        });
+      }
+    }
+    const parseResult = inboundEmailWebhookSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return res.status(400).json({
+        error: "Bad Request",
+        message: "Invalid inbound email webhook payload",
+        details: parseResult.error.errors.map((e) => ({
+          path: e.path.join("."),
+          message: e.message
+        }))
+      });
+    }
+    const ticket = await ingestInboundEmail(parseResult.data);
+    return res.status(201).json({
+      success: true,
+      message: `Inbound email successfully converted to Ticket #${ticket.ticketNumber}`,
+      ticket
+    });
+  } catch (error) {
+    console.error("[Webhooks] Inbound email processing error:", error);
+    return res.status(500).json({
+      error: "Internal Server Error",
+      message: error?.message || "Failed to process inbound email"
+    });
+  }
+});
+
+// src/routes/tickets.ts
+var import_express3 = __toESM(require_express(), 1);
+var ticketsRouter = import_express3.Router();
+ticketsRouter.use(requireAuth);
+ticketsRouter.get("/", async (req, res) => {
+  try {
+    const { status, priority, search, page = "1", limit = "50" } = req.query;
+    const pageNum = Math.max(1, parseInt(page, 10) || 1);
+    const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10) || 50));
+    const skip2 = (pageNum - 1) * limitNum;
+    const where = {
+      deletedAt: null
+    };
+    if (status && status !== "all") {
+      where.status = String(status);
+    }
+    if (priority && priority !== "all") {
+      where.priority = String(priority);
+    }
+    if (search && typeof search === "string" && search.trim().length > 0) {
+      const q = search.trim();
+      where.OR = [
+        { subject: { contains: q, mode: "insensitive" } },
+        { customerEmail: { contains: q, mode: "insensitive" } },
+        { customerName: { contains: q, mode: "insensitive" } },
+        { description: { contains: q, mode: "insensitive" } }
+      ];
+    }
+    const [tickets, totalFiltered, totalAll, openCount, inProgressCount, resolvedCount] = await Promise.all([
+      prisma.ticket.findMany({
+        where,
+        include: {
+          assignedTo: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              role: true
+            }
+          },
+          messages: {
+            take: 1,
+            orderBy: { createdAt: "desc" }
+          }
+        },
+        orderBy: { createdAt: "desc" },
+        skip: skip2,
+        take: limitNum
+      }),
+      prisma.ticket.count({ where }),
+      prisma.ticket.count({ where: { deletedAt: null } }),
+      prisma.ticket.count({ where: { deletedAt: null, status: "open" } }),
+      prisma.ticket.count({ where: { deletedAt: null, status: "in_progress" } }),
+      prisma.ticket.count({ where: { deletedAt: null, status: "resolved" } })
+    ]);
+    return res.json({
+      tickets,
+      counts: {
+        total: totalAll,
+        open: openCount,
+        in_progress: inProgressCount,
+        resolved: resolvedCount
+      },
+      pagination: {
+        page: pageNum,
+        limit: limitNum,
+        totalPages: Math.ceil(totalFiltered / limitNum),
+        totalItems: totalFiltered
+      }
+    });
+  } catch (error) {
+    console.error("[Tickets] Failed to fetch tickets:", error);
+    return res.status(500).json({
+      error: "Internal Server Error",
+      message: error?.message || "Failed to fetch tickets"
+    });
+  }
+});
+ticketsRouter.get("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const ticket = await prisma.ticket.findFirst({
+      where: {
+        id,
+        deletedAt: null
+      },
+      include: {
+        assignedTo: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true
+          }
+        },
+        messages: {
+          orderBy: { createdAt: "asc" }
+        }
+      }
+    });
+    if (!ticket) {
+      return res.status(404).json({
+        error: "Not Found",
+        message: `Ticket with ID '${id}' not found`
+      });
+    }
+    return res.json({ ticket });
+  } catch (error) {
+    console.error(`[Tickets] Failed to fetch ticket ${req.params.id}:`, error);
+    return res.status(500).json({
+      error: "Internal Server Error",
+      message: error?.message || "Failed to fetch ticket"
+    });
+  }
+});
+ticketsRouter.patch("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const parseResult = updateTicketSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return res.status(400).json({
+        error: "Bad Request",
+        message: "Invalid ticket update parameters",
+        details: parseResult.error.errors
+      });
+    }
+    const existingTicket = await prisma.ticket.findFirst({
+      where: { id, deletedAt: null }
+    });
+    if (!existingTicket) {
+      return res.status(404).json({
+        error: "Not Found",
+        message: `Ticket with ID '${id}' not found`
+      });
+    }
+    const { status, priority, assignedToId } = parseResult.data;
+    const updateData = {};
+    if (status !== undefined)
+      updateData.status = status;
+    if (priority !== undefined)
+      updateData.priority = priority;
+    if (assignedToId !== undefined)
+      updateData.assignedToId = assignedToId;
+    const updatedTicket = await prisma.ticket.update({
+      where: { id },
+      data: updateData,
+      include: {
+        assignedTo: {
+          select: { id: true, name: true, email: true }
+        }
+      }
+    });
+    return res.json({
+      success: true,
+      ticket: updatedTicket
+    });
+  } catch (error) {
+    console.error(`[Tickets] Failed to update ticket ${req.params.id}:`, error);
+    return res.status(500).json({
+      error: "Internal Server Error",
+      message: error?.message || "Failed to update ticket"
+    });
+  }
+});
+ticketsRouter.post("/simulate-inbound", async (req, res) => {
+  try {
+    const parseResult = simulateEmailSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return res.status(400).json({
+        error: "Bad Request",
+        message: "Invalid simulation payload",
+        details: parseResult.error.errors
+      });
+    }
+    const { fromName, fromEmail, to, subject, body } = parseResult.data;
+    const ticket = await ingestInboundEmail({
+      from: fromName ? `${fromName} <${fromEmail}>` : fromEmail,
+      to: to || process.env.EMAIL_FROM || "support@yourdomain.com",
+      subject,
+      text: body,
+      date: new Date().toISOString()
+    });
+    return res.status(201).json({
+      success: true,
+      message: `Simulated inbound email converted to Ticket #${ticket.ticketNumber}`,
+      ticket
+    });
+  } catch (error) {
+    console.error("[Tickets] Simulation failed:", error);
+    return res.status(500).json({
+      error: "Internal Server Error",
+      message: error?.message || "Failed to simulate inbound email"
+    });
+  }
+});
+
 // src/index.ts
-var app = import_express2.default();
+var app = import_express4.default();
 var PORT = process.env.PORT || 5000;
 var allowedOrigins = getTrustedOrigins2();
 app.use((_req, res, next) => {
@@ -80997,9 +81443,11 @@ app.use(import_cors.default({
   credentials: true
 }));
 app.all("/api/auth/*", toNodeHandler2(auth));
-app.use(import_express2.default.json());
+app.use(import_express4.default.json());
 app.use(import_cookie_parser.default());
 app.use("/api/users", usersRouter);
+app.use("/api/webhooks", webhooksRouter);
+app.use("/api/tickets", ticketsRouter);
 app.get("/", (_req, res) => {
   res.json({
     message: "Ticket Helper API Server is running",
@@ -81007,7 +81455,9 @@ app.get("/", (_req, res) => {
     docs: {
       health: "/api/health",
       auth: "/api/auth",
-      users: "/api/users"
+      users: "/api/users",
+      tickets: "/api/tickets",
+      webhooks: "/api/webhooks/inbound-email"
     },
     clientUrl: process.env.CLIENT_URL || "http://localhost:5173"
   });

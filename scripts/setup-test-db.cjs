@@ -64,13 +64,13 @@ async function setupTestDatabase() {
     },
   });
 
-  // Clean stale test users from previous runs
+  // Clean stale test data from previous runs
   const cleanClient = new Client({ connectionString: databaseUrl });
   try {
     await cleanClient.connect();
-    await cleanClient.query(`TRUNCATE TABLE "user" CASCADE;`);
+    await cleanClient.query(`TRUNCATE TABLE "ticket_message", "ticket", "user" CASCADE;`);
   } catch (e) {
-    // Ignore if table doesn't exist yet
+    // Ignore if tables do not exist yet
   } finally {
     await cleanClient.end();
   }

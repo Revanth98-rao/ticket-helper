@@ -5,6 +5,8 @@ import cookieParser from "cookie-parser";
 import { toNodeHandler } from "better-auth/node";
 import { auth, getTrustedOrigins } from "./auth";
 import { usersRouter } from "./routes/users";
+import { webhooksRouter } from "./routes/webhooks";
+import { ticketsRouter } from "./routes/tickets";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -52,6 +54,12 @@ app.use(cookieParser());
 // Protected User Management routes (Admin only)
 app.use("/api/users", usersRouter);
 
+// Inbound Webhooks (email ingestion)
+app.use("/api/webhooks", webhooksRouter);
+
+// Ticket Management routes (Staff)
+app.use("/api/tickets", ticketsRouter);
+
 // Root endpoint
 app.get("/", (_req: Request, res: Response) => {
   res.json({
@@ -61,6 +69,8 @@ app.get("/", (_req: Request, res: Response) => {
       health: "/api/health",
       auth: "/api/auth",
       users: "/api/users",
+      tickets: "/api/tickets",
+      webhooks: "/api/webhooks/inbound-email",
     },
     clientUrl: process.env.CLIENT_URL || "http://localhost:5173",
   });

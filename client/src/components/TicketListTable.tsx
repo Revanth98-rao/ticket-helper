@@ -1,45 +1,63 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
+import {
+  useReactTable,
+  getCoreRowModel,
+  flexRender,
+  createColumnHelper,
+  SortingState,
+} from "@tanstack/react-table";
 import {
   Inbox,
   Search,
-  Filter,
   Mail,
   ExternalLink,
   RefreshCw,
   Clock,
-  ArrowUpDown,
   ArrowDown,
   ArrowUp,
   X,
   ChevronLeft,
   ChevronRight,
-  SlidersHorizontal,
 } from "lucide-react";
 import { useTickets, TicketItem } from "../hooks/useTickets";
 import TicketDetailModal from "./TicketDetailModal";
 import SimulateEmailModal from "./SimulateEmailModal";
 
+const columnHelper = createColumnHelper<TicketItem>();
+
 export default function TicketListTable() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [priorityFilter, setPriorityFilter] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
   const [page, setPage] = useState<number>(1);
   const pageSize = 20;
 
+  // TanStack Table Sorting State: Defaults to Newest First (createdAt: desc)
+  const [sorting, setSorting] = useState<SortingState>([
+    { id: "createdAt", desc: true },
+  ]);
+
   const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
   const [isSimulateModalOpen, setIsSimulateModalOpen] = useState<boolean>(false);
+
+  // Derive sort parameters for server query from TanStack Table sorting state
+  const currentSort = sorting[0];
+  const sortParam: "newest" | "oldest" = currentSort?.desc === false ? "oldest" : "newest";
+  const sortByParam = (currentSort?.id as any) || "createdAt";
+  const sortOrderParam: "asc" | "desc" = currentSort?.desc === false ? "asc" : "desc";
 
   const { data, isLoading, error, refetch, isFetching } = useTickets({
     status: statusFilter,
     priority: priorityFilter,
     search: searchTerm,
-    sort: sortOrder,
+    sort: sortParam,
+    sortBy: sortByParam,
+    sortOrder: sortOrderParam,
     page,
     limit: pageSize,
   });
 
-  const tickets = data?.tickets || [];
+  const tickets = useMemo(() => data?.tickets || [], [data?.tickets]);
   const counts = data?.counts || { total: 0, open: 0, in_progress: 0, resolved: 0, closed: 0 };
   const pagination = data?.pagination || { page: 1, limit: pageSize, totalPages: 1, totalItems: 0 };
 
@@ -47,12 +65,7 @@ export default function TicketListTable() {
     setStatusFilter("all");
     setPriorityFilter("all");
     setSearchTerm("");
-    setSortOrder("newest");
-    setPage(1);
-  };
-
-  const toggleSortOrder = () => {
-    setSortOrder((prev) => (prev === "newest" ? "oldest" : "newest"));
+    setSorting([{ id: "createdAt", desc: true }]);
     setPage(1);
   };
 
@@ -119,6 +132,130 @@ export default function TicketListTable() {
         );
     }
   };
+
+  // Define TanStack Table Columns
+  const columns = useMemo(
+    () => [
+      columnHelper.accessor("ticketNumber", {
+        header: "Ticket",
+        cell: (info) => (
+          <span className="font-mono font-bold text-indigo-600">
+            #{info.getValue()}
+          </span>
+        ),
+      }),
+      columnHelper.accessor("subject", {
+        header: "Subject",
+        cell: (info) => {
+          const ticket = info.row.original;
+          return (
+            <div className="flex items-center gap-2 max-w-sm">
+              <Mail className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+              <div className="truncate">
+                <span className="font-semibold text-slate-900 block truncate">
+                  {ticket.subject}
+                </span>
+                <span className="text-[11px] text-slate-400 block truncate">
+                  {ticket.description}
+                </span>
+              </div>
+            </div>
+          );
+        },
+      }),
+      columnHelper.accessor(
+        (row) => row.customerName || row.customerEmail,
+        {
+          id: "customer",
+          header: "Customer",
+          cell: (info) => {
+            const ticket = info.row.original;
+            const displayName = ticket.customerName || ticket.customerEmail.split("@")[0];
+            const initial = (ticket.customerName?.[0] || ticket.customerEmail[0] || "U").toUpperCase();
+            return (
+              <div className="flex items-center gap-2.5">
+                <div className="w-7 h-7 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center font-bold text-slate-600 text-[10px] shrink-0">
+                  {initial}
+                </div>
+                <div className="flex flex-col truncate max-w-[180px]">
+                  <span className="font-semibold text-slate-900 truncate">
+                    {displayName}
+                  </span>
+                  <span className="text-[11px] text-slate-400 truncate">
+                    {ticket.customerEmail}
+                  </span>
+                </div>
+              </div>
+            );
+          },
+        }
+      ),
+      columnHelper.accessor("status", {
+        header: "Status",
+        cell: (info) => getStatusBadge(info.getValue()),
+      }),
+      columnHelper.accessor("priority", {
+        header: "Priority",
+        cell: (info) => getPriorityBadge(info.getValue()),
+      }),
+      columnHelper.accessor("createdAt", {
+        header: "Received",
+        enableSorting: true,
+        sortDescFirst: true,
+        cell: (info) => {
+          const date = new Date(info.getValue());
+          return (
+            <div className="flex items-center gap-1.5 text-slate-600 text-[11px] whitespace-nowrap">
+              <Clock className="w-3 h-3 text-slate-400 shrink-0" />
+              <div>
+                <span className="font-medium text-slate-800">
+                  {date.toLocaleDateString()}
+                </span>
+                <span className="text-slate-400 ml-1.5 text-[10px]">
+                  {date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                </span>
+              </div>
+            </div>
+          );
+        },
+      }),
+      columnHelper.display({
+        id: "actions",
+        header: () => <span className="block text-right">Actions</span>,
+        cell: (info) => (
+          <div className="text-right">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedTicketId(info.row.original.id);
+              }}
+              className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+              title="View ticket details"
+            >
+              <ExternalLink className="w-4 h-4" />
+            </button>
+          </div>
+        ),
+      }),
+    ],
+    []
+  );
+
+  // Initialize TanStack Table instance
+  const table = useReactTable({
+    data: tickets,
+    columns,
+    state: {
+      sorting,
+    },
+    onSortingChange: (updater) => {
+      setSorting(updater);
+      setPage(1);
+    },
+    manualSorting: true,
+    enableSortingRemoval: false,
+    getCoreRowModel: getCoreRowModel(),
+  });
 
   return (
     <div className="space-y-6">
@@ -199,15 +336,16 @@ export default function TicketListTable() {
           </div>
         </div>
 
-        {/* Right: Sort controls, Refresh & Simulate Email button */}
+        {/* Right: TanStack Table Sort controls, Refresh & Simulate Email button */}
         <div className="flex items-center gap-2 justify-end">
-          {/* Sort order toggle / dropdown */}
+          {/* Toolbar Sort selector synchronized with TanStack Table */}
           <div className="flex items-center gap-1 bg-slate-50 border border-slate-200 px-2.5 py-1 rounded-lg text-xs">
             <span className="text-slate-500 font-medium hidden sm:inline">Sort:</span>
             <select
-              value={sortOrder}
+              value={sortParam}
               onChange={(e) => {
-                setSortOrder(e.target.value as "newest" | "oldest");
+                const newSort = e.target.value as "newest" | "oldest";
+                setSorting([{ id: "createdAt", desc: newSort === "newest" }]);
                 setPage(1);
               }}
               className="bg-transparent font-semibold text-slate-800 focus:outline-none cursor-pointer"
@@ -236,7 +374,7 @@ export default function TicketListTable() {
         </div>
       </div>
 
-      {/* Tickets Table */}
+      {/* TanStack Table Container */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
         {isLoading ? (
           <div className="py-20 text-center text-xs text-slate-400 space-y-2">
@@ -282,114 +420,58 @@ export default function TicketListTable() {
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
-                  <tr className="bg-slate-50/75 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider text-[11px]">
-                    <th className="py-3 px-4 w-20">Ticket</th>
-                    <th className="py-3 px-4">Subject</th>
-                    <th className="py-3 px-4">Customer</th>
-                    <th className="py-3 px-4">Status</th>
-                    <th className="py-3 px-4">Priority</th>
-                    <th
-                      onClick={toggleSortOrder}
-                      className="py-3 px-4 cursor-pointer hover:text-slate-900 transition-colors select-none"
-                      title={`Click to sort by date (${sortOrder === "newest" ? "currently newest first" : "currently oldest first"})`}
+                  {table.getHeaderGroups().map((headerGroup) => (
+                    <tr
+                      key={headerGroup.id}
+                      className="bg-slate-50/75 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider text-[11px]"
                     >
-                      <div className="flex items-center gap-1.5">
-                        <span>Received</span>
-                        {sortOrder === "newest" ? (
-                          <ArrowDown className="w-3.5 h-3.5 text-indigo-600" />
-                        ) : (
-                          <ArrowUp className="w-3.5 h-3.5 text-indigo-600" />
-                        )}
-                      </div>
-                    </th>
-                    <th className="py-3 px-4 text-right">Actions</th>
-                  </tr>
+                      {headerGroup.headers.map((header) => {
+                        const canSort = header.column.getCanSort();
+                        const isSorted = header.column.getIsSorted();
+
+                        return (
+                          <th
+                            key={header.id}
+                            onClick={canSort ? header.column.getToggleSortingHandler() : undefined}
+                            className={`py-3 px-4 ${
+                              canSort ? "cursor-pointer hover:text-slate-900 select-none" : ""
+                            }`}
+                            title={
+                              canSort
+                                ? `Click to sort by ${header.column.columnDef.header}`
+                                : undefined
+                            }
+                          >
+                            <div className="flex items-center gap-1.5">
+                              {flexRender(
+                                header.column.columnDef.header,
+                                header.getContext()
+                              )}
+                              {isSorted === "desc" && (
+                                <ArrowDown className="w-3.5 h-3.5 text-indigo-600" />
+                              )}
+                              {isSorted === "asc" && (
+                                <ArrowUp className="w-3.5 h-3.5 text-indigo-600" />
+                              )}
+                            </div>
+                          </th>
+                        );
+                      })}
+                    </tr>
+                  ))}
                 </thead>
                 <tbody className="divide-y divide-slate-100 text-slate-700">
-                  {tickets.map((ticket) => (
+                  {table.getRowModel().rows.map((row) => (
                     <tr
-                      key={ticket.id}
-                      onClick={() => setSelectedTicketId(ticket.id)}
+                      key={row.id}
+                      onClick={() => setSelectedTicketId(row.original.id)}
                       className="hover:bg-slate-50/70 transition-colors cursor-pointer group"
                     >
-                      {/* Ticket Number */}
-                      <td className="py-3.5 px-4 font-mono font-bold text-indigo-600">
-                        #{ticket.ticketNumber}
-                      </td>
-
-                      {/* Subject */}
-                      <td className="py-3.5 px-4 max-w-sm">
-                        <div className="flex items-center gap-2">
-                          <Mail className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                          <div className="truncate">
-                            <span className="font-semibold text-slate-900 block truncate">
-                              {ticket.subject}
-                            </span>
-                            <span className="text-[11px] text-slate-400 block truncate">
-                              {ticket.description}
-                            </span>
-                          </div>
-                        </div>
-                      </td>
-
-                      {/* Customer */}
-                      <td className="py-3.5 px-4">
-                        <div className="flex items-center gap-2.5">
-                          <div className="w-7 h-7 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center font-bold text-slate-600 text-[10px] shrink-0">
-                            {(ticket.customerName?.[0] || ticket.customerEmail[0] || "U").toUpperCase()}
-                          </div>
-                          <div className="flex flex-col truncate max-w-[180px]">
-                            <span className="font-semibold text-slate-900 truncate">
-                              {ticket.customerName || ticket.customerEmail.split("@")[0]}
-                            </span>
-                            <span className="text-[11px] text-slate-400 truncate">
-                              {ticket.customerEmail}
-                            </span>
-                          </div>
-                        </div>
-                      </td>
-
-                      {/* Status */}
-                      <td className="py-3.5 px-4">
-                        {getStatusBadge(ticket.status)}
-                      </td>
-
-                      {/* Priority */}
-                      <td className="py-3.5 px-4">
-                        {getPriorityBadge(ticket.priority)}
-                      </td>
-
-                      {/* Received Date (Newest First) */}
-                      <td className="py-3.5 px-4 text-slate-600 text-[11px] whitespace-nowrap">
-                        <div className="flex items-center gap-1.5">
-                          <Clock className="w-3 h-3 text-slate-400 shrink-0" />
-                          <div>
-                            <span className="font-medium text-slate-800">
-                              {new Date(ticket.createdAt).toLocaleDateString()}
-                            </span>
-                            <span className="text-slate-400 ml-1.5 text-[10px]">
-                              {new Date(ticket.createdAt).toLocaleTimeString([], {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })}
-                            </span>
-                          </div>
-                        </div>
-                      </td>
-
-                      {/* Actions */}
-                      <td className="py-3.5 px-4 text-right">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedTicketId(ticket.id);
-                          }}
-                          className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
-                          title="View ticket details"
-                        >
-                          <ExternalLink className="w-4 h-4" />
-                        </button>
-                      </td>
+                      {row.getVisibleCells().map((cell) => (
+                        <td key={cell.id} className="py-3.5 px-4">
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </td>
+                      ))}
                     </tr>
                   ))}
                 </tbody>

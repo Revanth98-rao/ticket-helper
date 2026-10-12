@@ -18,7 +18,16 @@ ticketsRouter.use(requireAuth);
  */
 ticketsRouter.get("/", async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { status, priority, search, page = "1", limit = "50" } = req.query;
+    const {
+      status,
+      priority,
+      search,
+      page = "1",
+      limit = "50",
+      sort = "newest",
+      sortBy = "createdAt",
+      sortOrder,
+    } = req.query;
 
     const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
     const limitNum = Math.min(100, Math.max(1, parseInt(limit as string, 10) || 50));
@@ -38,16 +47,38 @@ ticketsRouter.get("/", async (req: AuthenticatedRequest, res: Response) => {
 
     if (search && typeof search === "string" && search.trim().length > 0) {
       const q = search.trim();
-      where.OR = [
+      const orConditions: any[] = [
         { subject: { contains: q, mode: "insensitive" } },
         { customerEmail: { contains: q, mode: "insensitive" } },
         { customerName: { contains: q, mode: "insensitive" } },
         { description: { contains: q, mode: "insensitive" } },
       ];
+
+      const cleanNum = q.replace(/^#/, "").trim();
+      if (/^\d+$/.test(cleanNum)) {
+        const parsed = parseInt(cleanNum, 10);
+        if (!isNaN(parsed) && parsed > 0 && parsed <= 2147483647) {
+          orConditions.push({ ticketNumber: parsed });
+        }
+      }
+
+      where.OR = orConditions;
     }
 
+    // Determine sorting: defaults to newest first (createdAt: desc)
+    let sortField = "createdAt";
+    if (["createdAt", "updatedAt", "ticketNumber", "priority", "status"].includes(String(sortBy))) {
+      sortField = String(sortBy);
+    }
+
+    // "newest" = desc, "oldest" = asc; or explicit sortOrder
+    const direction: "asc" | "desc" =
+      sort === "oldest" || String(sortOrder).toLowerCase() === "asc" ? "asc" : "desc";
+
+    const orderBy = { [sortField]: direction };
+
     // Parallel query for tickets and counts
-    const [tickets, totalFiltered, totalAll, openCount, inProgressCount, resolvedCount] =
+    const [tickets, totalFiltered, totalAll, openCount, inProgressCount, resolvedCount, closedCount] =
       await Promise.all([
         prisma.ticket.findMany({
           where,
@@ -65,7 +96,7 @@ ticketsRouter.get("/", async (req: AuthenticatedRequest, res: Response) => {
               orderBy: { createdAt: "desc" },
             },
           },
-          orderBy: { createdAt: "desc" },
+          orderBy,
           skip,
           take: limitNum,
         }),
@@ -74,6 +105,7 @@ ticketsRouter.get("/", async (req: AuthenticatedRequest, res: Response) => {
         prisma.ticket.count({ where: { deletedAt: null, status: "open" } }),
         prisma.ticket.count({ where: { deletedAt: null, status: "in_progress" } }),
         prisma.ticket.count({ where: { deletedAt: null, status: "resolved" } }),
+        prisma.ticket.count({ where: { deletedAt: null, status: "closed" } }),
       ]);
 
     return res.json({
@@ -83,12 +115,17 @@ ticketsRouter.get("/", async (req: AuthenticatedRequest, res: Response) => {
         open: openCount,
         in_progress: inProgressCount,
         resolved: resolvedCount,
+        closed: closedCount,
       },
       pagination: {
         page: pageNum,
         limit: limitNum,
         totalPages: Math.ceil(totalFiltered / limitNum),
         totalItems: totalFiltered,
+      },
+      sort: {
+        sortBy: sortField,
+        sortOrder: direction,
       },
     });
   } catch (error: any) {

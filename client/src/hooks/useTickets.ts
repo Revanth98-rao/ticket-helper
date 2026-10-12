@@ -33,6 +33,17 @@ export interface TicketItem {
   } | null;
 }
 
+export interface TicketFilters {
+  status?: string;
+  priority?: string;
+  search?: string;
+  sort?: "newest" | "oldest";
+  sortBy?: "createdAt" | "ticketNumber" | "priority" | "status" | "updatedAt";
+  sortOrder?: "asc" | "desc";
+  page?: number;
+  limit?: number;
+}
+
 export interface TicketsApiResponse {
   tickets: TicketItem[];
   counts: {
@@ -40,6 +51,7 @@ export interface TicketsApiResponse {
     open: number;
     in_progress: number;
     resolved: number;
+    closed: number;
   };
   pagination: {
     page: number;
@@ -47,9 +59,13 @@ export interface TicketsApiResponse {
     totalPages: number;
     totalItems: number;
   };
+  sort?: {
+    sortBy: string;
+    sortOrder: "asc" | "desc";
+  };
 }
 
-export function useTickets(filters?: { status?: string; search?: string }) {
+export function useTickets(filters?: TicketFilters) {
   return useQuery<TicketsApiResponse>({
     queryKey: ["tickets", filters],
     queryFn: async () => {
@@ -57,8 +73,26 @@ export function useTickets(filters?: { status?: string; search?: string }) {
       if (filters?.status && filters.status !== "all") {
         params.append("status", filters.status);
       }
+      if (filters?.priority && filters.priority !== "all") {
+        params.append("priority", filters.priority);
+      }
       if (filters?.search && filters.search.trim()) {
         params.append("search", filters.search.trim());
+      }
+      if (filters?.sort) {
+        params.append("sort", filters.sort);
+      }
+      if (filters?.sortBy) {
+        params.append("sortBy", filters.sortBy);
+      }
+      if (filters?.sortOrder) {
+        params.append("sortOrder", filters.sortOrder);
+      }
+      if (filters?.page) {
+        params.append("page", String(filters.page));
+      }
+      if (filters?.limit) {
+        params.append("limit", String(filters.limit));
       }
 
       const response = await api.get<TicketsApiResponse>(

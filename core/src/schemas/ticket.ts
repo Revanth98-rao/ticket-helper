@@ -64,7 +64,8 @@ export const inboundEmailWebhookSchema = z.object({
   date: z.union([z.string(), z.date()]).optional(),
 });
 
-export type InboundEmailWebhookPayload = z.infer<typeof inboundEmailWebhookSchema>;
+export type InboundEmailWebhookPayload = z.input<typeof inboundEmailWebhookSchema>;
+export type InboundEmailWebhookParsed = z.infer<typeof inboundEmailWebhookSchema>;
 
 /**
  * Schema for simulating an inbound email from development UI or automated test

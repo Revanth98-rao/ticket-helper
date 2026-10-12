@@ -93,3 +93,14 @@ export const updateTicketSchema = z.object({
 
 export type UpdateTicketInput = z.infer<typeof updateTicketSchema>;
 
+/**
+ * Schema for submitting a new staff reply to a ticket
+ */
+export const replyTicketSchema = z.object({
+  bodyText: z.string().trim().min(1, "Reply message cannot be empty"),
+  status: z.enum(TICKET_STATUSES).optional(),
+});
+
+export type ReplyTicketInput = z.infer<typeof replyTicketSchema>;
+
+

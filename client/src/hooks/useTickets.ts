@@ -1,6 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "../lib/axios";
-import type { SimulateEmailInput, UpdateTicketInput } from "core/schemas/ticket";
+import type {
+  SimulateEmailInput,
+  UpdateTicketInput,
+  ReplyTicketInput,
+} from "core/schemas/ticket";
 
 export interface TicketMessageItem {
   id: string;
@@ -177,6 +181,32 @@ export function useSimulateInboundEmail() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tickets"] });
+    },
+  });
+}
+
+export function useReplyTicket() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      ticketId,
+      data,
+    }: {
+      ticketId: string;
+      data: ReplyTicketInput;
+    }) => {
+      const response = await api.post<{
+        success: boolean;
+        message: string;
+        reply: TicketMessageItem;
+        ticket: TicketItem;
+      }>(`/tickets/${ticketId}/reply`, data);
+      return response.data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["tickets"] });
+      queryClient.invalidateQueries({ queryKey: ["ticket", variables.ticketId] });
     },
   });
 }

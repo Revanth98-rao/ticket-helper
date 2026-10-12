@@ -4,6 +4,7 @@ import { requireAuth, AuthenticatedRequest } from "../middleware/auth";
 import {
   simulateEmailSchema,
   updateTicketSchema,
+  replyTicketSchema,
 } from "core/schemas/ticket";
 import { ingestInboundEmail } from "../services/email-ingestion.service";
 
@@ -295,6 +296,102 @@ ticketsRouter.patch("/:id", async (req: AuthenticatedRequest, res: Response) => 
     return res.status(500).json({
       error: "Internal Server Error",
       message: error?.message || "Failed to update ticket",
+    });
+  }
+});
+
+/**
+ * POST /api/tickets/:id/reply
+ * Adds a new agent reply to the ticket's message thread and updates the ticket status and timestamp.
+ */
+ticketsRouter.post("/:id/reply", async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const parseResult = replyTicketSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return res.status(400).json({
+        error: "Bad Request",
+        message: "Invalid reply parameters",
+        details: parseResult.error.errors,
+      });
+    }
+
+    const ticket = await prisma.ticket.findFirst({
+      where: { id, deletedAt: null },
+    });
+
+    if (!ticket) {
+      return res.status(404).json({
+        error: "Not Found",
+        message: `Ticket with ID '${id}' not found`,
+      });
+    }
+
+    if (!req.user) {
+      return res.status(401).json({
+        error: "Unauthorized",
+        message: "Active user session required",
+      });
+    }
+
+    const { bodyText, status } = parseResult.data;
+    const senderEmail = req.user.email;
+    const senderName = req.user.name || "Support Staff";
+    const currentUserId = req.user.id;
+
+    const result = await prisma.$transaction(async (tx) => {
+      const reply = await tx.ticketMessage.create({
+        data: {
+          ticketId: id,
+          senderType: "agent",
+          senderEmail,
+          senderName,
+          bodyText,
+        },
+      });
+
+      const updateData: any = {
+        updatedAt: new Date(),
+      };
+
+      if (status) {
+        updateData.status = status;
+      } else if (ticket.status === "open") {
+        updateData.status = "in_progress";
+      }
+
+      if (!ticket.assignedToId && currentUserId) {
+        updateData.assignedToId = currentUserId;
+      }
+
+      const updatedTicket = await tx.ticket.update({
+        where: { id },
+        data: updateData,
+        include: {
+          assignedTo: {
+            select: { id: true, name: true, email: true, role: true },
+          },
+          messages: {
+            orderBy: { createdAt: "asc" },
+          },
+        },
+      });
+
+      return { reply, updatedTicket };
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: "Reply posted successfully",
+      reply: result.reply,
+      ticket: result.updatedTicket,
+    });
+  } catch (error: any) {
+    console.error(`[Tickets] Failed to post reply for ticket ${req.params.id}:`, error);
+    return res.status(500).json({
+      error: "Internal Server Error",
+      message: error?.message || "Failed to post reply",
     });
   }
 });

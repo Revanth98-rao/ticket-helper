@@ -1,6 +1,7 @@
 import React from "react";
-import { X, Mail, User, Clock, ArrowRight, CheckCircle2, AlertCircle } from "lucide-react";
-import { useTicket, useUpdateTicket } from "../hooks/useTickets";
+import { X, Mail, User, Clock, ArrowRight, CheckCircle2, AlertCircle, UserCheck } from "lucide-react";
+import { useTicket, useUpdateTicket, useAssignees } from "../hooks/useTickets";
+import { useSession } from "../lib/auth-client";
 import type { TicketStatus } from "core/schemas/ticket";
 
 interface TicketDetailModalProps {
@@ -13,17 +14,29 @@ export default function TicketDetailModal({
   onClose,
 }: TicketDetailModalProps) {
   const { data, isLoading, error } = useTicket(ticketId);
+  const { data: assigneesData, isLoading: isAssigneesLoading } = useAssignees();
+  const { data: sessionData } = useSession();
   const updateMutation = useUpdateTicket();
 
   if (!ticketId) return null;
 
   const ticket = data?.ticket;
+  const assignees = assigneesData?.assignees || [];
+  const currentUserId = sessionData?.user?.id;
 
   const handleStatusChange = (newStatus: TicketStatus) => {
     if (!ticket) return;
     updateMutation.mutate({
       id: ticket.id,
       data: { status: newStatus },
+    });
+  };
+
+  const handleAssigneeChange = (newAssigneeId: string | null) => {
+    if (!ticket) return;
+    updateMutation.mutate({
+      id: ticket.id,
+      data: { assignedToId: newAssigneeId },
     });
   };
 
@@ -79,7 +92,7 @@ export default function TicketDetailModal({
           {ticket && (
             <>
               {/* Meta details bar */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-xs">
                 <div>
                   <span className="text-slate-400 block font-medium">Customer</span>
                   <span className="font-semibold text-slate-900 truncate block">
@@ -93,6 +106,7 @@ export default function TicketDetailModal({
                 <div>
                   <span className="text-slate-400 block font-medium">Status</span>
                   <select
+                    aria-label="Ticket Status"
                     value={ticket.status}
                     onChange={(e) => handleStatusChange(e.target.value as TicketStatus)}
                     disabled={updateMutation.isPending}
@@ -110,6 +124,37 @@ export default function TicketDetailModal({
                   <span className="font-semibold text-slate-700 capitalize block mt-1">
                     {ticket.priority}
                   </span>
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-400 block font-medium">Assignee</span>
+                    {currentUserId && ticket.assignedTo?.id !== currentUserId && (
+                      <button
+                        type="button"
+                        onClick={() => handleAssigneeChange(currentUserId)}
+                        disabled={updateMutation.isPending}
+                        className="text-[10px] text-indigo-600 hover:text-indigo-800 font-semibold underline disabled:opacity-50"
+                        title="Assign ticket to yourself"
+                      >
+                        Me
+                      </button>
+                    )}
+                  </div>
+                  <select
+                    aria-label="Assigned Agent"
+                    value={ticket.assignedTo?.id || ""}
+                    onChange={(e) => handleAssigneeChange(e.target.value || null)}
+                    disabled={updateMutation.isPending || isAssigneesLoading}
+                    className="mt-0.5 w-full text-xs font-semibold px-2 py-1 rounded bg-white border border-slate-300 text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500 disabled:opacity-60"
+                  >
+                    <option value="">Unassigned</option>
+                    {assignees.map((agent) => (
+                      <option key={agent.id} value={agent.id}>
+                        {agent.name} ({agent.role})
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div>

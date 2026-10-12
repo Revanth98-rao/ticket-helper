@@ -30,12 +30,14 @@ export interface TicketItem {
     id: string;
     name: string;
     email: string;
+    role?: string;
   } | null;
 }
 
 export interface TicketFilters {
   status?: string;
   priority?: string;
+  assignedTo?: string;
   search?: string;
   sort?: "newest" | "oldest";
   sortBy?: "createdAt" | "ticketNumber" | "priority" | "status" | "updatedAt";
@@ -65,6 +67,24 @@ export interface TicketsApiResponse {
   };
 }
 
+export interface AssigneeItem {
+  id: string;
+  name: string;
+  email: string;
+  role: "admin" | "agent";
+}
+
+export function useAssignees() {
+  return useQuery<{ assignees: AssigneeItem[] }>({
+    queryKey: ["ticket-assignees"],
+    queryFn: async () => {
+      const response = await api.get<{ assignees: AssigneeItem[] }>("/tickets/assignees");
+      return response.data;
+    },
+    staleTime: 60 * 1000,
+  });
+}
+
 export function useTickets(filters?: TicketFilters) {
   return useQuery<TicketsApiResponse>({
     queryKey: ["tickets", filters],
@@ -75,6 +95,9 @@ export function useTickets(filters?: TicketFilters) {
       }
       if (filters?.priority && filters.priority !== "all") {
         params.append("priority", filters.priority);
+      }
+      if (filters?.assignedTo && filters.assignedTo !== "all") {
+        params.append("assignedTo", filters.assignedTo);
       }
       if (filters?.search && filters.search.trim()) {
         params.append("search", filters.search.trim());

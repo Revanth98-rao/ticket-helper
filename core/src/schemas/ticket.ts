@@ -86,7 +86,9 @@ export type SimulateEmailInput = z.infer<typeof simulateEmailSchema>;
 export const updateTicketSchema = z.object({
   status: z.enum(TICKET_STATUSES).optional(),
   priority: z.enum(TICKET_PRIORITIES).optional(),
-  assignedToId: z.string().uuid().nullable().optional(),
+  assignedToId: z
+    .preprocess((val) => (val === "" ? null : val), z.string().uuid().nullable())
+    .optional(),
 });
 
 export type UpdateTicketInput = z.infer<typeof updateTicketSchema>;

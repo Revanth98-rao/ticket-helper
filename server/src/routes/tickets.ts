@@ -21,6 +21,7 @@ ticketsRouter.get("/", async (req: AuthenticatedRequest, res: Response) => {
     const {
       status,
       priority,
+      assignedTo,
       search,
       page = "1",
       limit = "50",
@@ -45,6 +46,16 @@ ticketsRouter.get("/", async (req: AuthenticatedRequest, res: Response) => {
       where.priority = String(priority);
     }
 
+    if (assignedTo && assignedTo !== "all") {
+      if (assignedTo === "unassigned") {
+        where.assignedToId = null;
+      } else if (assignedTo === "me") {
+        where.assignedToId = req.user?.id;
+      } else {
+        where.assignedToId = String(assignedTo);
+      }
+    }
+
     if (search && typeof search === "string" && search.trim().length > 0) {
       const q = search.trim();
       const orConditions: any[] = [
@@ -52,6 +63,8 @@ ticketsRouter.get("/", async (req: AuthenticatedRequest, res: Response) => {
         { customerEmail: { contains: q, mode: "insensitive" } },
         { customerName: { contains: q, mode: "insensitive" } },
         { description: { contains: q, mode: "insensitive" } },
+        { assignedTo: { name: { contains: q, mode: "insensitive" } } },
+        { assignedTo: { email: { contains: q, mode: "insensitive" } } },
       ];
 
       const cleanNum = q.replace(/^#/, "").trim();
@@ -138,6 +151,38 @@ ticketsRouter.get("/", async (req: AuthenticatedRequest, res: Response) => {
 });
 
 /**
+ * GET /api/tickets/assignees
+ * Returns a list of active staff members (admins and agents) who can be assigned to tickets.
+ * Accessible to all authenticated staff (admin and agent).
+ */
+ticketsRouter.get("/assignees", async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const assignees = await prisma.user.findMany({
+      where: {
+        deletedAt: null,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+      },
+      orderBy: {
+        name: "asc",
+      },
+    });
+
+    return res.json({ assignees });
+  } catch (error: any) {
+    console.error("[Tickets] Failed to fetch assignees:", error);
+    return res.status(500).json({
+      error: "Internal Server Error",
+      message: error?.message || "Failed to fetch assignees",
+    });
+  }
+});
+
+/**
  * GET /api/tickets/:id
  * Returns a single ticket with full message history and assigned agent info.
  */
@@ -214,14 +259,29 @@ ticketsRouter.patch("/:id", async (req: AuthenticatedRequest, res: Response) => 
     const updateData: any = {};
     if (status !== undefined) updateData.status = status;
     if (priority !== undefined) updateData.priority = priority;
-    if (assignedToId !== undefined) updateData.assignedToId = assignedToId;
+    if (assignedToId !== undefined) {
+      if (assignedToId === null) {
+        updateData.assignedToId = null;
+      } else {
+        const userExists = await prisma.user.findFirst({
+          where: { id: assignedToId, deletedAt: null },
+        });
+        if (!userExists) {
+          return res.status(400).json({
+            error: "Bad Request",
+            message: "Assigned user not found or inactive",
+          });
+        }
+        updateData.assignedToId = assignedToId;
+      }
+    }
 
     const updatedTicket = await prisma.ticket.update({
       where: { id },
       data: updateData,
       include: {
         assignedTo: {
-          select: { id: true, name: true, email: true },
+          select: { id: true, name: true, email: true, role: true },
         },
       },
     });

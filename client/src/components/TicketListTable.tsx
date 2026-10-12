@@ -18,8 +18,10 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
+  UserCheck,
+  UserX,
 } from "lucide-react";
-import { useTickets, TicketItem } from "../hooks/useTickets";
+import { useTickets, useAssignees, TicketItem } from "../hooks/useTickets";
 import TicketDetailModal from "./TicketDetailModal";
 import SimulateEmailModal from "./SimulateEmailModal";
 
@@ -28,9 +30,13 @@ const columnHelper = createColumnHelper<TicketItem>();
 export default function TicketListTable() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [priorityFilter, setPriorityFilter] = useState<string>("all");
+  const [assigneeFilter, setAssigneeFilter] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [page, setPage] = useState<number>(1);
   const pageSize = 20;
+
+  const { data: assigneesData } = useAssignees();
+  const assignees = assigneesData?.assignees || [];
 
   // TanStack Table Sorting State: Defaults to Newest First (createdAt: desc)
   const [sorting, setSorting] = useState<SortingState>([
@@ -49,6 +55,7 @@ export default function TicketListTable() {
   const { data, isLoading, error, refetch, isFetching } = useTickets({
     status: statusFilter,
     priority: priorityFilter,
+    assignedTo: assigneeFilter,
     search: searchTerm,
     sort: sortParam,
     sortBy: sortByParam,
@@ -64,6 +71,7 @@ export default function TicketListTable() {
   const handleResetFilters = () => {
     setStatusFilter("all");
     setPriorityFilter("all");
+    setAssigneeFilter("all");
     setSearchTerm("");
     setSorting([{ id: "createdAt", desc: true }]);
     setPage(1);
@@ -198,6 +206,38 @@ export default function TicketListTable() {
         header: "Priority",
         cell: (info) => getPriorityBadge(info.getValue()),
       }),
+      columnHelper.accessor(
+        (row) => row.assignedTo?.name || row.assignedTo?.email || "Unassigned",
+        {
+          id: "assignedTo",
+          header: "Assignee",
+          cell: (info) => {
+            const assigned = info.row.original.assignedTo;
+            if (!assigned) {
+              return (
+                <span className="inline-flex items-center gap-1 text-[11px] text-slate-400 italic">
+                  <UserX className="w-3 h-3 text-slate-300 shrink-0" />
+                  Unassigned
+                </span>
+              );
+            }
+            const initial = (assigned.name?.[0] || assigned.email[0] || "A").toUpperCase();
+            return (
+              <div
+                className="flex items-center gap-1.5"
+                title={`${assigned.name} (${assigned.email})`}
+              >
+                <div className="w-5 h-5 rounded-full bg-indigo-50 border border-indigo-200 flex items-center justify-center font-bold text-indigo-700 text-[9px] shrink-0">
+                  {initial}
+                </div>
+                <span className="font-medium text-slate-800 text-[11px] truncate max-w-[110px]">
+                  {assigned.name}
+                </span>
+              </div>
+            );
+          },
+        }
+      ),
       columnHelper.accessor("createdAt", {
         header: "Received",
         enableSorting: true,
@@ -334,6 +374,28 @@ export default function TicketListTable() {
               <option value="low">Low</option>
             </select>
           </div>
+
+          {/* Assignee filter selector */}
+          <div className="flex items-center gap-1.5">
+            <select
+              aria-label="Filter by Assignee"
+              value={assigneeFilter}
+              onChange={(e) => {
+                setAssigneeFilter(e.target.value);
+                setPage(1);
+              }}
+              className="text-xs px-2.5 py-1.5 border border-slate-300 rounded-lg bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600"
+            >
+              <option value="all">All Assignees</option>
+              <option value="unassigned">Unassigned</option>
+              <option value="me">Assigned to Me</option>
+              {assignees.map((a) => (
+                <option key={a.id} value={a.id}>
+                  {a.name}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         {/* Right: TanStack Table Sort controls, Refresh & Simulate Email button */}
@@ -397,16 +459,16 @@ export default function TicketListTable() {
               <Inbox className="w-6 h-6" />
             </div>
             <h4 className="text-sm font-semibold text-slate-900">
-              {searchTerm || statusFilter !== "all" || priorityFilter !== "all"
+              {searchTerm || statusFilter !== "all" || priorityFilter !== "all" || assigneeFilter !== "all"
                 ? "No matching tickets found"
                 : "No tickets in inbox"}
             </h4>
             <p className="text-xs text-slate-500 max-w-sm mx-auto">
-              {searchTerm || statusFilter !== "all" || priorityFilter !== "all"
+              {searchTerm || statusFilter !== "all" || priorityFilter !== "all" || assigneeFilter !== "all"
                 ? "Try adjusting your search criteria or resetting filters."
                 : "Incoming customer emails sent to support addresses will automatically appear here."}
             </p>
-            {(searchTerm || statusFilter !== "all" || priorityFilter !== "all") && (
+            {(searchTerm || statusFilter !== "all" || priorityFilter !== "all" || assigneeFilter !== "all") && (
               <button
                 onClick={handleResetFilters}
                 className="mt-2 px-3 py-1.5 text-xs font-semibold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors"

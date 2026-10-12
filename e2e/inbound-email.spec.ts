@@ -96,7 +96,7 @@ test.describe("Inbound Email Ticket Ingestion", () => {
     await expect(detailModal.getByText(testSenderEmail, { exact: true })).toBeVisible();
 
     // 5. Change ticket status to 'In Progress'
-    const statusSelect = detailModal.locator("select");
+    const statusSelect = detailModal.getByLabel("Ticket Status");
     await statusSelect.selectOption("in_progress");
 
     // Close modal

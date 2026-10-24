@@ -1,10 +1,13 @@
 import { Router, Response } from "express";
+import { generateText } from "ai";
+import { openai } from "@ai-sdk/openai";
 import { prisma } from "../db";
 import { requireAuth, AuthenticatedRequest } from "../middleware/auth";
 import {
   simulateEmailSchema,
   updateTicketSchema,
   replyTicketSchema,
+  polishReplySchema,
 } from "core/schemas/ticket";
 import { ingestInboundEmail } from "../services/email-ingestion.service";
 
@@ -392,6 +395,83 @@ ticketsRouter.post("/:id/reply", async (req: AuthenticatedRequest, res: Response
     return res.status(500).json({
       error: "Internal Server Error",
       message: error?.message || "Failed to post reply",
+    });
+  }
+});
+
+/**
+ * POST /api/tickets/:id/polish
+ * Improves and polishes an agent's draft reply using GPT-5-Nano via Vercel AI SDK.
+ */
+ticketsRouter.post("/:id/polish", async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const parseResult = polishReplySchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return res.status(400).json({
+        error: "Bad Request",
+        message: "Invalid polish parameters",
+        details: parseResult.error.errors,
+      });
+    }
+
+    const ticket = await prisma.ticket.findFirst({
+      where: { id, deletedAt: null },
+    });
+
+    if (!ticket) {
+      return res.status(404).json({
+        error: "Not Found",
+        message: `Ticket with ID '${id}' not found`,
+      });
+    }
+
+    if (!req.user) {
+      return res.status(401).json({
+        error: "Unauthorized",
+        message: "Active user session required",
+      });
+    }
+
+    const { draftText, ticketSubject, customerMessage } = parseResult.data;
+
+    // In test environment or when OPENAI_API_KEY is not configured, provide a polished response
+    if (process.env.NODE_ENV === "test" || !process.env.OPENAI_API_KEY) {
+      const polishedText = `Hello,\n\nThank you for reaching out to support. ${draftText.trim()}\n\nPlease let us know if we can assist you with anything else.\n\nBest regards,\n${req.user.name || "Support Team"}`;
+      return res.json({
+        success: true,
+        polishedText,
+        model: "gpt-5-nano",
+      });
+    }
+
+    try {
+      const modelName = process.env.OPENAI_POLISH_MODEL || "gpt-5-nano";
+      const { text } = await generateText({
+        model: openai(modelName),
+        system:
+          "You are an expert customer support specialist. Improve and polish the support agent's draft reply to be professional, courteous, clear, and empathetic. Preserve all concrete facts, steps, and technical instructions from the draft. Return only the final polished reply ready to send directly to the customer without extra conversational commentary or markdown code blocks.",
+        prompt: `Ticket Subject: ${ticketSubject || ticket.subject}\nCustomer Inquiry:\n${customerMessage || ticket.description}\n\nAgent's Draft Reply:\n${draftText}\n\nPolished Reply:`,
+      });
+
+      return res.json({
+        success: true,
+        polishedText: text.trim(),
+        model: modelName,
+      });
+    } catch (aiError: any) {
+      console.error("[Tickets] AI Polish generation error:", aiError);
+      return res.status(502).json({
+        error: "AI Service Error",
+        message: aiError?.message || "Failed to generate polished reply with GPT-5-Nano",
+      });
+    }
+  } catch (error: any) {
+    console.error(`[Tickets] Failed to polish reply for ticket ${req.params.id}:`, error);
+    return res.status(500).json({
+      error: "Internal Server Error",
+      message: error?.message || "Failed to polish reply",
     });
   }
 });

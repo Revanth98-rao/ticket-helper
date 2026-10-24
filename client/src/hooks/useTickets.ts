@@ -4,6 +4,7 @@ import type {
   SimulateEmailInput,
   UpdateTicketInput,
   ReplyTicketInput,
+  PolishReplyInput,
 } from "core/schemas/ticket";
 
 export interface TicketMessageItem {
@@ -207,6 +208,25 @@ export function useReplyTicket() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["tickets"] });
       queryClient.invalidateQueries({ queryKey: ["ticket", variables.ticketId] });
+    },
+  });
+}
+
+export function usePolishReply() {
+  return useMutation({
+    mutationFn: async ({
+      ticketId,
+      data,
+    }: {
+      ticketId: string;
+      data: PolishReplyInput;
+    }) => {
+      const response = await api.post<{
+        success: boolean;
+        polishedText: string;
+        model: string;
+      }>(`/tickets/${ticketId}/polish`, data);
+      return response.data;
     },
   });
 }

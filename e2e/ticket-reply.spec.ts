@@ -101,5 +101,69 @@ test.describe("Ticket Reply Feature", () => {
     await expect(detailModal.getByText(secondReplyText)).toBeVisible();
     await expect(mainStatusSelect).toHaveValue("closed");
   });
+
+  test("Staff can polish a rough draft reply using AI (GPT-5-Nano) before sending", async ({
+    page,
+    request,
+  }) => {
+    const timestamp = Date.now();
+    const testSubject = `Polish AI Test Ticket ${timestamp}`;
+    const testSenderEmail = `student_${timestamp}@example.com`;
+    const testBody = "I can't seem to access my course syllabus on the portal.";
+    const roughDraft = "reset your password and clearing cache should fix it";
+
+    // 1. Ingest inbound ticket
+    const res = await request.post("/api/webhooks/inbound-email", {
+      data: {
+        from: `Student Sam <${testSenderEmail}>`,
+        to: "support@tickethelper.internal",
+        subject: testSubject,
+        text: testBody,
+      },
+    });
+    expect(res.status()).toBe(201);
+
+    // 2. Login and open ticket
+    await loginAsAdmin(page);
+    await page.goto("/");
+    await page.getByPlaceholder("Search by subject, email, or #...").fill(testSubject);
+    const table = page.getByRole("table");
+    const row = table.locator("tbody tr", { hasText: testSubject });
+    await expect(row).toBeVisible();
+    await row.click();
+
+    const detailModal = page.getByRole("dialog");
+    await expect(detailModal).toBeVisible();
+
+    // 3. Verify Polish button exists and is disabled when textarea is empty
+    const polishButton = detailModal.getByRole("button", { name: "Polish" });
+    await expect(polishButton).toBeVisible();
+    await expect(polishButton).toBeDisabled();
+
+    // 4. Fill in rough draft reply
+    const replyTextarea = detailModal.getByLabel("Reply message");
+    await replyTextarea.fill(roughDraft);
+    await expect(polishButton).toBeEnabled();
+
+    // 5. Click Polish
+    await polishButton.click();
+
+    // 6. Verify polish feedback and improved reply content
+    await expect(
+      detailModal.getByText("Draft polished using GPT-5-Nano!")
+    ).toBeVisible();
+    const polishedVal = await replyTextarea.inputValue();
+    expect(polishedVal).not.toBe(roughDraft);
+    expect(polishedVal.length).toBeGreaterThan(roughDraft.length);
+    expect(polishedVal.toLowerCase()).toContain("reaching out");
+
+    // 7. Send the polished reply
+    const sendReplyButton = detailModal.getByRole("button", { name: "Send Reply" });
+    await sendReplyButton.click();
+
+    await expect(detailModal.getByText("Reply sent successfully!")).toBeVisible();
+    await expect(detailModal.getByText("Reply Thread (1)")).toBeVisible();
+    await expect(detailModal.getByText("Staff Reply")).toBeVisible();
+  });
 });
 

@@ -103,4 +103,16 @@ export const replyTicketSchema = z.object({
 
 export type ReplyTicketInput = z.infer<typeof replyTicketSchema>;
 
+/**
+ * Schema for polishing an agent reply draft using GPT-5-Nano via Vercel AI SDK
+ */
+export const polishReplySchema = z.object({
+  draftText: z.string().trim().min(1, "Draft message is required to polish"),
+  ticketSubject: z.string().optional(),
+  customerMessage: z.string().optional(),
+});
+
+export type PolishReplyInput = z.infer<typeof polishReplySchema>;
+
+
 

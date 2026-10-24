@@ -12,12 +12,14 @@ import {
   MessageSquare,
   Reply,
   Loader2,
+  Sparkles,
 } from "lucide-react";
 import {
   useTicket,
   useUpdateTicket,
   useAssignees,
   useReplyTicket,
+  usePolishReply,
 } from "../hooks/useTickets";
 import { useSession } from "../lib/auth-client";
 import { sanitizeHtml } from "../lib/sanitize";
@@ -72,11 +74,13 @@ export default function TicketDetailModal({
   const { data: sessionData } = useSession();
   const updateMutation = useUpdateTicket();
   const replyMutation = useReplyTicket();
+  const polishMutation = usePolishReply();
 
   const [replyText, setReplyText] = useState("");
   const [replyStatus, setReplyStatus] = useState<TicketStatus>("in_progress");
   const [replyError, setReplyError] = useState<string | null>(null);
   const [replySuccess, setReplySuccess] = useState<boolean>(false);
+  const [polishInfo, setPolishInfo] = useState<string | null>(null);
 
   const ticket = data?.ticket;
   const assignees = assigneesData?.assignees || [];
@@ -134,6 +138,33 @@ export default function TicketDetailModal({
         },
       }
     );
+  };
+
+  const handlePolishReply = async () => {
+    if (!ticket || !replyText.trim()) return;
+    setReplyError(null);
+    setPolishInfo(null);
+
+    try {
+      const res = await polishMutation.mutateAsync({
+        ticketId: ticket.id,
+        data: {
+          draftText: replyText.trim(),
+          ticketSubject: ticket.subject,
+          customerMessage: initialMessage?.bodyText || ticket.description,
+        },
+      });
+
+      if (res.polishedText) {
+        setReplyText(res.polishedText);
+        setPolishInfo("Draft polished using GPT-5-Nano!");
+        setTimeout(() => setPolishInfo(null), 4000);
+      }
+    } catch (err: any) {
+      setReplyError(
+        err?.response?.data?.message || err?.message || "Failed to polish reply with AI"
+      );
+    }
   };
 
   if (!ticketId) return null;
@@ -415,6 +446,13 @@ export default function TicketDetailModal({
                     </div>
                   )}
 
+                  {polishInfo && (
+                    <div className="p-2.5 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 shrink-0 text-indigo-600" />
+                      <span>{polishInfo}</span>
+                    </div>
+                  )}
+
                   <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
                     <div className="flex items-center gap-2">
                       <label htmlFor="reply-status-select" className="text-xs text-slate-500 font-medium">
@@ -425,7 +463,7 @@ export default function TicketDetailModal({
                         aria-label="Status after reply"
                         value={replyStatus}
                         onChange={(e) => setReplyStatus(e.target.value as TicketStatus)}
-                        disabled={replyMutation.isPending}
+                        disabled={replyMutation.isPending || polishMutation.isPending}
                         className="text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-white border border-slate-300 text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500 disabled:opacity-60"
                       >
                         <option value="in_progress">In Progress</option>
@@ -435,23 +473,45 @@ export default function TicketDetailModal({
                       </select>
                     </div>
 
-                    <button
-                      type="submit"
-                      disabled={!replyText.trim() || replyMutation.isPending}
-                      className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-xs"
-                    >
-                      {replyMutation.isPending ? (
-                        <>
-                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                          Sending...
-                        </>
-                      ) : (
-                        <>
-                          <Send className="w-3.5 h-3.5" />
-                          Send Reply
-                        </>
-                      )}
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={handlePolishReply}
+                        disabled={!replyText.trim() || polishMutation.isPending || replyMutation.isPending}
+                        className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-xs"
+                        title="Polish reply using GPT-5-Nano"
+                      >
+                        {polishMutation.isPending ? (
+                          <>
+                            <Loader2 className="w-3.5 h-3.5 animate-spin text-indigo-600" />
+                            Polishing...
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
+                            Polish
+                          </>
+                        )}
+                      </button>
+
+                      <button
+                        type="submit"
+                        disabled={!replyText.trim() || replyMutation.isPending || polishMutation.isPending}
+                        className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-xs"
+                      >
+                        {replyMutation.isPending ? (
+                          <>
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            Sending...
+                          </>
+                        ) : (
+                          <>
+                            <Send className="w-3.5 h-3.5" />
+                            Send Reply
+                          </>
+                        )}
+                      </button>
+                    </div>
                   </div>
                 </form>
               </div>

@@ -20,7 +20,43 @@ import {
   useReplyTicket,
 } from "../hooks/useTickets";
 import { useSession } from "../lib/auth-client";
+import { sanitizeHtml } from "../lib/sanitize";
 import type { TicketStatus } from "core/schemas/ticket";
+
+function SanitizedMessageBody({
+  bodyHtml,
+  bodyText,
+  fallbackText,
+}: {
+  bodyHtml?: string | null;
+  bodyText?: string | null;
+  fallbackText?: string | null;
+}) {
+  if (bodyHtml && bodyHtml.trim()) {
+    return (
+      <div
+        className="text-xs text-slate-700 leading-relaxed pt-1 prose prose-sm max-w-none break-words [&_a]:text-indigo-600 [&_a]:underline"
+        dangerouslySetInnerHTML={{ __html: sanitizeHtml(bodyHtml) }}
+      />
+    );
+  }
+
+  const rawText = bodyText || fallbackText || "";
+  if (/<[a-z][\s\S]*>/i.test(rawText)) {
+    return (
+      <div
+        className="text-xs text-slate-700 leading-relaxed pt-1 prose prose-sm max-w-none break-words [&_a]:text-indigo-600 [&_a]:underline"
+        dangerouslySetInnerHTML={{ __html: sanitizeHtml(rawText) }}
+      />
+    );
+  }
+
+  return (
+    <div className="text-xs text-slate-700 whitespace-pre-wrap leading-relaxed pt-1">
+      {rawText}
+    </div>
+  );
+}
 
 interface TicketDetailModalProps {
   ticketId: string | null;
@@ -257,9 +293,11 @@ export default function TicketDetailModal({
                     </div>
                   </div>
 
-                  <div className="text-xs text-slate-700 whitespace-pre-wrap leading-relaxed pt-1">
-                    {initialMessage?.bodyText || ticket.description}
-                  </div>
+                  <SanitizedMessageBody
+                    bodyHtml={initialMessage?.bodyHtml}
+                    bodyText={initialMessage?.bodyText}
+                    fallbackText={ticket.description}
+                  />
                 </div>
               </div>
 
@@ -321,9 +359,10 @@ export default function TicketDetailModal({
                             </span>
                           </div>
 
-                          <div className="text-xs text-slate-700 whitespace-pre-wrap leading-relaxed pt-1">
-                            {msg.bodyText}
-                          </div>
+                          <SanitizedMessageBody
+                            bodyHtml={msg.bodyHtml}
+                            bodyText={msg.bodyText}
+                          />
                         </div>
                       );
                     })}

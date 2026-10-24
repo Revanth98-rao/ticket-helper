@@ -300,4 +300,81 @@ test.describe("User Management - CRUD Operations (Happy Paths)", () => {
     // Verify row is removed from table
     await expect(table.locator("tbody tr", { hasText: updatedEmail })).toHaveCount(0);
   });
+
+  // =========================================================================
+  // 6. UNASSIGN ON DELETE: Deleting an agent unassigns their assigned tickets
+  // =========================================================================
+  test("Deleting a user unassigns all tickets assigned to that user", async ({
+    page,
+    request,
+  }) => {
+    const timestamp = Date.now();
+    const agentName = `Assigned Agent ${timestamp}`;
+    const agentEmail = `assigned_agent_${timestamp}@example.com`;
+    const testSubject = `Ticket For Unassign Test ${timestamp}`;
+
+    // 1. Ingest an unassigned ticket via webhook
+    const ticketRes = await request.post("/api/webhooks/inbound-email", {
+      data: {
+        from: `Customer <customer_${timestamp}@example.com>`,
+        to: "support@tickethelper.internal",
+        subject: testSubject,
+        text: "Please resolve my issue.",
+      },
+    });
+    expect(ticketRes.status()).toBe(201);
+
+    // 2. Admin logs in and creates a new agent
+    await loginAsAdmin(page);
+    await page.goto("/users");
+
+    await page.getByRole("button", { name: "Create User" }).click();
+    const createModal = page.getByRole("dialog", { name: "Create New User" });
+    await expect(createModal).toBeVisible();
+    await createModal.getByLabel("Name").fill(agentName);
+    await createModal.getByLabel("Email").fill(agentEmail);
+    await createModal.getByLabel("Password").fill("agentpass123");
+    await createModal.getByRole("button", { name: "Create User" }).click();
+    await expect(createModal).not.toBeVisible();
+
+    const usersTable = page.getByRole("table");
+    const userRow = usersTable.locator("tbody tr", { hasText: agentEmail });
+    await expect(userRow).toBeVisible();
+
+    // 3. Navigate to inbox and assign the ticket to this newly created agent
+    await page.goto("/");
+    await page.getByPlaceholder("Search by subject, email, or #...").fill(testSubject);
+    const ticketsTable = page.getByRole("table");
+    const ticketRow = ticketsTable.locator("tbody tr", { hasText: testSubject });
+    await expect(ticketRow).toBeVisible();
+
+    await ticketRow.click();
+    const detailModal = page.getByRole("dialog");
+    await expect(detailModal).toBeVisible();
+
+    const assigneeSelect = detailModal.getByLabel("Assigned Agent");
+    await assigneeSelect.selectOption({ label: `${agentName} (agent)` });
+    await detailModal.getByLabel("Close dialog").click();
+    await expect(detailModal).not.toBeVisible();
+
+    // Verify row displays the assigned agent's name
+    await expect(ticketRow).toContainText(agentName);
+
+    // 4. Return to /users and delete this agent
+    await page.goto("/users");
+    const agentRowToDelete = page.getByRole("table").locator("tbody tr", { hasText: agentEmail });
+    await agentRowToDelete.getByRole("button", { name: "Delete user" }).click();
+
+    const deleteModal = page.getByRole("dialog", { name: "Delete User" });
+    await expect(deleteModal).toBeVisible();
+    await deleteModal.getByRole("button", { name: "Delete User" }).click();
+    await expect(deleteModal).not.toBeVisible();
+
+    // 5. Navigate back to inbox and verify the ticket is now "Unassigned"
+    await page.goto("/");
+    await page.getByPlaceholder("Search by subject, email, or #...").fill(testSubject);
+    await expect(ticketRow).toBeVisible();
+    await expect(ticketRow).toContainText("Unassigned");
+    await expect(ticketRow).not.toContainText(agentName);
+  });
 });

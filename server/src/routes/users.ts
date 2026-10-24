@@ -313,15 +313,27 @@ usersRouter.delete("/:id", async (req: AuthenticatedRequest, res: Response) => {
       });
     }
 
-    // Execute soft delete by setting deletedAt
-    await prisma.user.update({
-      where: { id },
-      data: { deletedAt: new Date() },
-    });
+    // Atomically soft-delete user, unassign all assigned tickets, and revoke sessions
+    await prisma.$transaction(async (tx) => {
+      // 1. Soft-delete user
+      await tx.user.update({
+        where: { id },
+        data: { deletedAt: new Date() },
+      });
 
-    // Invalidate any active sessions for the user
-    await prisma.session.deleteMany({
-      where: { userId: id },
+      // 2. Unassign all tickets currently assigned to this user
+      await tx.ticket.updateMany({
+        where: { assignedToId: id },
+        data: {
+          assignedToId: null,
+          updatedAt: new Date(),
+        },
+      });
+
+      // 3. Invalidate active sessions
+      await tx.session.deleteMany({
+        where: { userId: id },
+      });
     });
 
     return res.status(200).json({

@@ -77,7 +77,7 @@ export default function TicketListTable() {
     setPage(1);
   };
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: string, autoResolved?: boolean) => {
     switch (status) {
       case "open":
         return (
@@ -93,8 +93,8 @@ export default function TicketListTable() {
         );
       case "resolved":
         return (
-          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-            Resolved
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+            {autoResolved ? "AI Resolved" : "Resolved"}
           </span>
         );
       case "closed":
@@ -200,7 +200,7 @@ export default function TicketListTable() {
       ),
       columnHelper.accessor("status", {
         header: "Status",
-        cell: (info) => getStatusBadge(info.getValue()),
+        cell: (info) => getStatusBadge(info.getValue(), info.row.original.autoResolved),
       }),
       columnHelper.accessor("priority", {
         header: "Priority",
@@ -332,14 +332,13 @@ export default function TicketListTable() {
 
           {/* Status filter tabs */}
           <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg overflow-x-auto">
-            {(
-              [
-                { id: "all", label: `All (${counts.total})` },
-                { id: "open", label: `Open (${counts.open})` },
-                { id: "in_progress", label: `In Progress (${counts.in_progress})` },
-                { id: "resolved", label: `Resolved (${counts.resolved})` },
-              ] as const
-            ).map((tab) => (
+            {[
+              { id: "all", label: `All (${counts.total})` },
+              { id: "open", label: `Open (${counts.open})` },
+              { id: "in_progress", label: `In Progress (${counts.in_progress})` },
+              { id: "resolved", label: `Resolved (${counts.resolved})` },
+              { id: "ai_resolved", label: `AI Resolved (${counts.ai_resolved ?? 0})` },
+            ].map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => {

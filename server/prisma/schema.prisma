@@ -75,6 +75,7 @@ model Ticket {
   description    String
   status         String          @default("open")
   priority       String          @default("medium")
+  autoResolved   Boolean         @default(false)
   customerEmail  String
   customerName   String?
   recipientEmail String

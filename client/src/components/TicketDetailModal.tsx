@@ -263,6 +263,21 @@ export default function TicketDetailModal({
 
           {ticket && (
             <>
+              {ticket.autoResolved && (
+                <div className="flex items-center gap-2.5 p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-900 shadow-xs">
+                  <Sparkles className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <div>
+                    <span className="font-bold">Auto-Resolved by AI:</span>{" "}
+                    <span>
+                      Answered and resolved automatically upon arrival using the Support Knowledge Base
+                      {(ticket.rawPayload as any)?.autoResolution?.matchedSection &&
+                        ` (${(ticket.rawPayload as any).autoResolution.matchedSection})`}
+                      .
+                    </span>
+                  </div>
+                </div>
+              )}
+
               {/* Meta details bar */}
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-xs">
                 <div>
@@ -453,12 +468,15 @@ export default function TicketDetailModal({
                 {replyMessages.length > 0 ? (
                   <div className="space-y-3">
                     {replyMessages.map((msg) => {
-                      const isAgent = msg.senderType === "agent";
+                      const isAgent = msg.senderType === "agent" || msg.senderType === "staff";
+                      const isAi = msg.senderType === "ai";
                       return (
                         <div
                           key={msg.id}
                           className={`border rounded-xl p-4 shadow-xs space-y-2 ${
-                            isAgent
+                            isAi
+                              ? "bg-emerald-50/30 border-emerald-200/80"
+                              : isAgent
                               ? "bg-indigo-50/40 border-indigo-200/80"
                               : "bg-white border-slate-200"
                           }`}
@@ -467,12 +485,16 @@ export default function TicketDetailModal({
                             <div className="flex items-center gap-2">
                               <div
                                 className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-[10px] ${
-                                  isAgent
+                                  isAi
+                                    ? "bg-emerald-100 border border-emerald-300 text-emerald-700"
+                                    : isAgent
                                     ? "bg-indigo-600 text-white"
                                     : "bg-slate-100 border border-slate-200 text-slate-600"
                                 }`}
                               >
-                                {isAgent ? (
+                                {isAi ? (
+                                  <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+                                ) : isAgent ? (
                                   <UserCheck className="w-3.5 h-3.5" />
                                 ) : (
                                   msg.senderName?.[0]?.toUpperCase() || "C"
@@ -486,12 +508,14 @@ export default function TicketDetailModal({
                               </span>
                               <span
                                 className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${
-                                  isAgent
+                                  isAi
+                                    ? "bg-emerald-100 text-emerald-800 font-bold"
+                                    : isAgent
                                     ? "bg-indigo-100 text-indigo-700 font-bold"
                                     : "bg-slate-100 text-slate-600"
                                 }`}
                               >
-                                {isAgent ? "Staff Reply" : "Customer"}
+                                {isAi ? "✨ AI Auto-Reply" : isAgent ? "Staff Reply" : "Customer"}
                               </span>
                             </div>
                             <span className="text-slate-400 text-[11px]">

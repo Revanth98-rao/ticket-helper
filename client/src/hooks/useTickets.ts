@@ -9,7 +9,7 @@ import type {
 
 export interface TicketMessageItem {
   id: string;
-  senderType: "customer" | "agent" | "system";
+  senderType: "customer" | "agent" | "staff" | "system" | "ai";
   senderEmail: string;
   senderName: string | null;
   bodyText: string;
@@ -24,6 +24,7 @@ export interface TicketItem {
   description: string;
   status: "open" | "in_progress" | "resolved" | "closed";
   priority: "low" | "medium" | "high" | "urgent";
+  autoResolved?: boolean;
   customerEmail: string;
   customerName: string | null;
   recipientEmail: string;
@@ -60,6 +61,7 @@ export interface TicketsApiResponse {
     in_progress: number;
     resolved: number;
     closed: number;
+    ai_resolved?: number;
   };
   pagination: {
     page: number;

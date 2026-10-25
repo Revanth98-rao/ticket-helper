@@ -53,8 +53,22 @@ ticketsRouter.get("/", async (req: AuthenticatedRequest, res: Response) => {
       deletedAt: null,
     };
 
-    if (status && status !== "all") {
-      where.status = String(status);
+    // Filter AI auto-resolved tickets:
+    // By default (All / Open / In Progress list views), auto-resolved tickets are excluded.
+    // When searching by keyword/ID, or explicitly viewing "ai_resolved" tab, allow matching auto-resolved tickets.
+    const isSearching = Boolean(search && typeof search === "string" && search.trim().length > 0);
+
+    if (status === "ai_resolved" || req.query.autoResolved === "true") {
+      where.autoResolved = true;
+    } else if (!isSearching) {
+      where.autoResolved = false;
+      if (status && status !== "all") {
+        where.status = String(status);
+      }
+    } else {
+      if (status && status !== "all") {
+        where.status = String(status);
+      }
     }
 
     if (priority && priority !== "all") {
@@ -105,36 +119,45 @@ ticketsRouter.get("/", async (req: AuthenticatedRequest, res: Response) => {
 
     const orderBy = { [sortField]: direction };
 
-    // Parallel query for tickets and counts
-    const [tickets, totalFiltered, totalAll, openCount, inProgressCount, resolvedCount, closedCount] =
-      await Promise.all([
-        prisma.ticket.findMany({
-          where,
-          include: {
-            assignedTo: {
-              select: {
-                id: true,
-                name: true,
-                email: true,
-                role: true,
-              },
-            },
-            messages: {
-              take: 1,
-              orderBy: { createdAt: "desc" },
+    // Parallel query for tickets and counts (counts reflect human triage queue by default)
+    const [
+      tickets,
+      totalFiltered,
+      totalAll,
+      openCount,
+      inProgressCount,
+      resolvedCount,
+      closedCount,
+      aiResolvedCount,
+    ] = await Promise.all([
+      prisma.ticket.findMany({
+        where,
+        include: {
+          assignedTo: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              role: true,
             },
           },
-          orderBy,
-          skip,
-          take: limitNum,
-        }),
-        prisma.ticket.count({ where }),
-        prisma.ticket.count({ where: { deletedAt: null } }),
-        prisma.ticket.count({ where: { deletedAt: null, status: "open" } }),
-        prisma.ticket.count({ where: { deletedAt: null, status: "in_progress" } }),
-        prisma.ticket.count({ where: { deletedAt: null, status: "resolved" } }),
-        prisma.ticket.count({ where: { deletedAt: null, status: "closed" } }),
-      ]);
+          messages: {
+            take: 1,
+            orderBy: { createdAt: "desc" },
+          },
+        },
+        orderBy,
+        skip,
+        take: limitNum,
+      }),
+      prisma.ticket.count({ where }),
+      prisma.ticket.count({ where: { deletedAt: null, autoResolved: false } }),
+      prisma.ticket.count({ where: { deletedAt: null, autoResolved: false, status: "open" } }),
+      prisma.ticket.count({ where: { deletedAt: null, autoResolved: false, status: "in_progress" } }),
+      prisma.ticket.count({ where: { deletedAt: null, autoResolved: false, status: "resolved" } }),
+      prisma.ticket.count({ where: { deletedAt: null, autoResolved: false, status: "closed" } }),
+      prisma.ticket.count({ where: { deletedAt: null, autoResolved: true } }),
+    ]);
 
     return res.json({
       tickets,
@@ -144,6 +167,7 @@ ticketsRouter.get("/", async (req: AuthenticatedRequest, res: Response) => {
         in_progress: inProgressCount,
         resolved: resolvedCount,
         closed: closedCount,
+        ai_resolved: aiResolvedCount,
       },
       pagination: {
         page: pageNum,

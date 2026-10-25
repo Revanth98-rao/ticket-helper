@@ -1,4 +1,5 @@
 import { PgBoss } from "pg-boss";
+import { autoResolveTicketIfEligible } from "./ticket-auto-resolve.service";
 import { classifyTicketAsync } from "./ticket-classification.service";
 
 export const CLASSIFY_TICKET_QUEUE = "classify-ticket";
@@ -63,10 +64,10 @@ export async function startQueue(
           const { ticketId } = job.data;
           if (!ticketId) continue;
           try {
-            await classifyTicketAsync(ticketId);
+            await autoResolveTicketIfEligible(ticketId);
           } catch (error) {
             console.error(
-              `[Queue] Worker error processing classification for ticket '${ticketId}':`,
+              `[Queue] Worker error processing auto-resolution for ticket '${ticketId}':`,
               error
             );
             throw error; // Re-throw to allow pg-boss retry policy to handle it
@@ -145,9 +146,9 @@ export async function enqueueTicketClassification(
 
   // Resilient fallback: Non-blocking in-memory execution
   setImmediate(() => {
-    classifyTicketAsync(ticketId).catch((err) => {
+    autoResolveTicketIfEligible(ticketId).catch((err) => {
       console.error(
-        `[Queue Fallback] Direct classification error for ticket '${ticketId}':`,
+        `[Queue Fallback] Direct auto-resolution error for ticket '${ticketId}':`,
         err
       );
     });

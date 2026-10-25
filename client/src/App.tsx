@@ -20,7 +20,7 @@ function WorkspaceDashboard() {
   const userName = session?.user?.name || "Support User";
   const { data: ticketsData } = useTickets();
 
-  const counts = ticketsData?.counts || { total: 0, open: 0, in_progress: 0, resolved: 0 };
+  const counts = ticketsData?.counts || { total: 0, open: 0, in_progress: 0, resolved: 0, ai_resolved: 0 };
 
   return (
     <div className="p-8 space-y-8">
@@ -39,7 +39,7 @@ function WorkspaceDashboard() {
       </div>
 
       {/* KPI Stat Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
           <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
             Total Ingested
@@ -70,6 +70,15 @@ function WorkspaceDashboard() {
           </span>
           <p className="text-2xl font-extrabold text-emerald-700 mt-2">{counts.resolved}</p>
           <p className="text-xs text-emerald-600/80 mt-1">Completed issues</p>
+        </div>
+
+        <div className="bg-white p-5 rounded-xl border border-purple-200 shadow-xs bg-gradient-to-br from-white to-purple-50/30">
+          <span className="text-xs font-semibold text-purple-600 uppercase tracking-wider flex items-center gap-1">
+            <Sparkles className="w-3.5 h-3.5" />
+            AI Auto-Resolved
+          </span>
+          <p className="text-2xl font-extrabold text-purple-700 mt-2">{counts.ai_resolved || 0}</p>
+          <p className="text-xs text-purple-600/80 mt-1">Answered via KB</p>
         </div>
       </div>
 

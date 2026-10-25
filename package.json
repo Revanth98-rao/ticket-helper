@@ -15,6 +15,7 @@
     "build:client": "bun run --cwd client build",
     "build": "bun run build:server && bun run build:client",
     "db:studio": "bun prisma studio --schema=server/prisma/schema.prisma",
+    "db:queue": "node ./scripts/inspect-queue.cjs",
     "db:seed:tickets": "bun run --cwd server db:seed:tickets",
     "test:db:setup": "node ./scripts/setup-test-db.cjs",
     "test:db:teardown": "node ./scripts/teardown-test-db.cjs",

@@ -435,7 +435,30 @@ ticketsRouter.post("/:id/polish", async (req: AuthenticatedRequest, res: Respons
       });
     }
 
-    const { draftText, ticketSubject, customerMessage } = parseResult.data;
+    const { draftText, ticketSubject, customerMessage, customerName: inputCustomerName } = parseResult.data;
+
+    const agentName = req.user.name?.trim() || "Support Agent";
+    const signatureLines = agentName.toLowerCase().includes("revanth rao")
+      ? agentName
+      : `${agentName}\nRevanth Rao`;
+
+    // Determine the customer's display name to address them by name
+    let rawCustomerName = (
+      inputCustomerName ||
+      ticket.customerName ||
+      ""
+    ).trim();
+
+    if (!rawCustomerName && ticket.customerEmail) {
+      rawCustomerName = ticket.customerEmail.split("@")[0].trim();
+    }
+    if (rawCustomerName.includes("@")) {
+      rawCustomerName = rawCustomerName.split("@")[0].trim();
+    }
+    if (rawCustomerName && !rawCustomerName.includes(" ") && rawCustomerName === rawCustomerName.toLowerCase()) {
+      rawCustomerName = rawCustomerName.charAt(0).toUpperCase() + rawCustomerName.slice(1);
+    }
+    const customerGreetingName = rawCustomerName || "there";
 
     const hasGoogleKey = !!(process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GEMINI_API_KEY);
     const hasOpenAIKey = !!process.env.OPENAI_API_KEY;
@@ -446,7 +469,10 @@ ticketsRouter.post("/:id/polish", async (req: AuthenticatedRequest, res: Respons
       const cleanDraft = draftText.trim();
       const capitalized = cleanDraft.charAt(0).toUpperCase() + cleanDraft.slice(1);
       const punctuated = /[.!?]$/.test(capitalized) ? capitalized : `${capitalized}.`;
-      const polishedText = `Hello,\n\nThank you for reaching out to us. ${punctuated}\n\nPlease let us know if you need any further assistance.\n\nBest regards,\n${req.user.name || "Support Team"}`;
+      const greetingLine = customerGreetingName !== "there"
+        ? `Hello ${customerGreetingName},`
+        : "Hello,";
+      const polishedText = `${greetingLine}\n\nThank you for reaching out to us. ${punctuated}\n\nPlease let us know if you need any further assistance.\n\nBest regards,\n${signatureLines}`;
       return res.json({
         success: true,
         polishedText,
@@ -475,12 +501,17 @@ ticketsRouter.post("/:id/polish", async (req: AuthenticatedRequest, res: Respons
 Your goal is to optimize and grammatically verify the agent's draft reply to a customer ticket.
 
 STRICT EDITING RULES:
-1. GRAMMATICAL VERIFICATION: Ensure flawless English grammar, correct syntax, punctuation, subject-verb agreement, and spelling throughout.
-2. OPTIMIZATION & CONCISENESS: Remove fluff, unnecessary filler words, repetitive statements, and awkward phrasing. Make every sentence clear, direct, and actionable.
-3. PRESERVE ACCURACY: Retain all factual information, steps, troubleshooting instructions, account details, and links provided in the agent's draft. Do not invent facts.
-4. TONE: Warm, professional, confident, empathetic, and respectful customer service voice.
-5. CLEAN OUTPUT: Return ONLY the final polished message text ready to be sent directly to the customer. Do not include introductory notes, explanations, or markdown code block fences.`,
+1. GREETING: Address the customer directly by their name (${customerGreetingName !== "there" ? `e.g., "Hello ${customerGreetingName}," or "Hi ${customerGreetingName},"` : `e.g., "Hello,"`}). Never use a generic greeting like "Dear Customer," or "Hello," without their name when the customer's name is known.
+2. GRAMMATICAL VERIFICATION: Ensure flawless English grammar, correct syntax, punctuation, subject-verb agreement, and spelling throughout.
+3. OPTIMIZATION & CONCISENESS: Remove fluff, unnecessary filler words, repetitive statements, and awkward phrasing. Make every sentence clear, direct, and actionable.
+4. PRESERVE ACCURACY: Retain all factual information, steps, troubleshooting instructions, account details, and links provided in the agent's draft. Do not invent facts.
+5. TONE: Warm, professional, confident, empathetic, and respectful customer service voice.
+6. SIGNATURE & CLOSING: Conclude the message with a professional sign-off signed by the agent and Revanth Rao:
+Best regards,
+${signatureLines}
+7. CLEAN OUTPUT: Return ONLY the final polished message text ready to be sent directly to the customer. Do not include introductory notes, explanations, or markdown code block fences.`,
         prompt: `Ticket Subject: ${ticketSubject || ticket.subject}
+Customer Name: ${customerGreetingName}
 Customer Inquiry:
 ${customerMessage || ticket.description}
 
@@ -490,9 +521,35 @@ ${draftText}
 Polished and Grammatically Verified Reply:`,
       });
 
+      let finalPolishedText = text.trim();
+
+      // Ensure customer is addressed by name in greeting
+      if (customerGreetingName && customerGreetingName !== "there") {
+        const firstName = customerGreetingName.split(" ")[0];
+        const hasCustomerName =
+          finalPolishedText.toLowerCase().includes(customerGreetingName.toLowerCase()) ||
+          (firstName && firstName.length > 1 && finalPolishedText.toLowerCase().includes(firstName.toLowerCase()));
+
+        if (!hasCustomerName) {
+          if (/^(?:Hello|Hi|Hey|Dear)(?:\s+there|\s+customer)?,?\s*/i.test(finalPolishedText)) {
+            finalPolishedText = finalPolishedText.replace(
+              /^(?:Hello|Hi|Hey|Dear)(?:\s+there|\s+customer)?,?\s*/i,
+              `Hello ${customerGreetingName},\n\n`
+            ).trim();
+          } else {
+            finalPolishedText = `Hello ${customerGreetingName},\n\n${finalPolishedText}`;
+          }
+        }
+      }
+
+      if (!finalPolishedText.includes("Revanth Rao")) {
+        finalPolishedText = finalPolishedText.replace(/\n*(?:Best regards|Warm regards|Sincerely|Thanks|Thank you|Regards),?[\s\S]*$/i, "").trim();
+        finalPolishedText = `${finalPolishedText}\n\nBest regards,\n${signatureLines}`;
+      }
+
       return res.json({
         success: true,
-        polishedText: text.trim(),
+        polishedText: finalPolishedText,
         model: modelName,
       });
     } catch (aiError: any) {

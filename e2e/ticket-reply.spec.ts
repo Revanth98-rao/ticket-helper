@@ -60,14 +60,18 @@ test.describe("Ticket Reply Feature", () => {
     // 5. Fill out the reply form
     const replyTextarea = detailModal.getByLabel("Reply message");
     await expect(replyTextarea).toBeVisible();
+    await expect(replyTextarea).toHaveValue("");
+    const sendReplyButton = detailModal.getByRole("button", { name: "Send Reply" });
+    await expect(sendReplyButton).not.toBeVisible();
+
     await replyTextarea.fill(agentReplyText);
+    await expect(sendReplyButton).toBeVisible();
 
     // Select status after reply: "Resolved"
     const replyStatusSelect = detailModal.getByLabel("Status after reply");
     await replyStatusSelect.selectOption("resolved");
 
     // Click "Send Reply"
-    const sendReplyButton = detailModal.getByRole("button", { name: "Send Reply" });
     await sendReplyButton.click();
 
     // 6. Verify successful feedback and thread update
@@ -76,6 +80,7 @@ test.describe("Ticket Reply Feature", () => {
     await expect(detailModal.getByText(agentReplyText)).toBeVisible();
     await expect(detailModal.getByText("Staff Reply")).toBeVisible();
     await expect(replyTextarea).toHaveValue("");
+    await expect(sendReplyButton).not.toBeVisible();
 
     // 7. Verify ticket status select in meta bar updated to "Resolved"
     const mainStatusSelect = detailModal.getByLabel("Ticket Status");
@@ -89,6 +94,8 @@ test.describe("Ticket Reply Feature", () => {
     // 9. Re-open modal to test submitting a second reply
     await row.click();
     await expect(detailModal).toBeVisible();
+    await expect(replyTextarea).toHaveValue("");
+    await expect(detailModal.getByRole("button", { name: "Send Reply" })).not.toBeVisible();
     await expect(detailModal.getByText("Reply Thread (1)")).toBeVisible();
     await expect(detailModal.getByText(agentReplyText)).toBeVisible();
 
@@ -135,15 +142,19 @@ test.describe("Ticket Reply Feature", () => {
     const detailModal = page.getByRole("dialog");
     await expect(detailModal).toBeVisible();
 
-    // 3. Verify Polish button exists and is disabled when textarea is empty
+    // 3. Verify Polish button exists and is disabled when textarea is empty, and Send Reply is hidden
     const polishButton = detailModal.getByRole("button", { name: "Polish" });
     await expect(polishButton).toBeVisible();
     await expect(polishButton).toBeDisabled();
+    const sendReplyButton = detailModal.getByRole("button", { name: "Send Reply" });
+    await expect(sendReplyButton).not.toBeVisible();
 
     // 4. Fill in rough draft reply
     const replyTextarea = detailModal.getByLabel("Reply message");
+    await expect(replyTextarea).toHaveValue("");
     await replyTextarea.fill(roughDraft);
     await expect(polishButton).toBeEnabled();
+    await expect(sendReplyButton).toBeVisible();
 
     // 5. Click Polish
     await polishButton.click();
@@ -156,9 +167,11 @@ test.describe("Ticket Reply Feature", () => {
     expect(polishedVal).not.toBe(roughDraft);
     expect(polishedVal.length).toBeGreaterThan(roughDraft.length);
     expect(polishedVal.toLowerCase()).toContain("reaching out");
+    expect(polishedVal).toContain("Student Sam");
+    expect(polishedVal).toContain("Revanth Rao");
+    expect(polishedVal).toContain("Super Admin");
 
     // 7. Send the polished reply
-    const sendReplyButton = detailModal.getByRole("button", { name: "Send Reply" });
     await sendReplyButton.click();
 
     await expect(detailModal.getByText("Reply sent successfully!")).toBeVisible();

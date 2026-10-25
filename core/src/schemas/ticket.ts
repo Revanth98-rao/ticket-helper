@@ -110,6 +110,7 @@ export const polishReplySchema = z.object({
   draftText: z.string().trim().min(1, "Draft message is required to polish"),
   ticketSubject: z.string().optional(),
   customerMessage: z.string().optional(),
+  customerName: z.string().optional(),
 });
 
 export type PolishReplyInput = z.infer<typeof polishReplySchema>;

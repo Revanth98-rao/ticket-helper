@@ -65,3 +65,4 @@ test.describe("30-Day Daily Ticket Volume Bar Chart Feature", () => {
     await expect(tooltip.getByText(/ticket/i)).toBeVisible();
   });
 });
+

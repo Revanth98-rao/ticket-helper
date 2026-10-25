@@ -30,6 +30,7 @@ export interface TicketItem {
   source: string;
   createdAt: string;
   updatedAt: string;
+  rawPayload?: any;
   messages?: TicketMessageItem[];
   assignedTo?: {
     id: string;

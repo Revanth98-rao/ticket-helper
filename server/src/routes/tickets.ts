@@ -19,6 +19,7 @@ import {
   buildConversationTranscript,
   formatDeterministicSummary,
 } from "../services/polish-formatter.service";
+import { classifyTicketAsync } from "../services/ticket-classification.service";
 
 export const ticketsRouter = Router();
 
@@ -664,6 +665,13 @@ ticketsRouter.post(
         date: new Date().toISOString(),
       });
 
+      // Automatically classify ticket using Gemini in a non-blocking background task
+      setImmediate(() => {
+        classifyTicketAsync(ticket.id).catch((err) => {
+          console.error(`[Tickets] Non-blocking classification error for simulated ticket ${ticket.id}:`, err);
+        });
+      });
+
       return res.status(201).json({
         success: true,
         message: `Simulated inbound email converted to Ticket #${ticket.ticketNumber}`,
@@ -678,4 +686,34 @@ ticketsRouter.post(
     }
   }
 );
+
+/**
+ * POST /api/tickets/:id/classify
+ * Triggers on-demand classification or reclassification of a ticket using Gemini AI.
+ */
+ticketsRouter.post("/:id/classify", async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const classification = await classifyTicketAsync(id);
+    if (!classification) {
+      return res.status(404).json({
+        error: "Not Found",
+        message: `Ticket with ID '${id}' not found`,
+      });
+    }
+
+    return res.json({
+      success: true,
+      message: `Ticket classified as ${classification.priority.toUpperCase()} (${classification.category})`,
+      classification,
+    });
+  } catch (error: any) {
+    console.error(`[Tickets] Failed to classify ticket ${req.params.id}:`, error);
+    return res.status(500).json({
+      error: "Internal Server Error",
+      message: error?.message || "Failed to classify ticket",
+    });
+  }
+});
 

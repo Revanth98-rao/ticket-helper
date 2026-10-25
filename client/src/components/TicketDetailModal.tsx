@@ -292,10 +292,26 @@ export default function TicketDetailModal({
                 </div>
 
                 <div>
-                  <span className="text-slate-400 block font-medium">Priority</span>
+                  <div className="flex items-center gap-1">
+                    <span className="text-slate-400 block font-medium">Priority</span>
+                    {(ticket.rawPayload as any)?.aiClassification && (
+                      <span
+                        className="inline-flex items-center gap-0.5 text-[9px] font-bold text-indigo-600 bg-indigo-50 px-1 py-0.2 rounded border border-indigo-200"
+                        title={(ticket.rawPayload as any).aiClassification.reasoning ? `Classified by Gemini: ${(ticket.rawPayload as any).aiClassification.reasoning}` : "Classified by Gemini AI"}
+                      >
+                        <Sparkles className="w-2.5 h-2.5 text-indigo-600" />
+                        AI
+                      </span>
+                    )}
+                  </div>
                   <span className="font-semibold text-slate-700 capitalize block mt-1">
                     {ticket.priority}
                   </span>
+                  {(ticket.rawPayload as any)?.aiClassification?.category && (
+                    <span className="text-[10px] text-indigo-600 capitalize block truncate mt-0.5">
+                      {(ticket.rawPayload as any).aiClassification.category}
+                    </span>
+                  )}
                 </div>
 
                 <div>

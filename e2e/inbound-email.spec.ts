@@ -146,5 +146,54 @@ test.describe("Inbound Email Ticket Ingestion", () => {
     await expect(newRow).toContainText(customerName);
     await expect(newRow).toContainText("Open");
   });
+
+  // =========================================================================
+  // 4. Automatic Non-Blocking Classification: Gemini classifies ticket priority
+  // =========================================================================
+  test("Inbound webhook triggers non-blocking automatic classification", async ({
+    request,
+    page,
+  }) => {
+    const timestamp = Date.now();
+    const outageSubject = `URGENT: Production API returning 500 Internal Server Error ${timestamp}`;
+    const senderName = "DevOps Lead";
+    const senderEmail = `devops_${timestamp}@enterprise.io`;
+    const outageBody = "Our checkout API is down in production with database connection pool timeout!";
+
+    // Ingest ticket via webhook - responds immediately (non-blocking)
+    const startTime = Date.now();
+    const response = await request.post("/api/webhooks/inbound-email", {
+      data: {
+        from: `"${senderName}" <${senderEmail}>`,
+        to: "support@tickethelper.internal",
+        subject: outageSubject,
+        text: outageBody,
+      },
+    });
+    const duration = Date.now() - startTime;
+
+    expect(response.status()).toBe(201);
+    const body = await response.json();
+    expect(body.success).toBe(true);
+    // Non-blocking response returned quickly
+    expect(duration).toBeLessThan(3000);
+
+    // Open ticket in UI to verify asynchronous background classification updated priority to Urgent
+    await loginAsAdmin(page);
+    await page.goto("/");
+    await page.getByPlaceholder("Search by subject, email, or #...").fill(outageSubject);
+    const table = page.getByRole("table");
+    const row = table.locator("tbody tr", { hasText: outageSubject });
+    await expect(row).toBeVisible();
+    await row.click();
+
+    const detailModal = page.getByRole("dialog");
+    await expect(detailModal).toBeVisible();
+
+    // Verify priority updated to Urgent and categorized via background classification
+    await expect(detailModal.getByText("urgent", { exact: true })).toBeVisible();
+    await expect(detailModal.getByText("AI", { exact: true })).toBeVisible();
+    await expect(detailModal.getByText("technical questions")).toBeVisible();
+  });
 });
 

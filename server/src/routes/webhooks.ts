@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
 import { inboundEmailWebhookSchema } from "core/schemas/ticket";
 import { ingestInboundEmail } from "../services/email-ingestion.service";
+import { classifyTicketAsync } from "../services/ticket-classification.service";
 
 export const webhooksRouter = Router();
 
@@ -44,6 +45,13 @@ webhooksRouter.post("/inbound-email", async (req: Request, res: Response) => {
 
     // 3. Ingest email and convert to ticket
     const ticket = await ingestInboundEmail(parseResult.data);
+
+    // 4. Automatically classify ticket using Gemini in a non-blocking background task
+    setImmediate(() => {
+      classifyTicketAsync(ticket.id).catch((err) => {
+        console.error(`[Webhooks] Non-blocking classification error for ticket ${ticket.id}:`, err);
+      });
+    });
 
     return res.status(201).json({
       success: true,

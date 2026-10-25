@@ -20,6 +20,7 @@ import {
   formatDeterministicSummary,
 } from "../services/polish-formatter.service";
 import { classifyTicketAsync } from "../services/ticket-classification.service";
+import { enqueueTicketClassification } from "../services/queue.service";
 
 export const ticketsRouter = Router();
 
@@ -665,12 +666,8 @@ ticketsRouter.post(
         date: new Date().toISOString(),
       });
 
-      // Automatically classify ticket using Gemini in a non-blocking background task
-      setImmediate(() => {
-        classifyTicketAsync(ticket.id).catch((err) => {
-          console.error(`[Tickets] Non-blocking classification error for simulated ticket ${ticket.id}:`, err);
-        });
-      });
+      // Automatically queue ticket for classification via pg-boss
+      await enqueueTicketClassification(ticket.id);
 
       return res.status(201).json({
         success: true,

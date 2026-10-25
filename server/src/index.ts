@@ -7,6 +7,7 @@ import { auth, getTrustedOrigins } from "./auth";
 import { usersRouter } from "./routes/users";
 import { webhooksRouter } from "./routes/webhooks";
 import { ticketsRouter } from "./routes/tickets";
+import { startQueue, stopQueue, getQueueStatus } from "./services/queue.service";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -81,6 +82,7 @@ app.get("/api/health", (_req: Request, res: Response) => {
   res.json({
     status: "ok",
     runtime: "bun",
+    queue: getQueueStatus(),
     timestamp: new Date().toISOString(),
   });
 });
@@ -91,7 +93,25 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   res.status(500).json({ error: "Internal Server Error", message: err.message });
 });
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, async () => {
   console.log(`[Express + Bun Server] running on http://localhost:${PORT}`);
+  try {
+    await startQueue();
+  } catch (err) {
+    console.error("[Queue] Initialization error:", err);
+  }
 });
+
+// Graceful shutdown handling
+const handleShutdown = async (signal: string) => {
+  console.log(`[Server] Received ${signal}, shutting down gracefully...`);
+  await stopQueue();
+  server.close(() => {
+    console.log("[Server] HTTP listener closed.");
+    process.exit(0);
+  });
+};
+
+process.on("SIGINT", () => handleShutdown("SIGINT"));
+process.on("SIGTERM", () => handleShutdown("SIGTERM"));
 

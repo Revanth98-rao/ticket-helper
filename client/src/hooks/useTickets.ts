@@ -82,6 +82,44 @@ export interface AssigneeItem {
   role: "admin" | "agent";
 }
 
+export interface DailyTicketStat {
+  date: string;
+  label: string;
+  dayOfWeek: string;
+  count: number;
+  open: number;
+  in_progress: number;
+  resolved: number;
+  closed: number;
+  ai_resolved: number;
+}
+
+export interface DailyTicketStatsResponse {
+  days: DailyTicketStat[];
+  summary: {
+    totalTickets: number;
+    averagePerDay: number;
+    peakDay: {
+      date: string;
+      label: string;
+      count: number;
+    };
+    startDate: string;
+    endDate: string;
+  };
+}
+
+export function useTicketDailyStats() {
+  return useQuery<DailyTicketStatsResponse>({
+    queryKey: ["ticket-daily-stats"],
+    queryFn: async () => {
+      const response = await api.get<DailyTicketStatsResponse>("/tickets/daily-stats");
+      return response.data;
+    },
+    staleTime: 60 * 1000,
+  });
+}
+
 export function useAssignees() {
   return useQuery<{ assignees: AssigneeItem[] }>({
     queryKey: ["ticket-assignees"],
@@ -167,6 +205,7 @@ export function useUpdateTicket() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["tickets"] });
       queryClient.invalidateQueries({ queryKey: ["ticket", variables.id] });
+      queryClient.invalidateQueries({ queryKey: ["ticket-daily-stats"] });
     },
   });
 }
@@ -185,6 +224,7 @@ export function useSimulateInboundEmail() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tickets"] });
+      queryClient.invalidateQueries({ queryKey: ["ticket-daily-stats"] });
     },
   });
 }
@@ -211,6 +251,7 @@ export function useReplyTicket() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["tickets"] });
       queryClient.invalidateQueries({ queryKey: ["ticket", variables.ticketId] });
+      queryClient.invalidateQueries({ queryKey: ["ticket-daily-stats"] });
     },
   });
 }

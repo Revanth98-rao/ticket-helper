@@ -14,6 +14,7 @@ import UsersPage from "@/pages/UsersPage";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { useTickets } from "@/hooks/useTickets";
 import TicketListTable from "@/components/TicketListTable";
+import TicketDailyVolumeChart from "@/components/TicketDailyVolumeChart";
 
 function WorkspaceDashboard() {
   const { data: session } = useSession();
@@ -81,6 +82,9 @@ function WorkspaceDashboard() {
           <p className="text-xs text-purple-600/80 mt-1">Answered via KB</p>
         </div>
       </div>
+
+      {/* 30-Day Daily Ticket Volume Bar Chart */}
+      <TicketDailyVolumeChart />
 
       {/* Tickets List Table with Inbound Simulation */}
       <TicketListTable />

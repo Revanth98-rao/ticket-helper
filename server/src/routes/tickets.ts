@@ -222,6 +222,124 @@ ticketsRouter.get("/assignees", async (req: AuthenticatedRequest, res: Response)
 });
 
 /**
+ * GET /api/tickets/daily-stats
+ * Returns the total number of tickets created per day over the past 30 days.
+ */
+ticketsRouter.get(["/daily-stats", "/stats/daily"], async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const daysCount = 30;
+    const now = new Date();
+    const startDate = new Date(now);
+    startDate.setDate(startDate.getDate() - (daysCount - 1));
+    startDate.setHours(0, 0, 0, 0);
+
+    const tickets = await prisma.ticket.findMany({
+      where: {
+        deletedAt: null,
+        createdAt: {
+          gte: startDate,
+        },
+      },
+      select: {
+        id: true,
+        createdAt: true,
+        status: true,
+        autoResolved: true,
+      },
+      orderBy: {
+        createdAt: "asc",
+      },
+    });
+
+    const resultDays: Array<{
+      date: string;
+      label: string;
+      dayOfWeek: string;
+      count: number;
+      open: number;
+      in_progress: number;
+      resolved: number;
+      closed: number;
+      ai_resolved: number;
+    }> = [];
+
+    const dateMap = new Map<string, (typeof resultDays)[number]>();
+
+    for (let i = daysCount - 1; i >= 0; i--) {
+      const d = new Date(now);
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().slice(0, 10);
+      const label = d.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
+      const dayOfWeek = d.toLocaleDateString("en-US", { weekday: "short", timeZone: "UTC" });
+
+      const entry = {
+        date: dateStr,
+        label,
+        dayOfWeek,
+        count: 0,
+        open: 0,
+        in_progress: 0,
+        resolved: 0,
+        closed: 0,
+        ai_resolved: 0,
+      };
+      dateMap.set(dateStr, entry);
+      resultDays.push(entry);
+    }
+
+    for (const t of tickets) {
+      const dateStr = t.createdAt.toISOString().slice(0, 10);
+      const entry = dateMap.get(dateStr);
+      if (entry) {
+        entry.count += 1;
+        if (t.autoResolved) {
+          entry.ai_resolved += 1;
+        } else if (t.status === "open") {
+          entry.open += 1;
+        } else if (t.status === "in_progress") {
+          entry.in_progress += 1;
+        } else if (t.status === "resolved") {
+          entry.resolved += 1;
+        } else if (t.status === "closed") {
+          entry.closed += 1;
+        }
+      }
+    }
+
+    const totalTickets = resultDays.reduce((acc, d) => acc + d.count, 0);
+    const averagePerDay = Number((totalTickets / daysCount).toFixed(1));
+
+    let peakDay = resultDays[0] || { date: "", count: 0, label: "" };
+    for (const d of resultDays) {
+      if (d.count > peakDay.count) {
+        peakDay = d;
+      }
+    }
+
+    return res.json({
+      days: resultDays,
+      summary: {
+        totalTickets,
+        averagePerDay,
+        peakDay: {
+          date: peakDay.date,
+          label: peakDay.label,
+          count: peakDay.count,
+        },
+        startDate: resultDays[0]?.date || "",
+        endDate: resultDays[resultDays.length - 1]?.date || "",
+      },
+    });
+  } catch (error: any) {
+    console.error("[Tickets] Failed to fetch daily stats:", error);
+    return res.status(500).json({
+      error: "Internal Server Error",
+      message: error?.message || "Failed to fetch daily stats",
+    });
+  }
+});
+
+/**
  * GET /api/tickets/:id
  * Returns a single ticket with full message history and assigned agent info.
  */

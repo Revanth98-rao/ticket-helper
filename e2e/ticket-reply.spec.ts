@@ -150,7 +150,7 @@ test.describe("Ticket Reply Feature", () => {
 
     // 6. Verify polish feedback and improved reply content
     await expect(
-      detailModal.getByText("Draft polished using GPT-5-Nano!")
+      detailModal.getByText(/Draft polished & grammatically verified using/i)
     ).toBeVisible();
     const polishedVal = await replyTextarea.inputValue();
     expect(polishedVal).not.toBe(roughDraft);

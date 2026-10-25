@@ -1,6 +1,7 @@
 import { Router, Response } from "express";
 import { generateText } from "ai";
 import { openai } from "@ai-sdk/openai";
+import { google } from "@ai-sdk/google";
 import { prisma } from "../db";
 import { requireAuth, AuthenticatedRequest } from "../middleware/auth";
 import {
@@ -436,23 +437,57 @@ ticketsRouter.post("/:id/polish", async (req: AuthenticatedRequest, res: Respons
 
     const { draftText, ticketSubject, customerMessage } = parseResult.data;
 
-    // In test environment or when OPENAI_API_KEY is not configured, provide a polished response
-    if (process.env.NODE_ENV === "test" || !process.env.OPENAI_API_KEY) {
-      const polishedText = `Hello,\n\nThank you for reaching out to support. ${draftText.trim()}\n\nPlease let us know if we can assist you with anything else.\n\nBest regards,\n${req.user.name || "Support Team"}`;
+    const hasGoogleKey = !!(process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GEMINI_API_KEY);
+    const hasOpenAIKey = !!process.env.OPENAI_API_KEY;
+    const preferredProvider = process.env.AI_PROVIDER?.toLowerCase() || (hasGoogleKey ? "google" : "openai");
+
+    // In test environment or when neither API key is configured, return the deterministic fallback
+    if (process.env.NODE_ENV === "test" || (!hasGoogleKey && !hasOpenAIKey)) {
+      const cleanDraft = draftText.trim();
+      const capitalized = cleanDraft.charAt(0).toUpperCase() + cleanDraft.slice(1);
+      const punctuated = /[.!?]$/.test(capitalized) ? capitalized : `${capitalized}.`;
+      const polishedText = `Hello,\n\nThank you for reaching out to us. ${punctuated}\n\nPlease let us know if you need any further assistance.\n\nBest regards,\n${req.user.name || "Support Team"}`;
       return res.json({
         success: true,
         polishedText,
-        model: "gpt-5-nano",
+        model: preferredProvider === "google" ? "gemini-3.5-flash-lite" : "gpt-5-nano",
       });
     }
 
     try {
-      const modelName = process.env.OPENAI_POLISH_MODEL || "gpt-5-nano";
+      const isGoogle = preferredProvider === "google" && hasGoogleKey;
+      let modelName = isGoogle
+        ? (process.env.GEMINI_POLISH_MODEL || "gemini-3.5-flash-lite")
+        : (process.env.OPENAI_POLISH_MODEL || "gpt-5-nano");
+
+      // Automatically upgrade retired model versions to the active ultra-fast Gemini model
+      if (isGoogle && (modelName === "gemini-1.5-flash" || modelName === "gemini-2.5-flash")) {
+        modelName = "gemini-3.5-flash-lite";
+      }
+
+      const model = isGoogle ? google(modelName) : openai(modelName);
+
       const { text } = await generateText({
-        model: openai(modelName),
-        system:
-          "You are an expert customer support specialist. Improve and polish the support agent's draft reply to be professional, courteous, clear, and empathetic. Preserve all concrete facts, steps, and technical instructions from the draft. Return only the final polished reply ready to send directly to the customer without extra conversational commentary or markdown code blocks.",
-        prompt: `Ticket Subject: ${ticketSubject || ticket.subject}\nCustomer Inquiry:\n${customerMessage || ticket.description}\n\nAgent's Draft Reply:\n${draftText}\n\nPolished Reply:`,
+        model,
+        temperature: 0.2,
+        maxTokens: 600,
+        system: `You are an expert customer support editor and language specialist.
+Your goal is to optimize and grammatically verify the agent's draft reply to a customer ticket.
+
+STRICT EDITING RULES:
+1. GRAMMATICAL VERIFICATION: Ensure flawless English grammar, correct syntax, punctuation, subject-verb agreement, and spelling throughout.
+2. OPTIMIZATION & CONCISENESS: Remove fluff, unnecessary filler words, repetitive statements, and awkward phrasing. Make every sentence clear, direct, and actionable.
+3. PRESERVE ACCURACY: Retain all factual information, steps, troubleshooting instructions, account details, and links provided in the agent's draft. Do not invent facts.
+4. TONE: Warm, professional, confident, empathetic, and respectful customer service voice.
+5. CLEAN OUTPUT: Return ONLY the final polished message text ready to be sent directly to the customer. Do not include introductory notes, explanations, or markdown code block fences.`,
+        prompt: `Ticket Subject: ${ticketSubject || ticket.subject}
+Customer Inquiry:
+${customerMessage || ticket.description}
+
+Agent Draft Reply to Polish and Verify:
+${draftText}
+
+Polished and Grammatically Verified Reply:`,
       });
 
       return res.json({
@@ -464,7 +499,7 @@ ticketsRouter.post("/:id/polish", async (req: AuthenticatedRequest, res: Respons
       console.error("[Tickets] AI Polish generation error:", aiError);
       return res.status(502).json({
         error: "AI Service Error",
-        message: aiError?.message || "Failed to generate polished reply with GPT-5-Nano",
+        message: aiError?.message || "Failed to generate polished reply with AI",
       });
     }
   } catch (error: any) {

@@ -157,7 +157,10 @@ export default function TicketDetailModal({
 
       if (res.polishedText) {
         setReplyText(res.polishedText);
-        setPolishInfo("Draft polished using GPT-5-Nano!");
+        const modelLabel = res.model?.toLowerCase().includes("gemini")
+          ? "Gemini"
+          : res.model || "AI";
+        setPolishInfo(`Draft polished & grammatically verified using ${modelLabel}!`);
         setTimeout(() => setPolishInfo(null), 4000);
       }
     } catch (err: any) {
@@ -479,7 +482,7 @@ export default function TicketDetailModal({
                         onClick={handlePolishReply}
                         disabled={!replyText.trim() || polishMutation.isPending || replyMutation.isPending}
                         className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-xs"
-                        title="Polish reply using GPT-5-Nano"
+                        title="Optimize and grammatically verify reply using GPT-5-Nano"
                       >
                         {polishMutation.isPending ? (
                           <>

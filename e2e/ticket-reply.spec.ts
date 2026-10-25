@@ -178,5 +178,67 @@ test.describe("Ticket Reply Feature", () => {
     await expect(detailModal.getByText("Reply Thread (1)")).toBeVisible();
     await expect(detailModal.getByText("Staff Reply")).toBeVisible();
   });
+
+  test("Staff can summarize ticket and conversation history, and regenerate summary every time", async ({
+    page,
+    request,
+  }) => {
+    const timestamp = Date.now();
+    const testSubject = `Summarize Flow Test ${timestamp}`;
+    const testSenderEmail = `summarize_user_${timestamp}@example.com`;
+    const testBody = "Payment failed on invoice #INV-9002 with error 'Insufficient balance'.";
+
+    // 1. Ingest inbound ticket
+    const res = await request.post("/api/webhooks/inbound-email", {
+      data: {
+        from: `Alex Customer <${testSenderEmail}>`,
+        to: "billing@tickethelper.internal",
+        subject: testSubject,
+        text: testBody,
+      },
+    });
+    expect(res.status()).toBe(201);
+
+    // 2. Login and open ticket
+    await loginAsAdmin(page);
+    await page.goto("/");
+    await page.getByPlaceholder("Search by subject, email, or #...").fill(testSubject);
+    const table = page.getByRole("table");
+    const row = table.locator("tbody tr", { hasText: testSubject });
+    await expect(row).toBeVisible();
+    await row.click();
+
+    const detailModal = page.getByRole("dialog");
+    await expect(detailModal).toBeVisible();
+
+    // 3. Find Summarize button with sparkle icon below the initial message
+    const summarizeButton = detailModal.getByRole("button", { name: "Summarize" });
+    await expect(summarizeButton).toBeVisible();
+
+    // 4. Click Summarize to generate summary
+    await summarizeButton.click();
+
+    // 5. Verify the summary appears below the message
+    await expect(detailModal.getByText("Conversation & Ticket Summary")).toBeVisible();
+    await expect(detailModal.getByText(/• Issue: Customer \(Alex Customer\) reported:/)).toBeVisible();
+
+    // 6. Verify button text updates to "Regenerate Summary"
+    const regenerateButton = detailModal.getByRole("button", { name: "Regenerate Summary" });
+    await expect(regenerateButton).toBeVisible();
+
+    // 7. Add a reply to the conversation
+    const replyTextarea = detailModal.getByLabel("Reply message");
+    const replyText = `We checked payment logs and cleared the retry lock (${timestamp}).`;
+    await replyTextarea.fill(replyText);
+    await detailModal.getByRole("button", { name: "Send Reply" }).click();
+    await expect(detailModal.getByText("Reply sent successfully!")).toBeVisible();
+
+    // 8. Click Regenerate Summary to regenerate every time
+    await regenerateButton.click();
+
+    // 9. Verify the regenerated summary updates to reflect the new conversation message
+    await expect(detailModal.getByText("Conversation & Ticket Summary")).toBeVisible();
+    await expect(detailModal.getByText(/Conversation has 2 message/i)).toBeVisible();
+  });
 });
 

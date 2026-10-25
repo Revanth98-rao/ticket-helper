@@ -18,6 +18,8 @@
     "db:seed:tickets": "bun run --cwd server db:seed:tickets",
     "test:db:setup": "node ./scripts/setup-test-db.cjs",
     "test:db:teardown": "node ./scripts/teardown-test-db.cjs",
+    "test:unit": "bun test",
+    "test": "bun test",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui"
   },

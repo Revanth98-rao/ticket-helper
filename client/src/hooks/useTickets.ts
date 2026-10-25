@@ -231,3 +231,18 @@ export function usePolishReply() {
   });
 }
 
+export function useSummarizeTicket() {
+  return useMutation({
+    mutationFn: async (ticketId: string) => {
+      const response = await api.post<{
+        success: boolean;
+        summary: string;
+        model: string;
+        generatedAt: string;
+      }>(`/tickets/${ticketId}/summarize`);
+      return response.data;
+    },
+  });
+}
+
+

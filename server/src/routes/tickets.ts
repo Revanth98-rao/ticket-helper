@@ -11,6 +11,14 @@ import {
   polishReplySchema,
 } from "core/schemas/ticket";
 import { ingestInboundEmail } from "../services/email-ingestion.service";
+import {
+  formatCustomerGreetingName,
+  formatAgentSignature,
+  formatDeterministicFallback,
+  postProcessPolishedReply,
+  buildConversationTranscript,
+  formatDeterministicSummary,
+} from "../services/polish-formatter.service";
 
 export const ticketsRouter = Router();
 
@@ -437,28 +445,11 @@ ticketsRouter.post("/:id/polish", async (req: AuthenticatedRequest, res: Respons
 
     const { draftText, ticketSubject, customerMessage, customerName: inputCustomerName } = parseResult.data;
 
-    const agentName = req.user.name?.trim() || "Support Agent";
-    const signatureLines = agentName.toLowerCase().includes("revanth rao")
-      ? agentName
-      : `${agentName}\nRevanth Rao`;
-
-    // Determine the customer's display name to address them by name
-    let rawCustomerName = (
-      inputCustomerName ||
-      ticket.customerName ||
-      ""
-    ).trim();
-
-    if (!rawCustomerName && ticket.customerEmail) {
-      rawCustomerName = ticket.customerEmail.split("@")[0].trim();
-    }
-    if (rawCustomerName.includes("@")) {
-      rawCustomerName = rawCustomerName.split("@")[0].trim();
-    }
-    if (rawCustomerName && !rawCustomerName.includes(" ") && rawCustomerName === rawCustomerName.toLowerCase()) {
-      rawCustomerName = rawCustomerName.charAt(0).toUpperCase() + rawCustomerName.slice(1);
-    }
-    const customerGreetingName = rawCustomerName || "there";
+    const signatureLines = formatAgentSignature(req.user.name);
+    const customerGreetingName = formatCustomerGreetingName(
+      inputCustomerName || ticket.customerName,
+      ticket.customerEmail
+    );
 
     const hasGoogleKey = !!(process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GEMINI_API_KEY);
     const hasOpenAIKey = !!process.env.OPENAI_API_KEY;
@@ -466,13 +457,7 @@ ticketsRouter.post("/:id/polish", async (req: AuthenticatedRequest, res: Respons
 
     // In test environment or when neither API key is configured, return the deterministic fallback
     if (process.env.NODE_ENV === "test" || (!hasGoogleKey && !hasOpenAIKey)) {
-      const cleanDraft = draftText.trim();
-      const capitalized = cleanDraft.charAt(0).toUpperCase() + cleanDraft.slice(1);
-      const punctuated = /[.!?]$/.test(capitalized) ? capitalized : `${capitalized}.`;
-      const greetingLine = customerGreetingName !== "there"
-        ? `Hello ${customerGreetingName},`
-        : "Hello,";
-      const polishedText = `${greetingLine}\n\nThank you for reaching out to us. ${punctuated}\n\nPlease let us know if you need any further assistance.\n\nBest regards,\n${signatureLines}`;
+      const polishedText = formatDeterministicFallback(draftText, customerGreetingName, signatureLines);
       return res.json({
         success: true,
         polishedText,
@@ -521,31 +506,7 @@ ${draftText}
 Polished and Grammatically Verified Reply:`,
       });
 
-      let finalPolishedText = text.trim();
-
-      // Ensure customer is addressed by name in greeting
-      if (customerGreetingName && customerGreetingName !== "there") {
-        const firstName = customerGreetingName.split(" ")[0];
-        const hasCustomerName =
-          finalPolishedText.toLowerCase().includes(customerGreetingName.toLowerCase()) ||
-          (firstName && firstName.length > 1 && finalPolishedText.toLowerCase().includes(firstName.toLowerCase()));
-
-        if (!hasCustomerName) {
-          if (/^(?:Hello|Hi|Hey|Dear)(?:\s+there|\s+customer)?,?\s*/i.test(finalPolishedText)) {
-            finalPolishedText = finalPolishedText.replace(
-              /^(?:Hello|Hi|Hey|Dear)(?:\s+there|\s+customer)?,?\s*/i,
-              `Hello ${customerGreetingName},\n\n`
-            ).trim();
-          } else {
-            finalPolishedText = `Hello ${customerGreetingName},\n\n${finalPolishedText}`;
-          }
-        }
-      }
-
-      if (!finalPolishedText.includes("Revanth Rao")) {
-        finalPolishedText = finalPolishedText.replace(/\n*(?:Best regards|Warm regards|Sincerely|Thanks|Thank you|Regards),?[\s\S]*$/i, "").trim();
-        finalPolishedText = `${finalPolishedText}\n\nBest regards,\n${signatureLines}`;
-      }
+      const finalPolishedText = postProcessPolishedReply(text, customerGreetingName, signatureLines);
 
       return res.json({
         success: true,
@@ -564,6 +525,113 @@ Polished and Grammatically Verified Reply:`,
     return res.status(500).json({
       error: "Internal Server Error",
       message: error?.message || "Failed to polish reply",
+    });
+  }
+});
+
+/**
+ * POST /api/tickets/:id/summarize
+ * Generates or regenerates an AI summary of the ticket and entire conversation history.
+ */
+ticketsRouter.post("/:id/summarize", async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const ticket = await prisma.ticket.findFirst({
+      where: { id, deletedAt: null },
+      include: {
+        messages: {
+          orderBy: { createdAt: "asc" },
+        },
+      },
+    });
+
+    if (!ticket) {
+      return res.status(404).json({
+        error: "Not Found",
+        message: `Ticket with ID '${id}' not found`,
+      });
+    }
+
+    if (!req.user) {
+      return res.status(401).json({
+        error: "Unauthorized",
+        message: "Active user session required",
+      });
+    }
+
+    const conversationTranscript = buildConversationTranscript(ticket, ticket.messages);
+
+    const hasGoogleKey = !!(process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GEMINI_API_KEY);
+    const hasOpenAIKey = !!process.env.OPENAI_API_KEY;
+    const preferredProvider = process.env.AI_PROVIDER?.toLowerCase() || (hasGoogleKey ? "google" : "openai");
+
+    // In test environment or when neither API key is configured, return deterministic summary
+    if (process.env.NODE_ENV === "test" || (!hasGoogleKey && !hasOpenAIKey)) {
+      const summary = formatDeterministicSummary(ticket, ticket.messages);
+      return res.json({
+        success: true,
+        summary,
+        model: preferredProvider === "google" ? "gemini-3.5-flash-lite" : "gpt-5-nano",
+        generatedAt: new Date().toISOString(),
+      });
+    }
+
+    try {
+      const isGoogle = preferredProvider === "google" && hasGoogleKey;
+      let modelName = isGoogle
+        ? (process.env.GEMINI_POLISH_MODEL || "gemini-3.5-flash-lite")
+        : (process.env.OPENAI_POLISH_MODEL || "gpt-5-nano");
+
+      if (isGoogle && (modelName === "gemini-1.5-flash" || modelName === "gemini-2.5-flash")) {
+        modelName = "gemini-3.5-flash-lite";
+      }
+
+      const model = isGoogle ? google(modelName) : openai(modelName);
+
+      const { text } = await generateText({
+        model,
+        temperature: 0.2,
+        maxTokens: 500,
+        system: `You are an expert customer support analyst.
+Your task is to provide a concise, structured, and insightful summary of a support ticket and its entire conversation history.
+
+STRICT GUIDELINES:
+1. STRUCTURE:
+• Issue: A clear 1-2 sentence description of the customer's core problem or inquiry.
+• Key Details: Key facts, error messages, troubleshooting steps taken, or system details mentioned in the discussion.
+• Current Status & Next Steps: The latest resolution state, pending actions, or who is waiting on whom.
+2. FORMATTING: Use clean bullet points (• Issue:, • Key Details:, • Current Status:). Keep it concise and easy for any agent to read in 10 seconds. Do not wrap in markdown fences or include intro/outro chatter.
+3. OBJECTIVITY: Stick strictly to the facts present in the ticket and messages. Do not hallucinate.`,
+        prompt: `Ticket #${ticket.ticketNumber}: ${ticket.subject}
+Customer: ${ticket.customerName || ticket.customerEmail}
+Status: ${ticket.status}
+Priority: ${ticket.priority}
+
+Conversation History:
+${conversationTranscript}
+
+Structured Summary:`,
+      });
+
+      return res.json({
+        success: true,
+        summary: text.trim(),
+        model: modelName,
+        generatedAt: new Date().toISOString(),
+      });
+    } catch (aiError: any) {
+      console.error("[Tickets] AI Summarize generation error:", aiError);
+      return res.status(502).json({
+        error: "AI Service Error",
+        message: aiError?.message || "Failed to generate ticket summary with AI",
+      });
+    }
+  } catch (error: any) {
+    console.error(`[Tickets] Failed to summarize ticket ${req.params.id}:`, error);
+    return res.status(500).json({
+      error: "Internal Server Error",
+      message: error?.message || "Failed to summarize ticket",
     });
   }
 });

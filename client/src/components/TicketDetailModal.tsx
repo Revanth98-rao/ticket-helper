@@ -20,6 +20,7 @@ import {
   useAssignees,
   useReplyTicket,
   usePolishReply,
+  useSummarizeTicket,
 } from "../hooks/useTickets";
 import { useSession } from "../lib/auth-client";
 import { sanitizeHtml } from "../lib/sanitize";
@@ -75,12 +76,15 @@ export default function TicketDetailModal({
   const updateMutation = useUpdateTicket();
   const replyMutation = useReplyTicket();
   const polishMutation = usePolishReply();
+  const summarizeMutation = useSummarizeTicket();
 
   const [replyText, setReplyText] = useState("");
   const [replyStatus, setReplyStatus] = useState<TicketStatus>("in_progress");
   const [replyError, setReplyError] = useState<string | null>(null);
   const [replySuccess, setReplySuccess] = useState<boolean>(false);
   const [polishInfo, setPolishInfo] = useState<string | null>(null);
+  const [summary, setSummary] = useState<string | null>(null);
+  const [summaryError, setSummaryError] = useState<string | null>(null);
 
   const ticket = data?.ticket;
   const assignees = assigneesData?.assignees || [];
@@ -90,11 +94,13 @@ export default function TicketDetailModal({
   const replyMessages = messages.length > 1 ? messages.slice(1) : [];
 
   useEffect(() => {
-    // Reset reply form state whenever a new ticket is opened or switched
+    // Reset reply form state & summary whenever a new ticket is opened or switched
     setReplyText("");
     setReplyError(null);
     setReplySuccess(false);
     setPolishInfo(null);
+    setSummary(null);
+    setSummaryError(null);
   }, [ticketId]);
 
   useEffect(() => {
@@ -108,7 +114,24 @@ export default function TicketDetailModal({
     setReplyError(null);
     setReplySuccess(false);
     setPolishInfo(null);
+    setSummary(null);
+    setSummaryError(null);
     onClose();
+  };
+
+  const handleSummarize = async () => {
+    if (!ticket) return;
+    setSummaryError(null);
+    try {
+      const res = await summarizeMutation.mutateAsync(ticket.id);
+      if (res.summary) {
+        setSummary(res.summary);
+      }
+    } catch (err: any) {
+      setSummaryError(
+        err?.response?.data?.message || err?.message || "Failed to generate summary"
+      );
+    }
   };
 
   const handleStatusChange = (newStatus: TicketStatus) => {
@@ -349,6 +372,56 @@ export default function TicketDetailModal({
                     bodyText={initialMessage?.bodyText}
                     fallbackText={ticket.description}
                   />
+
+                  {/* Below the message: Summarize action & AI Summary display */}
+                  <div className="pt-2.5 border-t border-slate-100 flex flex-col gap-2.5">
+                    <div className="flex items-center justify-between">
+                      <button
+                        type="button"
+                        onClick={handleSummarize}
+                        disabled={summarizeMutation.isPending}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-lg transition-colors disabled:opacity-60 shadow-xs"
+                        title="Summarize ticket and conversation history"
+                      >
+                        {summarizeMutation.isPending ? (
+                          <>
+                            <Loader2 className="w-3.5 h-3.5 animate-spin text-indigo-600" />
+                            <span>Summarizing...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
+                            <span>{summary ? "Regenerate Summary" : "Summarize"}</span>
+                          </>
+                        )}
+                      </button>
+
+                      {summary && (
+                        <span className="text-[10px] text-slate-400 font-medium">
+                          AI Summary &bull; Updated just now
+                        </span>
+                      )}
+                    </div>
+
+                    {summaryError && (
+                      <div className="p-2.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
+                        <AlertCircle className="w-4 h-4 shrink-0" />
+                        <span>{summaryError}</span>
+                      </div>
+                    )}
+
+                    {summary && (
+                      <div className="p-3.5 bg-gradient-to-r from-indigo-50/70 to-slate-50 border border-indigo-200/70 rounded-xl text-xs text-slate-800 whitespace-pre-wrap leading-relaxed shadow-xs">
+                        <div className="flex items-center gap-1.5 text-[11px] font-bold text-indigo-900 mb-1.5">
+                          <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
+                          <span>Conversation & Ticket Summary</span>
+                        </div>
+                        <div className="text-slate-700 font-normal">
+                          {summary}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 

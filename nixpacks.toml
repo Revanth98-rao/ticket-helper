@@ -1,0 +1,16 @@
+# Nixpacks configuration for Railway deployment
+[phases.setup]
+nixPkgs = ["bun"]
+
+[phases.install]
+cmds = ["bun install"]
+
+[phases.build]
+cmds = [
+  "bun run db:generate",
+  "bun run build"
+]
+
+[start]
+cmd = "bun run db:migrate && bun run start"
+

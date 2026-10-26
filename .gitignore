@@ -1,4 +1,23 @@
-node_modules
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Environment files with sensitive credentials
+.env
+.env.*
+!.env.example
+!.env.production.example
+client/.env
+client/.env.*
+server/.env
+server/.env.*
+
+# Build artifacts
+dist/
+client/dist/
+server/dist/
+
+# Test and coverage reports
 test-results/
 playwright-report/
 e2e/test-results/
@@ -6,4 +25,7 @@ e2e/playwright-report/
 **/test-results/
 **/playwright-report/
 
-
+# Logs and temp
+*.log
+tmp/
+.DS_Store

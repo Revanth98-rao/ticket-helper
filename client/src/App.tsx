@@ -1,5 +1,5 @@
 import React from "react";
-import { Routes, Route, Link, useNavigate, useLocation } from "react-router-dom";
+import { Routes, Route, Link, useNavigate, useLocation, Navigate } from "react-router-dom";
 import {
   LifeBuoy,
   Inbox,
@@ -210,6 +210,7 @@ export default function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/admin/login" element={<Navigate to="/login" replace />} />
       <Route
         path="/users"
         element={

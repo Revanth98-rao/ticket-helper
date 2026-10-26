@@ -7,8 +7,8 @@
     "dev": "bun --watch src/index.ts",
     "build": "bun build src/index.ts --outdir ./dist --target node",
     "start": "bun dist/index.js",
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
+    "db:generate": "bun prisma generate --schema=prisma/schema.prisma",
+    "db:migrate": "bun prisma migrate deploy --schema=prisma/schema.prisma",
     "db:seed": "bun src/db/seed.ts",
     "db:seed:tickets": "bun src/db/seed-tickets.ts"
   },

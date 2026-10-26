@@ -11,16 +11,30 @@ export function getTrustedOrigins(): string[] {
   const envOrigins =
     process.env.BETTER_AUTH_TRUSTED_ORIGINS || process.env.CLIENT_URL;
 
-  if (!envOrigins) {
-    return ["http://localhost:5173"];
+  const origins: string[] = [];
+
+  if (envOrigins) {
+    origins.push(
+      ...envOrigins
+        .split(",")
+        .map((origin) => origin.trim())
+        .filter(Boolean)
+    );
   }
 
-  const list = envOrigins
-    .split(",")
-    .map((origin) => origin.trim())
-    .filter(Boolean);
+  // Support Railway domain environment variables automatically
+  if (process.env.RAILWAY_PUBLIC_DOMAIN) {
+    origins.push(`https://${process.env.RAILWAY_PUBLIC_DOMAIN}`);
+  }
+  if (process.env.RAILWAY_STATIC_URL) {
+    origins.push(`https://${process.env.RAILWAY_STATIC_URL}`);
+  }
 
-  return Array.from(new Set(list));
+  if (origins.length === 0) {
+    return ["http://localhost:5173", "http://localhost:5000"];
+  }
+
+  return Array.from(new Set(origins));
 }
 
 const secret = process.env.BETTER_AUTH_SECRET;
@@ -42,8 +56,14 @@ if (process.env.NODE_ENV === "production") {
   }
 }
 
+const resolvedBaseURL =
+  process.env.BETTER_AUTH_URL ||
+  (process.env.RAILWAY_PUBLIC_DOMAIN
+    ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
+    : "http://localhost:5000");
+
 export const auth = betterAuth({
-  baseURL: process.env.BETTER_AUTH_URL || "http://localhost:5000",
+  baseURL: resolvedBaseURL,
   secret:
     secret ||
     (process.env.NODE_ENV !== "production"

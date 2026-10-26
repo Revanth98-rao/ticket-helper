@@ -1,5 +1,7 @@
 import { Sentry } from "./instrument";
 import "dotenv/config";
+import path from "path";
+import fs from "fs";
 import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
@@ -11,8 +13,11 @@ import { ticketsRouter } from "./routes/tickets";
 import { startQueue, stopQueue, getQueueStatus } from "./services/queue.service";
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = Number(process.env.PORT) || 5000;
 const allowedOrigins = getTrustedOrigins();
+
+// Trust reverse proxy headers (Railway, Cloudflare, etc.)
+app.set("trust proxy", 1);
 
 // HTTP Security Response Headers
 app.use((_req: Request, res: Response, next: NextFunction) => {
@@ -62,23 +67,7 @@ app.use("/api/webhooks", webhooksRouter);
 // Ticket Management routes (Staff)
 app.use("/api/tickets", ticketsRouter);
 
-// Root endpoint
-app.get("/", (_req: Request, res: Response) => {
-  res.json({
-    message: "Ticket Helper API Server is running",
-    status: "ok",
-    docs: {
-      health: "/api/health",
-      auth: "/api/auth",
-      users: "/api/users",
-      tickets: "/api/tickets",
-      webhooks: "/api/webhooks/inbound-email",
-    },
-    clientUrl: process.env.CLIENT_URL || "http://localhost:5173",
-  });
-});
-
-// Health Check
+// Health Check (used by Railway deployment health checks)
 app.get("/api/health", (_req: Request, res: Response) => {
   res.json({
     status: "ok",
@@ -89,7 +78,54 @@ app.get("/api/health", (_req: Request, res: Response) => {
 });
 
 // Sentry debug route to test error logging
+app.get(["/debug-sentry", "/api/debug-sentry"], (_req: Request, _res: Response) => {
+  throw new Error("My first Sentry error!");
+});
 
+// Production Client Static Asset Serving (Unified Monolith on Railway)
+const candidateDistPaths = [
+  path.resolve(process.cwd(), "client/dist"),
+  path.resolve(process.cwd(), "../client/dist"),
+  path.resolve(__dirname, "../../client/dist"),
+  path.resolve(__dirname, "../client/dist"),
+];
+const clientDistPath = candidateDistPaths.find((p) => fs.existsSync(p));
+
+if (clientDistPath) {
+  // Serve built client static assets
+  app.use(express.static(clientDistPath));
+
+  // SPA fallback for all non-API GET requests
+  app.get("*", (req: Request, res: Response, next: NextFunction) => {
+    if (req.path.startsWith("/api") || req.path.startsWith("/debug-sentry")) {
+      return next();
+    }
+    const indexPath = path.join(clientDistPath, "index.html");
+    if (fs.existsSync(indexPath)) {
+      return res.sendFile(indexPath);
+    }
+    next();
+  });
+} else {
+  // Root endpoint info when client is not bundled/served
+  app.get("/", (_req: Request, res: Response) => {
+    res.json({
+      message: "Ticket Helper API Server is running",
+      status: "ok",
+      docs: {
+        health: "/api/health",
+        auth: "/api/auth",
+        users: "/api/users",
+        tickets: "/api/tickets",
+        webhooks: "/api/webhooks/inbound-email",
+      },
+      clientUrl: process.env.CLIENT_URL || "http://localhost:5173",
+    });
+  });
+}
+
+// Sentry Express error handler (must be registered before any custom error handler)
+Sentry.setupExpressErrorHandler(app);
 
 // Basic error handler
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
@@ -97,8 +133,8 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   res.status(500).json({ error: "Internal Server Error", message: err.message });
 });
 
-const server = app.listen(PORT, async () => {
-  console.log(`[Express + Bun Server] running on http://localhost:${PORT}`);
+const server = app.listen(PORT, "0.0.0.0", async () => {
+  console.log(`[Express + Bun Server] running on http://0.0.0.0:${PORT}`);
   try {
     await startQueue();
   } catch (err) {

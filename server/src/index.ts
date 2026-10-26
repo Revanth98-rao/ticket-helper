@@ -1,3 +1,4 @@
+import { Sentry } from "./instrument";
 import "dotenv/config";
 import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
@@ -86,6 +87,9 @@ app.get("/api/health", (_req: Request, res: Response) => {
     timestamp: new Date().toISOString(),
   });
 });
+
+// Sentry debug route to test error logging
+
 
 // Basic error handler
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {

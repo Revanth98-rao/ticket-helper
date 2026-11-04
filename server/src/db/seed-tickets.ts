@@ -1285,6 +1285,12 @@ async function seedTickets() {
     console.log(`[Seed] Found ${users.length} active users for ticket assignments.`);
     const agentUsers = users.filter((u) => u.role === "agent" || u.role === "admin");
 
+    const existingTicketCount = await prisma.ticket.count();
+    if (existingTicketCount > 0) {
+      console.log(`[Seed] Tickets already seeded (${existingTicketCount} existing). Skipping duplicate ticket seed.`);
+      return;
+    }
+
     const now = Date.now();
     let createdCount = 0;
 

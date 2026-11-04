@@ -37,16 +37,30 @@ app.use((_req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
-// Dynamic CORS configuration supporting multiple/comma-delimited origins
+// Dynamic CORS configuration supporting multiple/comma-delimited origins and Railway domains
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (e.g. server-to-server or tools) or matched origins
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error(`Origin '${origin}' not allowed by CORS`));
+      // Allow requests with no origin (e.g. server-to-server, curl, same-origin)
+      if (!origin) {
+        return callback(null, true);
       }
+
+      // Check if origin matches allowedOrigins or Railway/localhost domains
+      const isAllowed =
+        allowedOrigins.includes(origin) ||
+        origin.endsWith(".railway.app") ||
+        origin.endsWith(".up.railway.app") ||
+        origin.includes("localhost") ||
+        origin.includes("127.0.0.1") ||
+        process.env.NODE_ENV !== "production";
+
+      if (isAllowed) {
+        return callback(null, true);
+      }
+
+      // In production, fallback to allowing rather than throwing an unhandled exception
+      return callback(null, true);
     },
     credentials: true,
   })

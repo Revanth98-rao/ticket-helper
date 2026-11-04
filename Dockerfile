@@ -45,5 +45,5 @@ EXPOSE 5000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
   CMD curl -f http://localhost:5000/api/health || exit 1
 
-# Run database migrations and start Express server
-CMD ["sh", "-c", "bun run db:migrate && bun run start"]
+# Run database migrations, auto-seed admin account, and start Express server
+CMD ["sh", "-c", "bun run db:migrate && bun run db:seed && bun run start"]

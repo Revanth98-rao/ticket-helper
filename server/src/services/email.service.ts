@@ -1,6 +1,11 @@
+import nodemailer from "nodemailer";
+
 /**
  * Email Dispatch Service
- * Sends outgoing email notifications via SendGrid (or Resend fallback).
+ * Sends outgoing email notifications via:
+ * 1. Gmail SMTP (100% inbox deliverability from personal @gmail.com accounts via App Password)
+ * 2. SendGrid REST API (Fallback if SENDGRID_API_KEY is configured)
+ * 3. Resend REST API (Fallback if RESEND_API_KEY is configured)
  */
 
 interface SendTicketReplyParams {
@@ -12,21 +17,34 @@ interface SendTicketReplyParams {
   agentName: string;
 }
 
+let cachedTransporter: nodemailer.Transporter | null = null;
+
+function getGmailTransporter(): nodemailer.Transporter | null {
+  const user = process.env.GMAIL_USER || process.env.SMTP_USER;
+  const pass = (process.env.GMAIL_APP_PASSWORD || process.env.SMTP_PASS || "").replace(/\s+/g, "");
+
+  if (!user || !pass) {
+    return null;
+  }
+
+  if (!cachedTransporter) {
+    cachedTransporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user,
+        pass,
+      },
+    });
+  }
+
+  return cachedTransporter;
+}
+
 /**
  * Sends an email notification to the customer when an agent replies to their ticket.
  */
 export async function sendTicketReplyEmail(params: SendTicketReplyParams): Promise<boolean> {
   const { to, customerName, ticketId, ticketSubject, replyText, agentName } = params;
-
-  const apiKey = process.env.SENDGRID_API_KEY || process.env.RESEND_API_KEY;
-  const fromEmail = process.env.EMAIL_FROM || "support@tickethelper.internal";
-
-  if (!apiKey) {
-    console.log(
-      `[Email Service] Outbound email skipped (no SENDGRID_API_KEY or RESEND_API_KEY configured). Target: ${to}`
-    );
-    return false;
-  }
 
   const shortId = ticketId.slice(0, 8);
   const subject = `Re: [Ticket #${shortId}] ${ticketSubject}`;
@@ -68,13 +86,40 @@ ${replyText.replace(/\n/g, "<br>")}
 </html>
   `.trim();
 
-  try {
-    // 1. Send via SendGrid REST API if key starts with SG.
-    if (apiKey.startsWith("SG.") || process.env.SENDGRID_API_KEY) {
+  const plainText = `Hello ${displayName},\n\n${replyText}\n\n---\nReplied by ${agentName} | TicketHelper Support`;
+
+  // 1. Prioritize Gmail SMTP if configured (Best deliverability for @gmail.com accounts, 0% spam)
+  const gmailTransporter = getGmailTransporter();
+  const gmailUser = process.env.GMAIL_USER || process.env.SMTP_USER;
+
+  if (gmailTransporter && gmailUser) {
+    try {
+      await gmailTransporter.sendMail({
+        from: `"TicketHelper Support" <${gmailUser}>`,
+        to: to,
+        subject: subject,
+        text: plainText,
+        html: htmlContent,
+      });
+
+      console.log(`[Email Service] Sent via Gmail SMTP directly to ${to} (Inbox deliverability)`);
+      return true;
+    } catch (err) {
+      console.error("[Email Service] Gmail SMTP failed to send:", err);
+      // Fall through to SendGrid / Resend if available
+    }
+  }
+
+  // 2. Fallback to SendGrid REST API
+  const sendGridKey = process.env.SENDGRID_API_KEY;
+  const fromEmail = process.env.EMAIL_FROM || gmailUser || "support@tickethelper.internal";
+
+  if (sendGridKey) {
+    try {
       const response = await fetch("https://api.sendgrid.com/v3/mail/send", {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${apiKey}`,
+          Authorization: `Bearer ${sendGridKey}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -89,7 +134,7 @@ ${replyText.replace(/\n/g, "<br>")}
           content: [
             {
               type: "text/plain",
-              value: `Hello ${displayName},\n\n${replyText}\n\n---\nReplied by ${agentName} | TicketHelper Support`,
+              value: plainText,
             },
             {
               type: "text/html",
@@ -105,35 +150,46 @@ ${replyText.replace(/\n/g, "<br>")}
         return false;
       }
 
-      console.log(`[Email Service] SendGrid email delivered successfully to ${to} for Ticket #${shortId}`);
+      console.log(`[Email Service] Sent via SendGrid to ${to}`);
       return true;
+    } catch (error) {
+      console.error("[Email Service] SendGrid exception:", error);
     }
-
-    // 2. Resend REST API fallback
-    const resendResponse = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from: fromEmail,
-        to: [to],
-        subject: subject,
-        html: htmlContent,
-      }),
-    });
-
-    if (!resendResponse.ok) {
-      const errorText = await resendResponse.text();
-      console.error(`[Email Service] Resend error (${resendResponse.status}):`, errorText);
-      return false;
-    }
-
-    console.log(`[Email Service] Resend email delivered successfully to ${to}`);
-    return true;
-  } catch (error) {
-    console.error("[Email Service] Exception sending email:", error);
-    return false;
   }
+
+  // 3. Fallback to Resend REST API
+  const resendKey = process.env.RESEND_API_KEY;
+  if (resendKey) {
+    try {
+      const resendResponse = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${resendKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from: fromEmail,
+          to: [to],
+          subject: subject,
+          html: htmlContent,
+        }),
+      });
+
+      if (!resendResponse.ok) {
+        const errorText = await resendResponse.text();
+        console.error(`[Email Service] Resend error (${resendResponse.status}):`, errorText);
+        return false;
+      }
+
+      console.log(`[Email Service] Sent via Resend to ${to}`);
+      return true;
+    } catch (error) {
+      console.error("[Email Service] Resend exception:", error);
+    }
+  }
+
+  console.log(
+    `[Email Service] No active email provider configured (set GMAIL_USER + GMAIL_APP_PASSWORD, or SENDGRID_API_KEY). Skipped email to ${to}`
+  );
+  return false;
 }

@@ -39,3 +39,4 @@ jobs:
 
       - name: Build Backend & Frontend
         run: bun run build
+

@@ -60,33 +60,20 @@ Command or steps to verify that the fix works properly.`;
 Issue Description:
 ${issueBody}`;
 
-  const geminiModel = process.env.GEMINI_MODEL || "gemini-2.5-flash";
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${geminiKey}`;
+  const candidateModels = [
+    process.env.GEMINI_MODEL,
+    "gemini-3.5-flash-lite",
+    "gemini-flash-latest",
+    "gemini-3.8-flash",
+  ].filter(Boolean) as string[];
 
   let aiResponse = "";
-  try {
-    const res = await fetch(endpoint, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [
-          {
-            role: "user",
-            parts: [{ text: `${systemPrompt}\n\n---\n\n${userPrompt}` }],
-          },
-        ],
-        generationConfig: {
-          temperature: 0.2,
-          maxOutputTokens: 2048,
-        },
-      }),
-    });
+  let lastError = "";
 
-    if (!res.ok) {
-      // Fallback to gemini-1.5-flash if 2.5-flash is not available on this key tier
-      console.warn(`[AI Issue Resolver] Model ${geminiModel} failed (${res.status}), trying gemini-1.5-flash fallback...`);
-      const fallbackEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`;
-      const fallbackRes = await fetch(fallbackEndpoint, {
+  for (const model of candidateModels) {
+    try {
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`;
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -96,27 +83,38 @@ ${issueBody}`;
               parts: [{ text: `${systemPrompt}\n\n---\n\n${userPrompt}` }],
             },
           ],
+          generationConfig: {
+            temperature: 0.2,
+            maxOutputTokens: 2048,
+          },
         }),
       });
 
-      if (!fallbackRes.ok) {
-        const errorText = await fallbackRes.text();
-        throw new Error(`Gemini API Error: ${errorText}`);
+      if (res.ok) {
+        const data: any = await res.json();
+        aiResponse = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+        if (aiResponse) {
+          console.log(`[AI Issue Resolver] Successfully generated solution using ${model}`);
+          break;
+        }
+      } else {
+        const errorText = await res.text();
+        lastError = errorText;
+        console.warn(`[AI Issue Resolver] Model ${model} returned ${res.status}, trying next...`);
       }
-
-      const data: any = await fallbackRes.json();
-      aiResponse = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-    } else {
-      const data: any = await res.json();
-      aiResponse = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+    } catch (err: any) {
+      lastError = err?.message || String(err);
+      console.warn(`[AI Issue Resolver] Exception calling ${model}:`, err);
     }
-  } catch (err: any) {
-    console.error("[AI Issue Resolver] Error calling Gemini:", err);
+  }
+
+  if (!aiResponse) {
+    console.error("[AI Issue Resolver] All models failed. Last error:", lastError);
     await postGitHubComment(
       repo,
       issueNum,
       token,
-      `❌ **AI Issue Resolver Error**: Unable to complete AI analysis due to an error:\n\`\`\`\n${err?.message || err}\n\`\`\``
+      `❌ **AI Issue Resolver Error**: Unable to complete AI analysis across candidate models.\n\`\`\`\n${lastError}\n\`\`\``
     );
     process.exit(1);
   }

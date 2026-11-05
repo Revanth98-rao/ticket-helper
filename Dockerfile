@@ -3,7 +3,7 @@ FROM oven/bun:1 AS builder
 WORKDIR /app
 
 # Copy root workspace definitions
-COPY package.json bun.lock ./
+COPY package.json bun.lock* ./
 COPY core/package.json ./core/
 COPY server/package.json ./server/
 COPY client/package.json ./client/
@@ -41,9 +41,10 @@ COPY --from=builder /app/client/dist ./client/dist
 
 EXPOSE 5000
 
-# Health check using the Express /api/health endpoint
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-  CMD curl -f http://localhost:5000/api/health || exit 1
+# Health check using dynamic PORT (supports both Railway-assigned and default ports)
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+  CMD curl -f http://localhost:${PORT:-5000}/api/health || exit 1
 
-# Run database migrations, auto-seed admin account, and start Express server
-CMD ["sh", "-c", "bun run db:migrate && bun run db:seed && bun run start"]
+# Execute database migration, admin seed, ticket seed, and start unified Express server
+CMD ["sh", "-c", "bun run start"]
+

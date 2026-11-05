@@ -1,0 +1,41 @@
+name: CI / Automated Verification
+
+on:
+  push:
+    branches:
+      - master
+      - main
+  pull_request:
+    branches:
+      - master
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Test & Build Verification
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun Runtime
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install Workspace Dependencies
+        run: bun install
+
+      - name: Generate Prisma Client
+        run: bun run db:generate
+
+      - name: Run Test Suite (81 Unit & Integration Tests)
+        run: bun test
+
+      - name: Build Backend & Frontend
+        run: bun run build

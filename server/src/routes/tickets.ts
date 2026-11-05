@@ -21,6 +21,7 @@ import {
 } from "../services/polish-formatter.service";
 import { classifyTicketAsync } from "../services/ticket-classification.service";
 import { enqueueTicketClassification } from "../services/queue.service";
+import { sendTicketReplyEmail } from "../services/email.service";
 
 export const ticketsRouter = Router();
 
@@ -536,6 +537,18 @@ ticketsRouter.post("/:id/reply", async (req: AuthenticatedRequest, res: Response
 
       return { reply, updatedTicket };
     });
+
+    // Send email to customer asynchronously via SendGrid if configured
+    if (ticket.customerEmail) {
+      sendTicketReplyEmail({
+        to: ticket.customerEmail,
+        customerName: ticket.customerName,
+        ticketId: ticket.id,
+        ticketSubject: ticket.subject,
+        replyText: bodyText,
+        agentName: senderName,
+      }).catch((err) => console.error("[Email Service] Asynchronous send error:", err));
+    }
 
     return res.status(201).json({
       success: true,

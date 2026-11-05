@@ -29,7 +29,15 @@ export function getTrustedOrigins(): string[] {
     origins.push(
       ...envOrigins
         .split(",")
-        .map((origin) => origin.trim().replace(/\/+$/, ""))
+        .map((origin) => {
+          const cleaned = origin.trim().replace(/\/+$/, "");
+          if (!cleaned) return [];
+          if (!cleaned.startsWith("http://") && !cleaned.startsWith("https://") && !cleaned.startsWith("*")) {
+            return [`https://${cleaned}`, `http://${cleaned}`];
+          }
+          return [cleaned];
+        })
+        .flat()
         .filter(Boolean)
     );
   }
@@ -60,11 +68,29 @@ if (
   );
 }
 
-const resolvedBaseURL =
+/**
+ * Normalizes a base URL to ensure it has a valid protocol (http:// or https://).
+ * Handles bare domains like "ticket-helper-production.up.railway.app".
+ */
+export function formatBaseUrl(rawUrl?: string): string {
+  if (!rawUrl || rawUrl.trim() === "") {
+    return process.env.RAILWAY_PUBLIC_DOMAIN
+      ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN.trim().replace(/\/+$/, "")}`
+      : "http://localhost:5000";
+  }
+  let cleaned = rawUrl.trim().replace(/\/+$/, "");
+  if (!cleaned.startsWith("http://") && !cleaned.startsWith("https://")) {
+    cleaned = `https://${cleaned}`;
+  }
+  return cleaned;
+}
+
+const resolvedBaseURL = formatBaseUrl(
   process.env.BETTER_AUTH_URL ||
-  (process.env.RAILWAY_PUBLIC_DOMAIN
-    ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN.trim().replace(/\/+$/, "")}`
-    : "http://localhost:5000");
+    (process.env.RAILWAY_PUBLIC_DOMAIN
+      ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN.trim().replace(/\/+$/, "")}`
+      : undefined)
+);
 
 export const auth = betterAuth({
   baseURL: resolvedBaseURL,

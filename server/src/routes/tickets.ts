@@ -1,7 +1,7 @@
 import { Router, Response } from "express";
 import { generateText } from "ai";
 import { openai } from "@ai-sdk/openai";
-import { google } from "@ai-sdk/google";
+import { google, createGoogleGenerativeAI } from "@ai-sdk/google";
 import { prisma } from "../db";
 import { requireAuth, AuthenticatedRequest } from "../middleware/auth";
 import {
@@ -633,7 +633,11 @@ ticketsRouter.post("/:id/polish", async (req: AuthenticatedRequest, res: Respons
         modelName = "gemini-3.5-flash-lite";
       }
 
-      const model = isGoogle ? google(modelName) : openai(modelName);
+      const googleProvider = createGoogleGenerativeAI({
+        apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GEMINI_API_KEY,
+      });
+
+      const model = isGoogle ? googleProvider(modelName) : openai(modelName);
 
       const { text } = await generateText({
         model,
@@ -671,10 +675,18 @@ Polished and Grammatically Verified Reply:`,
         model: modelName,
       });
     } catch (aiError: any) {
-      console.error("[Tickets] AI Polish generation error:", aiError);
-      return res.status(502).json({
-        error: "AI Service Error",
-        message: aiError?.message || "Failed to generate polished reply with AI",
+      console.warn("[Tickets] AI Polish generation error:", aiError?.message || aiError);
+      // Gracefully fall back to deterministic formatting so the button never breaks
+      const fallbackPolishedText = formatDeterministicFallback(
+        draftText,
+        customerGreetingName,
+        signatureLines
+      );
+      return res.json({
+        success: true,
+        polishedText: fallbackPolishedText,
+        model: "deterministic-fallback",
+        warning: aiError?.message,
       });
     }
   } catch (error: any) {
@@ -744,7 +756,11 @@ ticketsRouter.post("/:id/summarize", async (req: AuthenticatedRequest, res: Resp
         modelName = "gemini-3.5-flash-lite";
       }
 
-      const model = isGoogle ? google(modelName) : openai(modelName);
+      const googleProvider = createGoogleGenerativeAI({
+        apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GEMINI_API_KEY,
+      });
+
+      const model = isGoogle ? googleProvider(modelName) : openai(modelName);
 
       const { text } = await generateText({
         model,
@@ -778,10 +794,13 @@ Structured Summary:`,
         generatedAt: new Date().toISOString(),
       });
     } catch (aiError: any) {
-      console.error("[Tickets] AI Summarize generation error:", aiError);
-      return res.status(502).json({
-        error: "AI Service Error",
-        message: aiError?.message || "Failed to generate ticket summary with AI",
+      console.warn("[Tickets] AI Summarize generation error:", aiError?.message || aiError);
+      const fallbackSummary = formatDeterministicSummary(ticket, ticket.messages);
+      return res.json({
+        success: true,
+        summary: fallbackSummary,
+        model: "deterministic-fallback",
+        generatedAt: new Date().toISOString(),
       });
     }
   } catch (error: any) {

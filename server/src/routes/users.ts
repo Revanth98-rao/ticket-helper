@@ -16,6 +16,21 @@ usersRouter.use(requireAuth);
 usersRouter.use(requireRole(["admin"]));
 
 /**
+ * Check if the authenticated user is a demo account.
+ * Demo accounts have read-only access to /users to inspect the team and metrics,
+ * but cannot create, modify, or delete accounts.
+ */
+function isRestrictedDemoUser(reqUser?: { email?: string | null }): boolean {
+  if (!reqUser?.email) return true;
+  const email = reqUser.email.toLowerCase().trim();
+  return (
+    email.startsWith("demo") ||
+    email.includes("demo-admin") ||
+    email.includes("demo-agent")
+  );
+}
+
+/**
  * GET /api/users
  * Returns a list of users with optional filtering by role and search query.
  * Accessible strictly to Admins.
@@ -125,6 +140,13 @@ usersRouter.get("/:id", async (req: AuthenticatedRequest, res: Response) => {
  */
 usersRouter.post("/", async (req: AuthenticatedRequest, res: Response) => {
   try {
+    if (isRestrictedDemoUser(req.user)) {
+      return res.status(403).json({
+        error: "Forbidden in Demo Mode",
+        message: "Creating new users is restricted to the workspace owner. Demo accounts have read-only access to user management.",
+      });
+    }
+
     const parsedBody = createUserSchema.safeParse(req.body);
     if (!parsedBody.success) {
       return res.status(400).json({ error: parsedBody.error.issues[0].message });
@@ -198,6 +220,13 @@ import { editUserSchema } from "core/schemas/user";
  */
 usersRouter.patch("/:id", async (req: AuthenticatedRequest, res: Response) => {
   try {
+    if (isRestrictedDemoUser(req.user)) {
+      return res.status(403).json({
+        error: "Forbidden in Demo Mode",
+        message: "Modifying user accounts is restricted to the workspace owner. Demo accounts have read-only access to user management.",
+      });
+    }
+
     const { id } = req.params;
     
     // 1. Verify user exists
@@ -295,6 +324,13 @@ usersRouter.patch("/:id", async (req: AuthenticatedRequest, res: Response) => {
  */
 usersRouter.delete("/:id", async (req: AuthenticatedRequest, res: Response) => {
   try {
+    if (isRestrictedDemoUser(req.user)) {
+      return res.status(403).json({
+        error: "Forbidden in Demo Mode",
+        message: "Deleting users is restricted to the workspace owner. Demo accounts have read-only access to user management.",
+      });
+    }
+
     const { id } = req.params;
 
     const user = await prisma.user.findFirst({

@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { LifeBuoy, Lock, Mail, AlertCircle, Loader2 } from "lucide-react";
+import { LifeBuoy, Lock, Mail, AlertCircle, Loader2, Shield } from "lucide-react";
 import { signIn, useSession } from "../lib/auth-client";
 
 // Zod schema for login form validation
@@ -26,6 +26,7 @@ export default function Login() {
   const from = (location.state as any)?.from?.pathname || "/";
   const { data: session, isPending: isSessionLoading } = useSession();
   const [serverError, setServerError] = useState<string | null>(null);
+  const [quickLoginRole, setQuickLoginRole] = useState<string | null>(null);
 
   const {
     register,
@@ -63,6 +64,28 @@ export default function Login() {
       }
     } catch (err: any) {
       setServerError(err?.message || "Failed to connect to authentication server");
+    }
+  };
+
+  const handleQuickLogin = async (email: string, password: string, roleName: string) => {
+    setServerError(null);
+    setQuickLoginRole(roleName);
+
+    try {
+      const res = await signIn.email({
+        email,
+        password,
+      });
+
+      if (res.error) {
+        setServerError(res.error.message || `Failed to sign in as ${roleName}`);
+      } else {
+        navigate(from, { replace: true });
+      }
+    } catch (err: any) {
+      setServerError(err?.message || "Failed to connect to authentication server");
+    } finally {
+      setQuickLoginRole(null);
     }
   };
 
@@ -176,7 +199,7 @@ export default function Login() {
 
           <button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isSubmitting || !!quickLoginRole}
             className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-sm rounded-lg shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSubmitting ? (
@@ -190,10 +213,83 @@ export default function Login() {
           </button>
         </form>
 
-        <div className="mt-6 pt-6 border-t border-slate-800/80 text-center">
+        {/* Recruiter / Quick Demo Access */}
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-slate-800" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-slate-900 px-3 text-slate-400 font-medium">
+              Recruiter & Portfolio Demo
+            </span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+          <button
+            type="button"
+            onClick={() =>
+              handleQuickLogin(
+                "demo-admin@tickethelper.internal",
+                "demopassword123",
+                "Demo Admin"
+              )
+            }
+            disabled={isSubmitting || !!quickLoginRole}
+            className="p-3.5 rounded-xl border border-indigo-500/30 bg-indigo-500/10 hover:bg-indigo-500/20 text-left transition-all disabled:opacity-50 disabled:cursor-not-allowed group cursor-pointer"
+          >
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-xs font-semibold text-indigo-300 flex items-center gap-1.5">
+                <Shield className="w-3.5 h-3.5 text-indigo-400" />
+                Demo Admin
+              </span>
+              {quickLoginRole === "Demo Admin" ? (
+                <Loader2 className="w-3.5 h-3.5 text-indigo-400 animate-spin" />
+              ) : (
+                <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300">
+                  1-Click
+                </span>
+              )}
+            </div>
+            <p className="text-[11px] text-slate-400 leading-snug">
+              Tickets, AI Assistant & User List (Protected Read-Only)
+            </p>
+          </button>
+
+          <button
+            type="button"
+            onClick={() =>
+              handleQuickLogin(
+                "demo-agent@tickethelper.internal",
+                "demopassword123",
+                "Demo Agent"
+              )
+            }
+            disabled={isSubmitting || !!quickLoginRole}
+            className="p-3.5 rounded-xl border border-slate-700 bg-slate-800/60 hover:bg-slate-800 text-left transition-all disabled:opacity-50 disabled:cursor-not-allowed group cursor-pointer"
+          >
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-xs font-semibold text-slate-200 flex items-center gap-1.5">
+                <LifeBuoy className="w-3.5 h-3.5 text-slate-400" />
+                Demo Agent
+              </span>
+              {quickLoginRole === "Demo Agent" ? (
+                <Loader2 className="w-3.5 h-3.5 text-slate-300 animate-spin" />
+              ) : (
+                <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-slate-700 text-slate-300">
+                  1-Click
+                </span>
+              )}
+            </div>
+            <p className="text-[11px] text-slate-400 leading-snug">
+              Ticket inbox, draft AI replies & knowledge base
+            </p>
+          </button>
+        </div>
+
+        <div className="mt-6 pt-5 border-t border-slate-800/80 text-center">
           <p className="text-xs text-slate-500">
-            Internal access only. Account creation is managed by your
-            administrator.
+            Internal access. Workspace owner logs in via the form above.
           </p>
         </div>
       </div>

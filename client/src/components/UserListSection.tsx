@@ -15,6 +15,7 @@ import {
   Pencil,
   UserPlus,
   Trash2,
+  ShieldAlert,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -51,6 +52,12 @@ export default function UserListSection({
   standalone = false,
 }: UserListSectionProps) {
   const { data: session } = useSession();
+  const userEmail = session?.user?.email?.toLowerCase().trim() || "";
+  const isDemoUser =
+    userEmail.startsWith("demo") ||
+    userEmail.includes("demo-admin") ||
+    userEmail.includes("demo-agent");
+
   const [users, setUsers] = useState<UserItem[]>([]);
   const [counts, setCounts] = useState({ total: 0, admin: 0, agent: 0 });
   const [isLoading, setIsLoading] = useState(true);
@@ -65,12 +72,14 @@ export default function UserListSection({
   const [selectedUser, setSelectedUser] = useState<UserItem | null>(null);
 
   const handleCreateUser = () => {
+    if (isDemoUser) return;
     setSelectedUser(null);
     setFormModalMode("create");
     setIsFormModalOpen(true);
   };
 
   const handleEditUser = (user: UserItem) => {
+    if (isDemoUser) return;
     setSelectedUser(user);
     setFormModalMode("edit");
     setIsFormModalOpen(true);
@@ -80,6 +89,7 @@ export default function UserListSection({
   const [userToDelete, setUserToDelete] = useState<UserItem | null>(null);
 
   const handleDeleteUser = (user: UserItem) => {
+    if (isDemoUser) return;
     setUserToDelete(user);
     setIsDeleteModalOpen(true);
   };
@@ -229,6 +239,24 @@ export default function UserListSection({
             : "space-y-6"
         }
       >
+        {/* Demo Mode Notice */}
+        {isDemoUser && (
+          <div className="p-4 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-900 dark:text-amber-200 flex items-start sm:items-center justify-between gap-3 shadow-sm">
+            <div className="flex items-center gap-3">
+              <ShieldAlert className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0" />
+              <div>
+                <p className="text-sm font-semibold">Demo Mode: Read-Only User Management</p>
+                <p className="text-xs text-amber-700 dark:text-amber-300">
+                  You are exploring as a Demo Administrator. You can view the user directory, search, and audit roles. Creating, editing, and deleting users is restricted to the workspace owner.
+                </p>
+              </div>
+            </div>
+            <span className="text-[11px] font-semibold px-2.5 py-1 bg-amber-500/20 text-amber-700 dark:text-amber-300 rounded-md border border-amber-500/30 shrink-0">
+              Visitor Demo
+            </span>
+          </div>
+        )}
+
         {/* Header Controls */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
@@ -268,14 +296,26 @@ export default function UserListSection({
               Refresh
             </Button>
 
-            <Button
-              size="sm"
-              onClick={handleCreateUser}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm"
-            >
-              <UserPlus className="w-3.5 h-3.5 mr-2" />
-              Create User
-            </Button>
+            {isDemoUser ? (
+              <Button
+                size="sm"
+                disabled
+                className="bg-slate-200 text-slate-400 dark:bg-slate-800 dark:text-slate-500 cursor-not-allowed opacity-75 shadow-none"
+                title="Creating new users is disabled in demo mode"
+              >
+                <UserPlus className="w-3.5 h-3.5 mr-2" />
+                Create User (Disabled in Demo)
+              </Button>
+            ) : (
+              <Button
+                size="sm"
+                onClick={handleCreateUser}
+                className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm"
+              >
+                <UserPlus className="w-3.5 h-3.5 mr-2" />
+                Create User
+              </Button>
+            )}
           </div>
         </div>
 
@@ -605,20 +645,33 @@ export default function UserListSection({
                         {/* Actions */}
                         <td className="py-4 px-6 whitespace-nowrap text-right text-xs">
                           <div className="flex items-center justify-end gap-1">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleEditUser(user)}
-                              className={`h-8 w-8 p-0 ${
-                                standalone
-                                  ? "text-slate-400 hover:text-white hover:bg-slate-800"
-                                  : "text-slate-500 hover:text-slate-900 hover:bg-slate-100"
-                              }`}
-                              aria-label="Edit user"
-                              title="Edit user"
-                            >
-                              <Pencil className="w-4 h-4" />
-                            </Button>
+                            {isDemoUser ? (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                disabled
+                                className="h-8 w-8 p-0 text-slate-300 dark:text-slate-700 opacity-30 cursor-not-allowed"
+                                aria-label="Editing disabled in demo mode"
+                                title="Editing users is disabled in demo mode"
+                              >
+                                <Pencil className="w-4 h-4" />
+                              </Button>
+                            ) : (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleEditUser(user)}
+                                className={`h-8 w-8 p-0 ${
+                                  standalone
+                                    ? "text-slate-400 hover:text-white hover:bg-slate-800"
+                                    : "text-slate-500 hover:text-slate-900 hover:bg-slate-100"
+                                }`}
+                                aria-label="Edit user"
+                                title="Edit user"
+                              >
+                                <Pencil className="w-4 h-4" />
+                              </Button>
+                            )}
 
                             {isAdmin ? (
                               <Button
@@ -628,6 +681,17 @@ export default function UserListSection({
                                 className="h-8 w-8 p-0 text-slate-300 dark:text-slate-700 opacity-30 cursor-not-allowed"
                                 aria-label="Admin cannot be deleted"
                                 title="Admin users cannot be deleted"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            ) : isDemoUser ? (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                disabled
+                                className="h-8 w-8 p-0 text-slate-300 dark:text-slate-700 opacity-30 cursor-not-allowed"
+                                aria-label="Deleting disabled in demo mode"
+                                title="Deleting users is disabled in demo mode"
                               >
                                 <Trash2 className="w-4 h-4" />
                               </Button>
